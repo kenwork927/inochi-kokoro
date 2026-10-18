@@ -116,6 +116,14 @@ th{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em}
 .dict small{color:var(--muted)}
 .foot{font-size:12px;color:var(--muted);margin-top:8px}
 .status{font-size:12px;color:var(--muted)}
+.ptable{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.prow .ph{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px}
+.pd{font-size:12px;font-weight:700;border-radius:4px;padding:0 7px;font-variant-numeric:tabular-nums}.pd.up{color:var(--accent);border:1px solid var(--accent)}.pd.down{color:var(--seal);border:1px solid var(--seal)}.pd.flat{color:var(--muted);border:1px solid var(--line)}
+.pl{display:grid;grid-template-columns:2.4em 1fr 1.8em;gap:8px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
+.pt{position:relative;height:10px;background:var(--paper);border-radius:2px}
+.pb{position:absolute;inset:0 auto 0 0;border-radius:0 4px 4px 0}.pb.pre{background:transparent;border:2px solid var(--muted);box-sizing:border-box}.pb.now{background:var(--accent)}
+.pv{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);font-weight:700}
+.psum{margin-top:16px;display:flex;flex-direction:column;gap:10px}.psum p{margin:0;font-size:15px;line-height:1.8}
 .scale-legend{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;max-width:360px;font-size:10px;color:var(--muted);text-align:center;line-height:1.3;margin-top:8px}
 .integ{margin:6px 0 0;font-size:14px;line-height:1.75}.integ b{font-size:12px;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:0 6px;margin-right:6px}
 .integ-sum{margin:0 0 14px;font-size:15px;line-height:1.8;padding:10px 12px;background:var(--accent-soft);border-radius:8px}
@@ -971,14 +979,31 @@ function integLine(c,i,pm,ms){const lp=lvl(pm),lm=lvl(ms);const hi=B5_HI[i],lo=B
   if(lp&&!lm)return `<b>潜在</b> 命式では「${lp>0?hi:lo}」の素質(${b5Sources(c,i,lp).join("・")})がありますが、テストでは中くらい。場面によって出たり出なかったりする部分です。`;
   return `<b>中間</b> 命式でもテストでも極端に偏らない、バランスの取れた面です。`;}
 function integHTML(c,pred,meas){
-  const rows=B5.map((n,i)=>{const pm=pred[i],ms=meas[i];const sum=Math.round(ms*2);
-    return `<div class="b5r"><div class="b5h"><b>${n}</b><span class="b5v">${sum}点 / 2〜14</span></div>
-      <div class="b5t"><span class="pm" style="left:${(pm-1)/6*100}%"></span><span class="ms" style="left:${(ms-1)/6*100}%"></span></div>
-      <div class="b5l"><span>${B5_LO[i]}</span><span>${B5_HI[i]}</span></div><p class="integ">${integLine(c,i,pm,ms)}</p></div>`;}).join("");
-  const ag=B5.filter((_,i)=>lvl(pred[i])&&lvl(pred[i])===lvl(meas[i])),df=B5.filter((_,i)=>lvl(pred[i])&&lvl(meas[i])&&lvl(pred[i])!==lvl(meas[i]));
-  const sum=ag.length?`${ag.join("・")}は、命式とテストが同じ答えを出しました。ここがあなたらしさの核です。${df.length?`一方で${df.join("・")}は逆に出ていて、生まれ持った素質とは違う生き方をしてきた部分です。`:""}`:df.length?`命式の素質と、いまのあなたの性格には違いが多く出ています。特に${df.join("・")}は、経験の中で大きく形を変えてきた部分です。`:"命式の素質と、いまのあなたの性格は、おおむね矛盾なく重なっています。";
-  return `<div class="sheet"><h2>命式×心理学</h2><p class="lead" style="margin-bottom:10px">ビッグファイブ(TIPI-J)の結果と、命式の通変星から読む素質を重ねたもの。◇=命式の素質 ●=テストの結果</p><p class="integ-sum">${sum}</p><div class="b5">${rows}</div>
-    <p class="foot">テストは小塩・阿部・カトローニ(2012)の日本語版TIPI(TIPI-J)。各特性は2問の合計で2〜14点です。命式との対応は、通変星の伝統的な意味から作った仮説です。</p></div>`;}
+  const NM=["外向性","協調性","勤勉性","情緒安定性","開放性"];
+  const inv=i=>i===3;const to14=(v,i)=>{const x=Math.round(v*2);return inv(i)?16-x:x;};
+  const GROW=["人前に立つ役や、初対面の場を少しずつ増やすと開きやすい","人の話を最後まで聞く、頼まれごとを一つ引き受ける、から始めると育つ","小さな目標を決めて毎日続けると、素質が形になる","睡眠と体を整え、気持ちを言葉にして外に出すと安定が戻る","行ったことのない場所や、触れたことのないジャンルに飛び込むと伸びる"];
+  const HI=["人と関わるほど元気になる","思いやりがあり、人とぶつかりにくい","計画的で、やり抜く力がある","動じにくく、気持ちが安定している","新しいことや抽象的な考えに惹かれる"];
+  const rows=NM.map((n,i)=>{const s=to14(pred[i],i),a=to14(meas[i],i),d=a-s;const sign=inv(i)?-1:1;const src=b5Sources(c,i,sign);
+    const tag=d>=3?["育てた","up"]:d<=-3?["眠っている素質","down"]:["そのまま","flat"];
+    return {n,i,s,a,d,tag,src};});
+  const grown=rows.filter(r=>r.tag[1]==="up"),sleep=rows.filter(r=>r.tag[1]==="down"),same=rows.filter(r=>r.tag[1]==="flat");
+  const match=Math.round(100-rows.reduce((t,r)=>t+Math.abs(r.d),0)/rows.length/12*100);
+  const effort=grown.reduce((t,r)=>t+r.d,0),room=sleep.reduce((t,r)=>t-r.d,0);
+  const bar=(v,cls)=>`<span class="pb ${cls}" style="width:${(v-2)/12*100}%"></span>`;
+  const table=rows.map(r=>`<div class="prow"><div class="ph"><b>${r.n}</b><span class="pd ${r.tag[1]}">${r.d>0?"+":""}${r.d} ${r.tag[0]}</span></div>
+    <div class="pl"><span>先天</span><span class="pt">${bar(r.s,"pre")}</span><span class="pv">${r.s}</span></div>
+    <div class="pl"><span>いま</span><span class="pt">${bar(r.a,"now")}</span><span class="pv">${r.a}</span></div></div>`).join("");
+  const P=[];
+  P.push(`生まれ持った素質(命式)といまの性格(テスト)の一致度は<b>${match}%</b>。${match>=80?"素質をそのまま生きてきた人です。":match>=60?"素質を土台にしながら、経験で形を変えてきた人です。":"生まれ持った素質とは違う形に、自分を大きく作り変えてきた人です。"}`);
+  if(grown.length)P.push(`<b>努力や経験で育ててきた力</b>:${grown.map(r=>`${r.n}(+${r.d})`).join("、")}。命式の上ではそれほど強くない面を、あなたは自分で伸ばしてきました。いまの${grown.map(r=>`「${HI[r.i]}」`).join("")}は、生まれつきではなく積み重ねの成果です。`);
+  if(sleep.length)P.push(`<b>先天的にはまだ伸びる素質</b>:${sleep.map(r=>`${r.n}(${r.src.length?r.src.join("・")+"が根拠":"命式"}、あと${-r.d}点分)`).join("、")}。${sleep.map(r=>`${r.n}は${GROW[r.i]}。`).join("")}`);
+  if(same.length)P.push(`<b>素質どおりに出ている面</b>:${same.map(r=>r.n).join("、")}。ここは無理なく自然に発揮できる、あなたの地の性格です。`);
+  return `<div class="sheet"><h2>先天と後天 ─ 何が育ったか</h2>
+    <p class="lead" style="margin-bottom:12px">命式は生まれ持った素質(先天)、ビッグファイブはいまのあなた(後天)。同じ物差し(2〜14点)にそろえて比べ、その差を「育てた力」と「眠っている素質」として読みます。</p>
+    <div class="tiles" style="grid-template-columns:repeat(3,1fr)"><div class="tile"><span>素質との一致度</span><b>${match}%</b></div><div class="tile"><span>育てた量</span><b>+${effort}</b></div><div class="tile"><span>伸びしろ</span><b>${room}</b></div></div>
+    <div class="ptable">${table}</div>
+    <div class="psum">${P.map(t=>`<p>${t}</p>`).join("")}</div>
+    <p class="foot">テストは小塩・阿部・カトローニ(2012)の日本語版TIPI(TIPI-J)、各特性2問の合計で2〜14点。神経症傾向は向きをそろえるため「情緒安定性」(16−点数)にしています。命式の点数は、通変星の伝統的な意味から作った仮説の換算です。差が3点以上を「育てた/眠っている」としています。</p></div>`;}
 
 // ===== 研究: 命式と性格の関係 =====
 function renderResearch(){
