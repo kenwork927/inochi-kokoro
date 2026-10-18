@@ -892,8 +892,7 @@ function scoreTIPI(ans){if(!ans||ans.some(v=>!v))return null;
   if(ans.length===30){const s=[[],[],[],[],[]];TIPI.forEach(([,d,r],i)=>s[d].push(r?6-ans[i]:ans[i]));return s.map(a=>1+(a.reduce((x,y)=>x+y,0)/a.length-1)*1.5);}
   if(ans.length===10){const s=[[],[],[],[],[]];TIPI10_REV.forEach(([d,r],i)=>s[d].push(r?8-ans[i]:ans[i]));return s.map(a=>(a[0]+a[1])/2);}return null;}
 function scoreFacets(ans){if(!ans||ans.length!==30||ans.some(v=>!v))return null;const f={};TIPI.forEach(([,d,r,fn],i)=>{(f[fn]=f[fn]||[]).push(r?6-ans[i]:ans[i]);});const o={};for(const k in f)o[k]=f[k].reduce((x,y)=>x+y,0)/f[k].length;return o;}
-function scoreATT(ans){if(!ans||ans.length!==6||ans.some(v=>!v))return null;const ax=(ans[0]+ans[1]+ans[2])/3,av=(ans[3]+ans[4]+ans[5])/3;
-  const t=ax<4&&av<4?"secure":ax>=4&&av<4?"anxious":ax<4&&av>=4?"avoidant":"fearful";return {ax,av,t};}
+function scoreATT(ans){return null;} // 愛着スタイルは使わない
 const lvl=v=>v>=5?1:v<=3?-1:0;
 const mbtiFrom=b=>(b[0]>4?"E":"I")+(b[4]>4?"N":"S")+(b[1]>4?"F":"T")+(b[2]>4?"J":"P");
 function sameLetters(a,b){let n=0;for(let i=0;i<4;i++)if(a[i]===b[i])n++;return n;}
@@ -918,14 +917,12 @@ function renderPsych(){
     <p class="lead">${lead}を選んでください。1=まったく違う、4=どちらでもない、7=とてもそう。${self?"":"他の人は、あなたから見た印象で答えます(観察者評定)。"}</p>
     <h3 style="margin-top:14px">ビッグファイブ(BFI-2-S-J・30問)</h3><p class="lead" style="margin-top:6px">${TIPI_LEAD}</p>${legend}
     <div class="qs">${TIPI.map(([t],i)=>scaleRow("tipi",i,psyDraft.tipi[i],t)).join("")}</div>
-    <h3 style="margin-top:16px">恋愛での愛着スタイル(6問・簡易版)</h3>
-    <div class="qs">${ATT.map(([t],i)=>scaleRow("att",i,psyDraft.att[i],t)).join("")}</div>
     <h3 style="margin-top:16px">MBTI</h3>
     <div class="form"><div class="field"><label for="psy-mbti">診断済みのタイプ(わからなければ空欄)</label><select id="psy-mbti"><option value="">わからない</option>${MBTI_TYPES.map(t=>`<option ${psyDraft.mbti===t?"selected":""}>${t}</option>`).join("")}</select></div></div>
     <div class="row" style="margin-top:12px">${p?`<button class="btn" id="psy-save">${esc(name)}に保存する</button>`:`<span class="status">結果を残すには、命式タブで研究ノートに保存してから、上で選んでください。</span>`}<span class="status" id="psy-saved"></span></div>
   </div>
   ${hide?`<div class="sheet"><h2>命式はまだ隠しています</h2><p class="lead">先入観なしの記録です。質問に全部答えて保存すると、命式からの予想と比べた結果が出ます。</p></div>`:psyResultHTML(c,pred,meas,att,psyDraft.mbti,filled,p?p.name:$("#c-name").value.trim())}
-  <p class="foot">心理学の尺度は自己理解の目安で、診断ではありません。ビッグファイブは日本語版BFI-2の短縮版(BFI-2-S-J)です。愛着スタイルの6問はこのアプリ用の簡易チェックです。生年月日と性格の関係は科学的には確かめられていないので、研究ノートで「どれくらい当たるか」を自分のデータで確かめてみてください。</p>`;
+  <p class="foot">心理学の尺度は自己理解の目安で、診断ではありません。ビッグファイブは日本語版BFI-2の短縮版(BFI-2-S-J)です。生年月日と性格の関係は科学的には確かめられていないので、研究ノートで「どれくらい当たるか」を自分のデータで確かめてみてください。</p>`;
   out.querySelectorAll(".scale button").forEach(b=>b.addEventListener("click",()=>{const y=window.scrollY;psyDraft[b.dataset.q][+b.dataset.i]=+b.dataset.v;renderPsych();window.scrollTo(0,y);}));
   $("#psy-mbti").addEventListener("change",e=>{psyDraft.mbti=e.target.value;const y=window.scrollY;renderPsych();window.scrollTo(0,y);});
   const sv=$("#psy-save");if(sv)sv.addEventListener("click",async()=>{const pp=psyPerson();if(!pp)return;await savePerson({...pp,psych:{tipi:[...psyDraft.tipi],att:[...psyDraft.att],mbti:psyDraft.mbti,at:Date.now()}});const s=$("#psy-saved");if(s){s.textContent="保存しました";setTimeout(()=>{if(s)s.textContent="";},2500);}});
@@ -1030,7 +1027,7 @@ function psychCompatHTML(pa,pb,na,nb){
     else if(aa.t==="secure"||ab.t==="secure")pts.push(["安定型がいる","安定型の人が関係の土台になり、もう一方も安心しやすくなります。",0]);}
   const mbL=A&&A.mbti&&B&&B.mbti?`<p style="margin:10px 0 0;font-size:14px">MBTI:${na} ${A.mbti} × ${nb} ${B.mbti}(${sameLetters(A.mbti,B.mbti)}/4文字共通)。${A.mbti[0]!==B.mbti[0]?"E/Iが違うので、人づきあいの量で調整を。":""}${A.mbti[3]!==B.mbti[3]?"J/Pが違うので、予定の決め方でぶつかりやすい。":""}</p>`:"";
   return `<div class="sheet"><h2>心理学から見たふたり</h2>${pts.length?`<ul class="rel">${pts.map(([t,m,w])=>`<li><span class="tag ${w?"warn":""}">${t}</span><span>${m}</span></li>`).join("")}</ul>`:""}${mbL}
-  <p class="foot">${na}:${aa?ATT_TYPE[aa.t][0]:"愛着未回答"} / ${nb}:${ab?ATT_TYPE[ab.t][0]:"愛着未回答"}。算命学の「どんな存在か」と、ここの心理学の傾向が同じ方向を指しているかも見比べてみてください。</p></div>`;
+  <p class="foot">算命学の「どんな存在か」と、ここの心理学の傾向が同じ方向を指しているかも見比べてみてください。</p></div>`;
 }
 
 // ===== 出来事ログ =====
@@ -1116,7 +1113,7 @@ function renderProfile(){
   const evs=p.events||[];const ex=p.extra||{};const me=people.find(x=>x.tag==="自分"&&parseDate(x.date));const isMe=me&&me.id===p.id;
   const hide=!!(p.blind&&!meas);
   // 入力の状況
-  const inputs=[["基本情報","名前・生年月日・性別",true,""],["性格の質問","ビッグファイブ30問",!!meas,"psy"],["恋愛の質問","愛着スタイル6問",!!att,"psy"],["MBTI","診断済みのタイプ",!!mbti,"psy"],
+  const inputs=[["基本情報","名前・生年月日・性別",true,""],["性格の質問","ビッグファイブ30問",!!meas,"psy"],["MBTI","診断済みのタイプ",!!mbti,"psy"],
     ["出来事",evs.length?`${evs.length}件`:"人生の出来事と日付",evs.length>0,"ev"],["追加情報","兄弟の順番・職業・交際状況",Object.values(EXTRA).every((_,i)=>ex[Object.keys(EXTRA)[i]]),"extra"],["メモ","実際の印象",!!(p.note&&p.note.trim()),"note"]];
   const done=inputs.filter(x=>x[2]).length;
   // わかること
@@ -1125,7 +1122,6 @@ function renderProfile(){
   else{const D=daiun(c,p.sex||"f");const now=D.list.find(x=>curYear>=x.from&&curYear<=x.to);const yr=yearGanshi(curYear);
     cards.push(openCard("命式",`<p>日柱 <b>${stemHTML(c.ds)}${brHTML(c.db)}</b>・月支元命 <b>${MAIN[c.stars.chest]}</b>・${TCS_NAME[c.tcsG]}天中殺${c.flags.length?"("+c.flags.join("・")+")":""}・${WEEKDAY[weekdayOf(c.y,c.m,c.d)].d}生まれ</p><p>いまの大運は${now?`<b>${stemHTML(now.s)}${brHTML(now.b)}</b>(${MAIN[now.star]})`:"立運前"}、今年は${MAIN[mainStarIdx(c.ds,yr.s)]}の年${c.tcs.includes(yr.b)?"で、天中殺にあたります":""}。</p>`,`<button class="btn ghost small" data-go="chart">命式を詳しく見る</button>`));}
   cards.push(meas&&!hide?openCard("性格のまとめ",personalityHTML(c,meas,att,mbti,p.name).replace('class="sheet persona"','class="persona inner"'),""):lockCard("性格のまとめ","性格の質問","命式と心理学をあわせた「こんな人」のまとめと、命式の予想との一致・ずれ"));
-  cards.push(att?openCard("恋愛での傾向",`<p><b>${ATT_TYPE[att.t][0]}</b>:${ATT_TYPE[att.t][1]}</p>${hide?"":`<p>月支元命と重ねると、${attStarNote(MAIN[c.stars.chest],att.t)}</p>`}`,""):lockCard("恋愛での傾向","恋愛の質問","親しい関係での距離の取り方(愛着スタイル)"));
   cards.push(mbti&&!hide?openCard("MBTIとの照合",`<p>診断のタイプ <b>${esc(mbti)}</b>、命式から予想したタイプ <b>${mbtiFrom(predictB5(c))}</b>(${sameLetters(mbti,mbtiFrom(predictB5(c)))}/4文字一致)${meas?`、質問の結果から換算したタイプ <b>${mbtiFrom(meas)}</b>`:""}。</p>`,""):lockCard("MBTIとの照合",mbti?"性格の質問":"MBTIのタイプ","命式の予想とMBTIがどれくらい重なるか"));
   if(evs.length&&!hide){const rs=evs.map(e=>eventRead(c,p.sex||"f",e.date)).filter(Boolean);const t=rs.filter(r=>r.yTcs||r.mTcs).length,en=rs.filter(r=>r.kango||r.br.includes("支合")||r.br.includes("半会")).length;
     cards.push(openCard("出来事のタイミング",`<p>記録した${rs.length}件のうち、天中殺の年か月に起きたものが<b>${t}件</b>、干合・支合・半会の年に起きたものが<b>${en}件</b>。</p>`,`<button class="btn ghost small" data-go="events">出来事を見る</button>`));}
@@ -1209,7 +1205,6 @@ function renderDash(){
       <figure><figcaption>性格の予想の的中率<small>点線=偶然の目安 33%・右の小さい数字=件数</small></figcaption>${hbars(dims,{chance:33.3})}</figure>
       <figure><figcaption>月支元命の分布<small>登録した人の人数</small></figcaption>${hbars(stars,{max:Math.max(1,...stars.map(s=>s.v)),fmt:v=>v+"人"})}</figure>
       ${evBars.length?`<figure><figcaption>天中殺の年に起きた出来事の割合<small>点線=偶然の目安 17%</small></figcaption>${hbars(evBars,{chance:16.7})}</figure>`:""}
-      ${psy.length?`<figure><figcaption>愛着スタイルの分布<small>恋愛の質問に答えた人数</small></figcaption>${hbars(Object.entries(att).map(([k,v])=>({label:ATT_TYPE[k][0],v})),{max:Math.max(1,...Object.values(att)),fmt:v=>v+"人"})}</figure>`:""}
     </div>`;
 }
 
