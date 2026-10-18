@@ -116,6 +116,7 @@ th{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em}
 .dict small{color:var(--muted)}
 .foot{font-size:12px;color:var(--muted);margin-top:8px}
 .status{font-size:12px;color:var(--muted)}
+.vrow .vf{display:block;font-size:11px;font-weight:400;color:var(--muted);letter-spacing:0}
 .core .cone{margin:0 0 12px;font-family:var(--font-display);font-weight:800;font-size:19px;line-height:1.6;text-wrap:balance}
 .cpars{display:flex;flex-direction:column;gap:6px}.cpar{display:grid;grid-template-columns:5.5em 1fr 4.6em;gap:8px;align-items:center;font-size:13px}
 .cpar .pv{font-variant-numeric:tabular-nums;text-align:right;font-weight:700}
@@ -1363,25 +1364,7 @@ const FIT={love:{"比肩":0,"劫財":-1,"食神":1,"傷官":-1,"偏財":1,"正�
 const VERDICT={love:[["×","かなり難しい。好きでも、一緒にいるほど消耗しやすい組み合わせ。"],["△","悪くはないが、自然にうまくいく組み合わせではない。続けるなら努力が要る。"],["○","相性は良い。すれ違いを放っておかなければ、うまくいく。"],["◎","強く惹かれ合い、長く続く組み合わせ。迷っているなら進んでいい。"]],
  work:[["×","一緒に仕事をするとぶつかりやすい。距離を置いた方がお互いのため。"],["△","仕事は回るが、相乗効果は少ない。必要な範囲の付き合いで十分。"],["○","仕事相手として信頼できる。役割を分ければうまく回る。"],["◎","組めば成果が出る最強のコンビ。"]],
  general:[["×","合わない。無理に付き合うと疲れる。"],["△","可もなく不可もなく。会う頻度は少なめがちょうどいい。"],["○","気楽に付き合える良い関係。"],["◎","一生ものの縁。会えば自然と元気になれる。"]]};
-function compatScore(A,B,sa,sb,mode){let sc=0;const pro=[],con=[];
-  const ab=MAIN[mainStarIdx(A.ds,B.ds)],ba=MAIN[mainStarIdx(B.ds,A.ds)];
-  const f=FIT[mode][ab]+FIT[mode][ba];sc+=f;if(f>=2)pro.push(`星の関係(${ab}・${ba})`);if(f<=-1)con.push(`星の関係(${ab}・${ba})`);
-  if(Math.abs(A.ds-B.ds)===5){const v=mode==="love"?3:2;sc+=v;pro.push("日干の干合");}
-  const dr=branchRels(A.db,B.db).map(r=>r[0]);
-  if(dr.includes("支合")){sc+=2;pro.push("日支の支合");}if(dr.includes("半会")){sc+=1;pro.push("日支の半会");}
-  if(dr.includes("対冲")){sc-=mode==="love"?2:1;con.push("日支の対冲");}if(dr.includes("害")){sc-=1;con.push("日支の害");}if(dr.includes("刑")||dr.includes("自刑")){sc-=1;con.push("日支の刑");}
-  for(const [t] of dayPillarRel(A,B)){if(t==="干支合"){sc+=2;pro.push("干支合");}if(t==="天剋地冲"){sc-=2;con.push("天剋地冲");}if(t==="納音"&&mode==="love"){sc-=1;con.push("納音");}if(t==="律音"&&mode!=="love"){sc+=1;pro.push("律音");}}
-  if(mode==="love"){const sp=(s,st)=>(s==="m"&&["偏財","正財"].includes(st))||(s==="f"&&["偏官","正官"].includes(st));if(sp(sa,ab)||sp(sb,ba)){sc+=2;pro.push("配偶者を表す星");}}
-  const tc=A.tcs.includes(B.yb)||A.tcs.includes(B.db)||B.tcs.includes(A.yb)||B.tcs.includes(A.db);if(tc&&mode!=="general"){sc-=1;con.push("天中殺の関係");}
-  if(A.tcsG===B.tcsG){sc+=1;pro.push("同じ天中殺グループ");}
-    {const ck=crossKango(A,B).filter(x=>!(x.i===2&&x.j===2));if(ck.length){sc+=Math.min(ck.length,2)*(mode==="love"?1:1);pro.push(`柱をまたぐ干合${ck.length}つ`);}
-   const cb=crossBranch(A,B).filter(x=>!(x.i===2&&x.j===2));const good=cb.filter(x=>!x.w).length,bad=cb.filter(x=>x.w).length;if(good>=2){sc+=1;pro.push("柱どうしの合が多い");}if(bad>=3){sc-=1;con.push("柱どうしの冲・刑が多い");}
-   const fa=fillsMissing(A,B),fb=fillsMissing(B,A);if(fa.length||fb.length){sc+=mode==="work"?1:1;pro.push("足りない星を補い合う");}
-   const gA=Math.floor(A.stars.chest/2),gB=Math.floor(B.stars.chest/2);if(mode==="work"){if(gA!==gB){sc+=1;pro.push("核が違い役割を分けやすい");}else{sc-=1;con.push("核が同じで張り合いやすい");}}else if(mode==="general"&&gA===gB){sc+=1;pro.push("核が同じで話が早い");}}
-  const lv=sc>=5?3:sc>=3?2:sc>=1?1:0;return {sc,lv,pro,con};}
-function verdictHTML(A,B,sa,sb,na,nb){
-  return `<div class="sheet"><h2>判定</h2><div class="verd">${["love","work","general"].map(md=>{const r=compatScore(A,B,sa,sb,md);const [mk,tx]=VERDICT[md][r.lv];
-    return `<div class="vrow v${r.lv}"><span class="vmk">${mk}</span><div><b>${MODE_LABEL[md]}</b><p>${tx}</p><small>${r.pro.length?"＋ "+r.pro.join("・"):""}${r.pro.length&&r.con.length?"　":""}${r.con.length?"− "+r.con.join("・"):""}</small></div></div>`;}).join("")}</div></div>`;}
+
 
 // ===== 命式の関係図(干の流れ・支の合冲) =====
 function stemRel(a,b){const ea=STEM_EL[a],eb=STEM_EL[b];if(ea===eb)return["比","same"];if((ea+1)%5===eb)return["生","ab"];if((eb+1)%5===ea)return["生","ba"];if((ea+2)%5===eb)return["剋","ab"];return["剋","ba"];}
@@ -1602,7 +1585,7 @@ function eventInsightHTML(r,type,P,sex,meas){
 // ===== 核心診断(命式全体の兼ね合い+性格パラメーター) =====
 const CORE_PHRASE={"比肩":"自分の足で立つ一匹狼","劫財":"仲間の中で勝ちにいく人","食神":"楽しむことで周りを明るくする人","傷官":"鋭い感性で本物を見抜く人","偏財":"人と人をつないで場を動かす人","正財":"大切なものをコツコツ守り抜く人","偏官":"困難ほど燃える行動の人","正官":"筋を通して責任を果たす人","偏印":"人と違う道を選ぶ自由な発想家","印綬":"学び、考え、人に伝える人"};
 const MOD_PHRASE=["自分のやり方は絶対に曲げない","感じたことを表に出さずにはいられない","人と物を動かさずにはいられない","責任と勝ち負けにこだわる","自分の頭で考え抜かないと気がすまない"];
-const MISSING=["自分を信じて、ひとりで立つこと。人に合わせるうちに、自分の軸を見失いやすい","思ったことを口に出す、自分を表に出すこと。感じていても、言葉や形にするのが後回しになりやすい","人や物を動かす手応え、目に見える成果。頑張りが形になりにくく、もどかしさを抱えやすい","役割や肩書き、認められる居場所。自由なぶん、自分の立ち位置を見失いやすい","立ち止まって考える時間、学ぶこと。動きながら考えるぶん、振り返りが足りなくなりやすい"];
+const MISSING=[["自分を信じて、ひとりで立つこと","人に合わせるうちに、自分の軸を見失いやすい"],["思ったことを口に出し、自分を表に出すこと","感じていても、言葉や形にするのが後回しになりやすい"],["人や物を動かし、目に見える成果を出すこと","頑張りが形になりにくく、もどかしさを抱えやすい"],["役割や肩書き、認められる居場所を持つこと","自由なぶん、自分の立ち位置を見失いやすい"],["立ち止まって考え、学ぶこと","動きながら考えるぶん、振り返りが足りなくなりやすい"]];
 const ENV=["裁量を任される場所","自由に表現できる場所","人と動き、成果が目に見える場所","役割と責任がはっきりした場所","学び、考える時間がある場所"];
 const SHADOW=["頑固になって人に頼れない","気分や言葉が強く出すぎる","人に尽くしすぎて自分が空っぽになる","肩に力が入りすぎて自分を追い込む","考えすぎて動けなくなる"];
 function coreHTML(c,name,sex,meas){
@@ -1620,7 +1603,7 @@ function coreHTML(c,name,sex,meas){
   const rows=[];
   rows.push(["原動力",`核は${cs}。${POS_TS.chest[core].replace(/^本質は/,"")}。${dom!==cg&&mx>=2?`そこに${TS_GROUP[dom][0]}の星が${mx}つ重なり、${first(TS_GROUP[dom][2])}。`:""}日柱は${kD.name}(${kD.image})で、身近な人の前では${TSUHEN[dz]}の顔になる。`]);
   const miss=bal.map((v,i)=>v===0?i:null).filter(x=>x!==null);
-  rows.push(["本当は求めているもの",miss.length?miss.map(i=>`命式に${TS_GROUP[i][0]}(${TS_GROUP[i][1]})がない。${MISSING[i]}。ないからこそ、心の奥ではそれを強く求めている。`).join(""):`命式に欠けた系統がない。何でもこなせるぶん、「これだけは」と言える一本の軸を求めている。`]);
+  rows.push(["本当は求めているもの",miss.length?miss.map(i=>`命式に${TS_GROUP[i][0]}(${TS_GROUP[i][1]})がないので、${MISSING[i][0]}が人生の課題になる。${MISSING[i][1]}。`).join("")+"そのぶん、ここを満たしてくれる人や環境に強く惹かれる。":`命式に欠けた系統がない。何でもこなせるぶん、「これだけは」と言える一本の軸を求めている。`]);
   const warn=combos.filter(x=>x[3]).map(([nm,t,m])=>{const k=Object.keys(PAIR_NAME).find(x=>PAIR_NAME[x]===nm);return `${nm[0].replace(/柱/g,"").replace("×","と")}が${t}。${(REL_CTX[t]&&REL_CTX[t][k])||m}`;});
   rows.push(["つまずきやすいところ",`${mx>=2?`${TS_GROUP[dom][0]}が強いぶん、${SHADOW[dom]}ことがある。`:""}${warn.join("")}${meas&&meas[3]>=5?"BFI-2でも不安や緊張を感じやすく出ていて、ひとりで抱え込むと崩れやすい。":""}`||"命式の中に大きな葛藤はない。迷いが少ないぶん、壁にぶつかったときの経験値が少ない。"]);
   rows.push(["本領を発揮する条件",`${ENV[cg]}${dom!==cg&&mx>=2?`、そして${ENV[dom]}`:""}で力が出る。エネルギーは初年${e[0]}・中年${e[1]}・晩年${e[2]}で、本領が出るのは${peak}。`]);
@@ -1652,6 +1635,37 @@ function wholeCompatHTML(A,B,na,nb){
   const core=gA===gB?`性格の核がどちらも${TS_GROUP[gA][0]}。価値観や動機が似ていて話が早いが、同じところで張り合いやすい。`:`${na}の核は${TS_GROUP[gA][0]}、${nb}の核は${TS_GROUP[gB][0]}。大事にするものが違うので、役割を分ければ補い合える。`;
   return `<div class="sheet"><h2>命式全体の重なり</h2><p class="lead" style="margin-bottom:10px">日柱だけでなく、ふたりの年・月・日の干と支をすべて組み合わせて見ています。</p>
     <ul class="rel"><li><span class="tag">性格の核</span><span>${core}</span></li>${fill.map(t=>`<li><span class="tag">補い合い</span><span>${t}</span></li>`).join("")}${items.map(([t,w,m])=>`<li><span class="tag ${w?"warn":""}">${t}</span><span>${m}</span></li>`).join("")}</ul></div>`;}
+
+// ===== 関わり方ごとに柱の重みを変えた相性 =====
+const PIL_W={love:[0.5,1,3],work:[0.5,3,1],general:[1,1,1]};
+const MODE_FOCUS={love:"日柱(本人と配偶者の場)を重視",work:"月柱(社会・仕事の場)を重視",general:"年・月・日を均等に見る"};
+function compatScore(A,B,sa,sb,mode){const W=PIL_W[mode];let sc=0;const pro=[],con=[];const r1=v=>Math.round(v*10)/10;
+  const ab=MAIN[mainStarIdx(A.ds,B.ds)],ba=MAIN[mainStarIdx(B.ds,A.ds)];
+  // 日干どうしの星
+  const sw={love:1,work:0.6,general:1}[mode];const f=(FIT[mode][ab]+FIT[mode][ba])*sw;sc+=f;if(f>=1.5)pro.push(`日干どうしの星(${ab}・${ba})`);if(f<=-1)con.push(`日干どうしの星(${ab}・${ba})`);
+  // 仕事:相手の月干(社会の顔)が自分からどう見えるか
+  if(mode==="work"){const am=MAIN[mainStarIdx(A.ds,B.ms)],bm=MAIN[mainStarIdx(B.ds,A.ms)];const g=(FIT.work[am]+FIT.work[bm])*0.8;sc+=g;if(g>=1.5)pro.push(`社会の顔どうしの星(${am}・${bm})`);if(g<=-0.8)con.push(`社会の顔どうしの星(${am}・${bm})`);
+    const gA=Math.floor(A.stars.chest/2),gB=Math.floor(B.stars.chest/2);if(gA!==gB){sc+=1;pro.push("性格の核が違い、役割を分けやすい");}else{sc-=1;con.push("性格の核が同じで、張り合いやすい");}}
+  if(mode==="general"){const gA=Math.floor(A.stars.chest/2),gB=Math.floor(B.stars.chest/2);if(gA===gB){sc+=1;pro.push("性格の核が同じで話が早い");}}
+  // 干合(全9通り、柱の重み)
+  const sA=[A.ys,A.ms,A.ds],sB=[B.ys,B.ms,B.ds];for(let i=0;i<3;i++)for(let j=0;j<3;j++)if(Math.abs(sA[i]-sB[j])===5){const w=(W[i]+W[j])/2;sc+=w*0.8;pro.push(`${PIL_N[i]}干と${PIL_N[j]}干の干合`);}
+  // 地支(全9通り、柱の重み)
+  const bA=[A.yb,A.mb,A.db],bB=[B.yb,B.mb,B.db];const VAL={"支合":1,"半会":0.7,"対冲":-1,"害":-0.5,"刑":-0.5,"自刑":-0.4};
+  for(let i=0;i<3;i++)for(let j=0;j<3;j++)for(const [t] of branchRels(bA[i],bB[j])){if(!(t in VAL))continue;const w=(W[i]+W[j])/2*VAL[t]*0.6;if(Math.abs(w)<0.25)continue;sc+=w;(w>0?pro:con).push(`${PIL_N[i]}支と${PIL_N[j]}支の${t}`);}
+  // 日柱の特別な組み合わせ
+  for(const [t] of dayPillarRel(A,B)){const dw=W[2]/3;if(t==="干支合"){sc+=2*dw;pro.push("日柱の干支合");}if(t==="天剋地冲"){sc-=2*dw;con.push("日柱の天剋地冲");}if(t==="納音"&&mode==="love"){sc-=1;con.push("日柱の納音");}if(t==="律音"&&mode!=="love"){sc+=0.5;pro.push("日柱の律音");}}
+  // 配偶者の星(恋愛のみ)
+  if(mode==="love"){const sp=(s,st)=>(s==="m"&&["偏財","正財"].includes(st))||(s==="f"&&["偏官","正官"].includes(st));if(sp(sa,ab)||sp(sb,ba)){sc+=2;pro.push("配偶者を表す星");}}
+  // 天中殺(重視する柱の支が相手の天中殺に入るか)
+  const hit=(X,Y)=>[Y.yb,Y.mb,Y.db].map((b,i)=>X.tcs.includes(b)?W[i]:0).reduce((a,b)=>a+b,0);const th=(hit(A,B)+hit(B,A))*0.4;if(th>=0.4){sc-=th;con.push("相手の柱が天中殺にかかる");}
+  // 足りない星の補い合い
+  const fm=fillsMissing(A,B).length+fillsMissing(B,A).length;if(fm){sc+={love:1,work:1,general:1.5}[mode];pro.push("足りない星を補い合う");}
+  if(A.tcsG===B.tcsG&&mode!=="work"){sc+=0.5;pro.push("同じ天中殺グループ");}
+  const lv=sc>=5?3:sc>=3?2:sc>=1?1:0;return {sc:r1(sc),lv,pro,con};}
+function verdictHTML(A,B,sa,sb,na,nb){
+  return `<div class="sheet"><h2>判定</h2><div class="verd">${["love","work","general"].map(md=>{const r=compatScore(A,B,sa,sb,md);const [mk,tx]=VERDICT[md][r.lv];
+    return `<div class="vrow v${r.lv}"><span class="vmk">${mk}</span><div><b>${MODE_LABEL[md]}<small class="vf">${MODE_FOCUS[md]}</small></b><p>${tx}</p><small>${r.pro.length?"＋ "+[...new Set(r.pro)].join("・"):""}${r.pro.length&&r.con.length?"　":""}${r.con.length?"− "+[...new Set(r.con)].join("・"):""}</small></div></div>`;}).join("")}</div>
+    <p class="foot">算命学では、年柱は家・ルーツ、月柱は社会・仕事、日柱は本人と配偶者の場を表します。そのため関わり方ごとに、重視する柱を変えて判定しています。</p></div>`;}
 
 // ===== 保存(db → なければブラウザ内) =====
 let people=[];let store=null;let uid=null;
