@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta property="og:title" content="命と心の性格診断"><meta property="og:description" content="生年月日と20問の質問で、占いと心理学からあなたの性格を診断します。">
+<meta property="og:title" content="命と心の性格診断"><meta property="og:description" content="生年月日と10問の質問で、占いと心理学からあなたの性格を診断します。">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-family:system-ui,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head><body>
 <title>命と心の性格診断</title>
@@ -116,6 +116,9 @@ th{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em}
 .dict small{color:var(--muted)}
 .foot{font-size:12px;color:var(--muted);margin-top:8px}
 .status{font-size:12px;color:var(--muted)}
+.scale-legend{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;max-width:360px;font-size:10px;color:var(--muted);text-align:center;line-height:1.3;margin-top:8px}
+.integ{margin:6px 0 0;font-size:14px;line-height:1.75}.integ b{font-size:12px;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:0 6px;margin-right:6px}
+.integ-sum{margin:0 0 14px;font-size:15px;line-height:1.8;padding:10px 12px;background:var(--accent-soft);border-radius:8px}
 a.btn{text-decoration:none;display:inline-block}.btn.line{background:#06C755;border-color:#06C755;color:#fff}
 .sumt{display:flex;flex-direction:column;border-top:1px solid var(--line)}
 .sr{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px;line-height:1.7}
@@ -425,11 +428,10 @@ td.hi{color:var(--accent);font-weight:700}td.lo{color:var(--seal);font-weight:70
     </div>
     <div class="sheet">
       <h2>性格の質問</h2>
-      <p class="lead">自分にどれくらい当てはまるかを選んでください。1=まったく違う、4=どちらでもない、7=とてもそう。深く考えず、直感で大丈夫です。</p>
-      <h3 style="margin-top:14px">ふだんの自分(10問)</h3>
+      <p class="lead">文章全体を見て、自分にどれだけ当てはまるかを1〜7で選んでください。</p>
+      <h3 style="margin-top:14px">ビッグファイブ(TIPI-J・10問)</h3><div id="sv-legend"></div><p class="lead" style="margin-top:6px">私は自分自身のことを…</p>
       <div class="qs" id="q-tipi"></div>
-      <h3 style="margin-top:16px">恋愛や親しい人との関係(6問)</h3>
-      <div class="qs" id="q-att"></div>
+      <div id="q-att" hidden></div>
       <h3 style="margin-top:16px">MBTI</h3>
       <div class="form"><div class="field"><label for="s-mbti">診断を受けたことがあれば、そのタイプ</label><select id="s-mbti"></select></div></div>
     </div>
@@ -826,13 +828,13 @@ function renderCompat(){
 }
 
 // ===== 心理学: ビッグファイブ(TIPI)・愛着スタイル・MBTI =====
-const B5 = ["外向性","協調性","誠実性","神経症傾向","開放性"];
+const B5 = ["外向性","協調性","勤勉性","神経症傾向","開放性"];
 const B5_HI = ["人と関わるほど元気になる、話し好きで活発","思いやりがあり、人とぶつかるのを避ける","計画的で、決めたことをやり抜く","不安や緊張を感じやすく、感情が揺れやすい","新しいことや抽象的な考えに惹かれる"];
 const B5_LO = ["ひとりの時間で回復する、落ち着いて控えめ","率直で、自分の意見をはっきり通す","柔軟で、その場の流れに合わせる","動じにくく、気持ちが安定している","慣れたやり方や現実的なものを好む"];
 // TIPI (Gosling, Rentfrow & Swann, 2003) の10項目を日本語にしたもの。[文, 次元, 逆転]
 const TIPI = [
- ["活発で、外向的だ",0,false],["他人に不満をもち、もめごとを起こしやすい",1,true],["しっかりしていて、自分に厳しい",2,false],["心配性で、うろたえやすい",3,false],["新しいことが好きで、変わった考えをもつ",4,false],
- ["ひかえめで、おとなしい",0,true],["人に気をつかう、やさしい人間だ",1,false],["だらしなく、うっかりしている",2,true],["冷静で、気分が安定している",3,true],["発想力に欠けた、平凡な人間だ",4,true]];
+ ["活発で、外向的だと思う",0,false],["他人に不満をもち、もめごとを起こしやすいと思う",1,true],["しっかりしていて、自分に厳しいと思う",2,false],["心配性で、うろたえやすいと思う",3,false],["新しいことが好きで、変わった考えをもつと思う",4,false],
+ ["ひかえめで、おとなしいと思う",0,true],["人に気をつかう、やさしい人間だと思う",1,false],["だらしなく、うっかりしていると思う",2,true],["冷静で、気分が安定していると思う",3,true],["発想力に欠けた、平凡な人間だと思う",4,true]];
 const ATT = [["相手に本当に好かれているか、不安になることが多い",0],["連絡が来ないと、気になって仕方がない",0],["いつか見捨てられるのではと心配になる",0],
  ["深く頼られると、息苦しく感じる",1],["自分の気持ちを相手に話すのは苦手だ",1],["近づきすぎると、距離を取りたくなる",1]];
 const ATT_TYPE = {
@@ -846,9 +848,9 @@ const STAR_B5 = {
  "比肩":[0,-1,1,0,-1],"劫財":[1,1,0,0,0],"食神":[1,0,-1,-1,0],"傷官":[-1,-1,0,1,1],"偏財":[1,1,0,0,0],
  "正財":[0,1,1,0,-1],"偏官":[1,-1,0,0,0],"正官":[0,0,1,1,-1],"偏印":[0,0,-1,0,1],"印綬":[-1,1,1,0,1]};
 const STAR_WHY = {
- "比肩":"自分のペースを守る頑固さ→協調性低め・誠実性高め","劫財":"仲間と動く協調の通変星→外向性・協調性高め","食神":"のびやかな楽天家→外向性高め・神経症傾向低め",
- "傷官":"繊細な感性と孤独→神経症傾向・開放性高め、外向性低め","偏財":"人を惹きつけ与える→外向性・協調性高め","正財":"堅実にコツコツ→誠実性・協調性高め、開放性低め",
- "偏官":"まっすぐ攻める行動力→外向性高め・協調性低め","正官":"責任感とプライド→誠実性・神経症傾向高め","偏印":"型破りな冒険家→開放性高め・誠実性低め","印綬":"知性と伝統、面倒見→開放性・誠実性・協調性高め"};
+ "比肩":"自分のペースを守る頑固さ→協調性低め・勤勉性高め","劫財":"仲間と動く協調の通変星→外向性・協調性高め","食神":"のびやかな楽天家→外向性高め・神経症傾向低め",
+ "傷官":"繊細な感性と孤独→神経症傾向・開放性高め、外向性低め","偏財":"人を惹きつけ与える→外向性・協調性高め","正財":"堅実にコツコツ→勤勉性・協調性高め、開放性低め",
+ "偏官":"まっすぐ攻める行動力→外向性高め・協調性低め","正官":"責任感とプライド→勤勉性・神経症傾向高め","偏印":"型破りな冒険家→開放性高め・勤勉性低め","印綬":"知性と伝統、面倒見→開放性・勤勉性・協調性高め"};
 
 function predictB5(c){const S=c.stars;const sc=[0,0,0,0,0];const add=(st,w)=>STAR_B5[MAIN[st]].forEach((v,i)=>sc[i]+=v*w);
   add(S.chest,2);add(S.head,1);add(S.belly,1);add(S.left,1);add(S.right,1);
@@ -866,7 +868,7 @@ let psySubject=null; // 研究ノートの人のid、またはnull(命式タブ�
 let psyDraft={tipi:Array(10).fill(0),att:Array(6).fill(0),mbti:""};
 function psyPerson(){return psySubject?people.find(p=>p.id===psySubject):null;}
 function loadDraft(){const p=psyPerson();const ps=p&&p.psych;psyDraft={tipi:ps&&ps.tipi?[...ps.tipi]:Array(10).fill(0),att:ps&&ps.att?[...ps.att]:Array(6).fill(0),mbti:ps&&ps.mbti||""};}
-function scaleRow(name,i,val,txt){return `<div class="q"><div class="qt">${txt}</div><div class="scale" role="radiogroup" aria-label="${esc(txt)}">${[1,2,3,4,5,6,7].map(v=>`<button role="radio" aria-checked="${val===v}" data-q="${name}" data-i="${i}" data-v="${v}">${v}</button>`).join("")}</div></div>`;}
+function scaleRow(name,i,val,txt){return `<div class="q"><div class="qt"><small style="color:var(--muted)">${i+1}.</small> ${txt}</div><div class="scale" role="radiogroup" aria-label="${esc(txt)}">${[1,2,3,4,5,6,7].map(v=>`<button role="radio" aria-checked="${val===v}" data-q="${name}" data-i="${i}" data-v="${v}">${v}</button>`).join("")}</div></div>`;}
 function renderPsych(){
   const out=$("#psy-out");const sel=$("#psy-pick");
   sel.innerHTML=`<option value="">命式タブで入力中の人</option>`+people.filter(p=>parseDate(p.date)).map(p=>`<option value="${esc(p.id)}">${esc(p.name)}(${esc(p.tag)})</option>`).join("");sel.value=psySubject||"";
@@ -874,12 +876,12 @@ function renderPsych(){
   if(!dt){out.innerHTML=`<div class="sheet"><p class="lead">命式タブで生年月日を入れるか、研究ノートの人を選んでください。</p></div>`;return;}
   const c=chart(...dt);const pred=predictB5(c);const self=!p||p.tag==="自分";const hide=!!(p&&p.blind&&!(p.psych&&scoreTIPI(p.psych.tipi)));
   const meas=scoreTIPI(psyDraft.tipi);const att=scoreATT(psyDraft.att);const filled=psyDraft.tipi.filter(Boolean).length;
-  const subj=self?"あなた自身":"この人";const lead=self?"自分に当てはまる程度":`${esc(name)}を思い浮かべて、当てはまる程度`;
+  const subj=self?"あなた自身":"この人";const lead=self?"自分に当てはまる程度":`${esc(name)}を思い浮かべて、当てはまる程度`;const legend=`<div class="scale-legend">${TIPI_SCALE.map((t,k)=>`<span>${k+1}<br>${t}</span>`).join("")}</div>`;
   out.innerHTML=`
   <div class="sheet">
     <h2>${esc(name)}の性格を測る</h2>
     <p class="lead">${lead}を選んでください。1=まったく違う、4=どちらでもない、7=とてもそう。${self?"":"他の人は、あなたから見た印象で答えます(観察者評定)。"}</p>
-    <h3 style="margin-top:14px">ビッグファイブ(10問)</h3>
+    <h3 style="margin-top:14px">ビッグファイブ(TIPI-J・10問)</h3>${legend}<p class="lead" style="margin-top:6px">${TIPI_LEAD}</p>
     <div class="qs">${TIPI.map(([t],i)=>scaleRow("tipi",i,psyDraft.tipi[i],t)).join("")}</div>
     <h3 style="margin-top:16px">恋愛での愛着スタイル(6問・簡易版)</h3>
     <div class="qs">${ATT.map(([t],i)=>scaleRow("att",i,psyDraft.att[i],t)).join("")}</div>
@@ -894,7 +896,7 @@ function renderPsych(){
   const sv=$("#psy-save");if(sv)sv.addEventListener("click",async()=>{const pp=psyPerson();if(!pp)return;await savePerson({...pp,psych:{tipi:[...psyDraft.tipi],att:[...psyDraft.att],mbti:psyDraft.mbti,at:Date.now()}});const s=$("#psy-saved");if(s){s.textContent="保存しました";setTimeout(()=>{if(s)s.textContent="";},2500);}});
 }
 function psyResultHTML(c,pred,meas,att,mbti,filled,name){return `${meas?personalityHTML(c,meas,att,mbti,name):`<div class="sheet"><h2>性格のまとめ</h2><p class="lead">性格の質問に全部答えると、命式と心理学の結果をあわせた「こんな人」のまとめが出ます。</p></div>`}
-  <div class="sheet">
+  ${meas?integHTML(c,pred,meas):`  <div class="sheet">
     <h2>算命学の予想と、実際の性格</h2>
     <p class="lead" style="margin-bottom:12px">◇が命式から予想した位置、●が質問の結果。${meas?"":`(質問 ${filled}/10 回答済み。全部答えると●が出ます)`}</p>
     <div class="b5">${B5.map((n,i)=>{const pm=pred[i],ms=meas?meas[i]:null;const ok=ms==null?null:(lvl(pm)===0||lvl(pm)===lvl(ms));
@@ -902,7 +904,7 @@ function psyResultHTML(c,pred,meas,att,mbti,filled,name){return `${meas?personal
       <div class="b5t"><span class="pm" style="left:${(pm-1)/6*100}%" title="予想 ${pm.toFixed(1)}"></span>${ms==null?"":`<span class="ms" style="left:${(ms-1)/6*100}%" title="結果 ${ms.toFixed(1)}"></span>`}</div>
       <div class="b5l"><span>${B5_LO[i]}</span><span>${B5_HI[i]}</span></div></div>`;}).join("")}</div>
     <p class="foot">予想の根拠:月支元命 ${MAIN[c.stars.chest]}(${STAR_WHY[MAIN[c.stars.chest]]})を2倍、ほか4つの通変星を1倍で足し、エネルギーの合計を外向性に反映。この対応づけは伝統的な星の意味から作った仮説です。</p>
-  </div>
+  </div>`}
   <div class="sheet">
     <h2>MBTIで見ると</h2>
     <div class="facts">
@@ -910,7 +912,7 @@ function psyResultHTML(c,pred,meas,att,mbti,filled,name){return `${meas?personal
       <div class="fact"><div class="lbl">質問の結果から</div><div class="val">${meas?mbtiFrom(meas):"—"}</div><div class="sub">ビッグファイブから換算</div></div>
       <div class="fact"><div class="lbl">診断済みのタイプ</div><div class="val">${mbti||"—"}</div><div class="sub">${mbti?`命式の予想と${sameLetters(mbti,mbtiFrom(pred))}/4文字一致`:"16Personalitiesなどの結果があれば選択"}</div></div>
     </div>
-    <p class="foot">換算は、E/Iが外向性、S/Nが開放性、T/Fが協調性、J/Pが誠実性とそれぞれ関連するという研究(McCrae & Costa, 1989)に基づく目安です。神経症傾向はMBTIにはありません。</p>
+    <p class="foot">換算は、E/Iが外向性、S/Nが開放性、T/Fが協調性、J/Pが勤勉性とそれぞれ関連するという研究(McCrae & Costa, 1989)に基づく目安です。神経症傾向はMBTIにはありません。</p>
   </div>
   ${att?`<div class="sheet"><h2>愛着スタイル:${ATT_TYPE[att.t][0]}</h2><p style="margin:0">${ATT_TYPE[att.t][1]}</p>
     <div class="facts" style="margin-top:10px"><div class="fact"><div class="lbl">見捨てられ不安</div><div class="val">${att.ax.toFixed(1)}</div></div><div class="fact"><div class="lbl">親密さの回避</div><div class="val">${att.av.toFixed(1)}</div></div></div>
@@ -941,8 +943,6 @@ function personalityHTML(c,meas,att,mbti,name){
     paras.push(tops.length?`心理学の質問では、${tops.map(x=>`${B5[x.i]}が${x.d>0?"高め":"低め"}(${x.d>0?B5_HI[x.i]:B5_LO[x.i]})`).join("、")}という特徴がはっきり出ています。`:"心理学の質問では、どの面も極端に偏らない、バランスの取れた性格と出ています。");
     tops.forEach(x=>{strengths.push(B5_STR[x.i][x.d>0?0:1]);cautions.push(B5_CAU[x.i][x.d>0?0:1]);});
     const agree=[],diff=[];B5.forEach((n,i)=>{const p=lvl(pred[i]),m=lvl(meas[i]);if(p&&p===m)agree.push(n);else if(p&&m&&p!==m)diff.push([n,p]);});
-    if(agree.length)paras.push(`${agree.join("・")}は、命式の読みと心理学の結果が同じ方向を指しています。ここは${who}らしさの芯と言えそうです。`);
-    if(diff.length)paras.push(`一方で${diff.map(([n,p])=>`${n}(命式では${p>0?"高め":"低め"}の予想)`).join("、")}は、命式の読みとは逆に出ました。通変星が持つ性質を、これまでの経験や環境で別の形に育ててきた部分かもしれません。`);
   }else{
     const hi=B5.filter((n,i)=>lvl(pred[i])>0),lo=B5.filter((n,i)=>lvl(pred[i])<0);
     B5.forEach((n,i)=>{const l=lvl(pred[i]);if(l){strengths.push(B5_STR[i][l>0?0:1]);cautions.push(B5_CAU[i][l>0?0:1]);}});
@@ -955,6 +955,30 @@ function personalityHTML(c,meas,att,mbti,name){
     <div class="pair" style="margin-top:12px"><div><h3>強み</h3><ul>${uniq(strengths).map(t=>`<li>${t}</li>`).join("")}</ul></div><div><h3>気をつけたいこと</h3><ul>${uniq(cautions).map(t=>`<li>${t}</li>`).join("")}</ul></div></div>
     <p class="foot">${meas?"命式・心理学の質問":"命式"}から自動でまとめた文章です。当たっていると感じた所、違うと感じた所をメモに残すと研究の材料になります。</p></div>`;
 }
+
+// ===== 命式×心理学の統合 =====
+const TIPI_SCALE=["全く違うと思う","おおよそ違うと思う","少し違うと思う","どちらでもない","少しそう思う","まあまあそう思う","強くそう思う"];
+const TIPI_LEAD="私は自分自身のことを…";
+function b5Sources(c,i,sign){const S=c.stars;const pos=[["chest","月支元命"],["head","頭"],["belly","腹"],["left","左手"],["right","右手"]];
+  return pos.filter(([k])=>Math.sign(STAR_B5[MAIN[S[k]]][i])===sign).map(([k,l])=>`${MAIN[S[k]]}(${l})`);}
+function integLine(c,i,pm,ms){const lp=lvl(pm),lm=lvl(ms);const hi=B5_HI[i],lo=B5_LO[i];
+  if(lp&&lp===lm){const src=b5Sources(c,i,lp).join("・");return `<b>一致</b> 命式の${src}も、テストも「${lp>0?hi:lo}」を示しています。生まれ持った性質がそのまま表に出ている、あなたの芯の部分です。`;}
+  if(lp>0&&lm<0)return `<b>ずれ</b> 命式には${b5Sources(c,i,1).join("・")}があり、本来は「${hi}」の素質を持っています。テストでは「${lo}」と出たので、その素質を内側にしまっているか、環境の中で抑えてきた可能性があります。`;
+  if(lp<0&&lm>0)return `<b>ずれ</b> 命式では${b5Sources(c,i,-1).join("・")}の影響でこの面は控えめですが、テストでは「${hi}」と出ました。生まれつきというより、経験や努力で身につけてきた力です。`;
+  if(!lp&&lm){const P=b5Sources(c,i,1),N=b5Sources(c,i,-1);
+    if(P.length&&N.length)return `<b>両面</b> 命式には「${hi}」寄りの${P.join("・")}と、「${lo}」寄りの${N.join("・")}が両方あり、どちらの顔も持っています。テストでは「${lm>0?hi:lo}」と出たので、いまは${(lm>0?P:N).join("・")}の面が前に出ています。`;
+    return `<b>後天的</b> 命式ではこの面を左右する通変星がなく、テストでは「${lm>0?hi:lo}」。生まれつきより、環境や立場の中で育ってきた性質です。`;}
+  if(lp&&!lm)return `<b>潜在</b> 命式では「${lp>0?hi:lo}」の素質(${b5Sources(c,i,lp).join("・")})がありますが、テストでは中くらい。場面によって出たり出なかったりする部分です。`;
+  return `<b>中間</b> 命式でもテストでも極端に偏らない、バランスの取れた面です。`;}
+function integHTML(c,pred,meas){
+  const rows=B5.map((n,i)=>{const pm=pred[i],ms=meas[i];const sum=Math.round(ms*2);
+    return `<div class="b5r"><div class="b5h"><b>${n}</b><span class="b5v">${sum}点 / 2〜14</span></div>
+      <div class="b5t"><span class="pm" style="left:${(pm-1)/6*100}%"></span><span class="ms" style="left:${(ms-1)/6*100}%"></span></div>
+      <div class="b5l"><span>${B5_LO[i]}</span><span>${B5_HI[i]}</span></div><p class="integ">${integLine(c,i,pm,ms)}</p></div>`;}).join("");
+  const ag=B5.filter((_,i)=>lvl(pred[i])&&lvl(pred[i])===lvl(meas[i])),df=B5.filter((_,i)=>lvl(pred[i])&&lvl(meas[i])&&lvl(pred[i])!==lvl(meas[i]));
+  const sum=ag.length?`${ag.join("・")}は、命式とテストが同じ答えを出しました。ここがあなたらしさの核です。${df.length?`一方で${df.join("・")}は逆に出ていて、生まれ持った素質とは違う生き方をしてきた部分です。`:""}`:df.length?`命式の素質と、いまのあなたの性格には違いが多く出ています。特に${df.join("・")}は、経験の中で大きく形を変えてきた部分です。`:"命式の素質と、いまのあなたの性格は、おおむね矛盾なく重なっています。";
+  return `<div class="sheet"><h2>命式×心理学</h2><p class="lead" style="margin-bottom:10px">ビッグファイブ(TIPI-J)の結果と、命式の通変星から読む素質を重ねたもの。◇=命式の素質 ●=テストの結果</p><p class="integ-sum">${sum}</p><div class="b5">${rows}</div>
+    <p class="foot">テストは小塩・阿部・カトローニ(2012)の日本語版TIPI(TIPI-J)。各特性は2問の合計で2〜14点です。命式との対応は、通変星の伝統的な意味から作った仮説です。</p></div>`;}
 
 // ===== 研究: 命式と性格の関係 =====
 function renderResearch(){
@@ -979,7 +1003,7 @@ function psychCompatHTML(pa,pb,na,nb){
   const A=pa&&pa.psych,B=pb&&pb.psych;if(!A&&!B)return `<div class="sheet"><h2>心理学から見たふたり</h2><p class="lead">研究ノートから選んだ人に「性格」タブの結果が保存されていると、ここに心理学の相性が出ます。</p></div>`;
   const ma=A&&scoreTIPI(A.tipi),mb=B&&scoreTIPI(B.tipi),aa=A&&scoreATT(A.att),ab=B&&scoreATT(B.att);const pts=[];
   if(ma&&mb){const d=B5.map((_,i)=>Math.abs(ma[i]-mb[i]));
-    if(d[2]<=1.5)pts.push(["誠実性が近い","生活や仕事の進め方のテンポが合いやすく、長く続く関係で特に効いてきます。",0]);else pts.push(["誠実性の差","段取りや時間感覚の違いがすれ違いの元に。役割分担で補い合うと強みになります。",1]);
+    if(d[2]<=1.5)pts.push(["勤勉性が近い","生活や仕事の進め方のテンポが合いやすく、長く続く関係で特に効いてきます。",0]);else pts.push(["勤勉性の差","段取りや時間感覚の違いがすれ違いの元に。役割分担で補い合うと強みになります。",1]);
     if(d[1]<=1.5)pts.push(["協調性が近い","衝突したときの向き合い方が似ていて、話し合いがしやすい組み合わせです。",0]);
     if(d[0]>=2.5)pts.push(["外向性の差","ひとりの時間と人との時間、どちらで充電するかが違います。予定の入れ方で配慮を。",1]);
     if(ma[3]>=5&&mb[3]>=5)pts.push(["ふたりとも不安を感じやすい","お互いの不安が連鎖しやすいので、落ち着いているときに安心できるルールを決めておくと良い。",1]);}
@@ -1555,8 +1579,8 @@ try{const t=localStorage.getItem("sanmei-tab");if(t&&["profile","chart","psych",
 // ===== アンケート(協力者用・#answer で開く) =====
 
 const ans={tipi:Array(10).fill(0),att:Array(6).fill(0)};
-function scale(name,i,txt){return `<div class="q"><div class="qt">${txt}</div><div class="scale" role="radiogroup" aria-label="${esc(txt)}">${[1,2,3,4,5,6,7].map(v=>`<button type="button" role="radio" aria-checked="${ans[name][i]===v}" data-q="${name}" data-i="${i}" data-v="${v}">${v}</button>`).join("")}</div></div>`;}
-function drawQs(){$("#q-tipi").innerHTML=TIPI.map(([t],i)=>scale("tipi",i,t)).join("");$("#q-att").innerHTML=ATT.map(([t],i)=>scale("att",i,t)).join("");}
+function scale(name,i,txt){return `<div class="q"><div class="qt"><small style="color:var(--muted)">${i+1}.</small> ${txt}</div><div class="scale" role="radiogroup" aria-label="${esc(txt)}">${[1,2,3,4,5,6,7].map(v=>`<button type="button" role="radio" aria-checked="${ans[name][i]===v}" data-q="${name}" data-i="${i}" data-v="${v}">${v}</button>`).join("")}</div></div>`;}
+function drawQs(){$("#sv-legend").innerHTML=`<div class="scale-legend">${TIPI_SCALE.map((t,k)=>`<span>${k+1}<br>${t}</span>`).join("")}</div>`;$("#q-tipi").innerHTML=TIPI.map(([t],i)=>scale("tipi",i,t)).join("");}
 document.addEventListener("click",e=>{const b=e.target.closest("#survey-root .scale button");if(!b)return;ans[b.dataset.q][+b.dataset.i]=+b.dataset.v;b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-checked",x===b));});
 $("#s-mbti").innerHTML=`<option value="">受けたことがない・わからない</option>`+MBTI_TYPES.map(t=>`<option>${t}</option>`).join("");
 let evN=0;function addEvRow(){const i=evN++;const d=document.createElement("div");d.className="form";d.innerHTML=`<div class="field"><label for="ev-t${i}">出来事</label><select id="ev-t${i}" class="ev-t"><option value="">選んでください</option>${EV_TYPES.map((t,k)=>`<option value="${k}">${t[0]}</option>`).join("")}</select></div><div class="field"><label for="ev-d${i}">日付</label><input id="ev-d${i}" class="ev-d" type="date" min="1900-01-01" max="2100-12-31"></div>`;$("#ev-rows").appendChild(d);}
@@ -1564,7 +1588,7 @@ addEvRow();addEvRow();$("#ev-more").addEventListener("click",()=>{if(evN<12)addE
 function encode(o){const bytes=new TextEncoder().encode(JSON.stringify(o));let bin="";bytes.forEach(b=>bin+=String.fromCharCode(b));return "SANMEI1-"+btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
 $("#sv-finish").addEventListener("click",()=>{const err=$("#sv-err");const dt=parseDate($("#s-date").value);
   if(!dt){err.textContent="生年月日を入れてください。";$("#s-date").focus();return;}
-  const miss=ans.tipi.filter(v=>!v).length+ans.att.filter(v=>!v).length;if(miss){err.textContent=`性格の質問に未回答が ${miss} 問あります。`;return;}
+  const miss=ans.tipi.filter(v=>!v).length;if(miss){err.textContent=`性格の質問に未回答が ${miss} 問あります。`;return;}
   err.textContent="";
   const evs=[...document.querySelectorAll("#ev-rows .form")].map(f=>[f.querySelector(".ev-d").value,f.querySelector(".ev-t").value]).filter(([d,t])=>parseDate(d)&&t!=="").map(([d,t])=>[d,+t]);
   const o={v:1,n:$("#s-name").value.trim()||"協力者",d:$("#s-date").value,s:$("#s-sex").value,r:$("#s-rel").value,x:{order:$("#s-order").value,job:$("#s-job").value,status:$("#s-status").value},t:ans.tipi,a:ans.att,m:$("#s-mbti").value,e:evs,at:Date.now()};
@@ -1572,14 +1596,13 @@ $("#sv-finish").addEventListener("click",()=>{const err=$("#sv-err");const dt=pa
   fetch("https://formsubmit.co/ajax/kenwork927@gmail.com",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(body)}).then(r=>r.json()).then(j=>{if(String(j.success)==="true"){m.textContent="ご協力ありがとうございました。回答はちゃんと届いています。";}else throw 0;}).catch(()=>{m.textContent="自動で送信できませんでした。お手数ですが、下のボタンでLINEから送ってください。";$("#sv-fallback").hidden=false;});})();$("#sv-line").href="https://line.me/R/share?text="+encodeURIComponent("命と心の性格診断の結果です\n"+$("#sv-code").value);showResult(dt,o);$("#sv-form-panel").hidden=true;$("#sv-done-panel").hidden=false;window.scrollTo(0,0);});
 $("#sv-back").addEventListener("click",()=>{$("#sv-form-panel").hidden=false;$("#sv-done-panel").hidden=true;});
 $("#sv-copy").addEventListener("click",async()=>{const t=$("#sv-code");try{await navigator.clipboard.writeText(t.value);$("#sv-copy").textContent="コピーしました";}catch(e){t.focus();t.select();$("#sv-copy").textContent="選択しました。長押しでコピー";}setTimeout(()=>$("#sv-copy").textContent="コードをコピー",2500);});
-function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const meas=scoreTIPI(o.t);const att=scoreATT(o.a);const S=c.stars;
-  const cell=(k,ju)=>`<div class="cell ${ju?"ju":""} ${k==="chest"?"center":""}" style="cursor:default"><span class="pos">${POS_INFO[k][0]}</span><span class="st">${ju?ENERGY_LV[eLv(JU_ENERGY[S[k]])][0]:MAIN[S[k]]}</span></div>`;
-  $("#sv-result").innerHTML=`<div class="sheet"><h2>${esc(o.n)}さんの命式</h2>
-    <p class="lead" style="margin-bottom:12px">日干 <b>${stemHTML(c.ds)}</b>(あなた自身を表す文字)、${TCS_NAME[c.tcsG]}天中殺。真ん中の月支元命 <b>${MAIN[S.chest]}</b> は「${MAIN_INFO[MAIN[S.chest]][0]}」を表し、${MAIN_INFO[MAIN[S.chest]][1]}</p>
-    <div class="body-chart"><div class="cell empty"></div>${cell("head")}${cell("shoulder",1)}${cell("right")}${cell("chest")}${cell("left")}${cell("rightFoot",1)}${cell("belly")}${cell("leftFoot",1)}</div></div>
-    ${summaryHTML(c,o.n,o.s)}
-    ${psyResultHTML(c,pred,meas,att,o.m,10,o.n)}
-    <p class="foot">心理学の質問は自己理解の目安で、診断ではありません。生年月日と性格の関係は科学的には確かめられていないので、この結果も「当たった・外れた」を楽しむ研究の一部として見てください。</p>`;}
+function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const meas=scoreTIPI(o.t);
+  $("#c-name").value=o.n;$("#c-date").value=o.d;$("#c-sex").value=o.s;$("#c-blind").checked=false;selCell="chest";daiunSel=null;renderChart();
+  const box=$("#sv-result");box.innerHTML="";box.appendChild($("#chart-out"));
+  const extra=document.createElement("div");extra.style.cssText="display:flex;flex-direction:column;gap:18px";
+  extra.innerHTML=`${personalityHTML(c,meas,null,o.m,o.n)}${integHTML(c,pred,meas)}${o.m?`<div class="sheet"><h2>MBTIで見ると</h2><div class="facts"><div class="fact"><div class="lbl">命式から予想</div><div class="val">${mbtiFrom(pred)}</div></div><div class="fact"><div class="lbl">テストから換算</div><div class="val">${mbtiFrom(meas)}</div></div><div class="fact"><div class="lbl">あなたのタイプ</div><div class="val">${esc(o.m)}</div><div class="sub">命式の予想と${sameLetters(o.m,mbtiFrom(pred))}/4文字一致</div></div></div></div>`:""}
+    <p class="foot">心理学のテストは自己理解の目安で、診断ではありません。生年月日と性格の関係は科学的には確かめられていないので、「当たった・外れた」を楽しむつもりで見てください。</p>`;
+  box.appendChild(extra);}
 drawQs();
 
 $("#app-root").hidden=true;$("#survey-root").hidden=false;
