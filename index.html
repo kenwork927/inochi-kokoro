@@ -117,6 +117,7 @@ th{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em}
 .foot{font-size:12px;color:var(--muted);margin-top:8px}
 .status{font-size:12px;color:var(--muted)}
 #survey-root .mydict{display:none}
+.sharebox{margin:10px 0 0;padding:12px 14px;border:1px dashed var(--line);border-radius:8px;font-size:14px;line-height:1.7;word-break:break-all}
 .sv-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:4px;background:var(--paper);border-bottom:1px solid var(--line);padding-block:6px;overflow-x:auto}
 .sv-nav a{flex:1 0 auto;text-align:center;padding:8px 10px;font-weight:700;font-size:14px;color:var(--accent);text-decoration:none;border-radius:6px}
 .sv-nav a:active{background:var(--accent-soft)}
@@ -1667,8 +1668,18 @@ function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const mea
     renderCompat();const co=$("#compat-out");if(co.parentNode!==out){out.innerHTML="";out.appendChild(co);}co.scrollIntoView&&co.scrollIntoView({behavior:"smooth",block:"start"});});
   // 辞典
   const dict=$("#p-dict");dict.hidden=false;const dw=document.createElement("details");dw.className="sheet";dw.id="sv-dict";dw.innerHTML=`<summary style="cursor:pointer"><h2 style="display:inline">辞典 ─ 十干・十二支・通変星・エネルギー</h2></summary>`;dw.appendChild(dict);box.appendChild(dw);
+  // 共有
+  const URL0="https://kenwork927.github.io/inochi-kokoro/";const kD=kanshiInfo(c.ds,c.db);
+  const shareTxt=`命と心の性格診断をやってみた!\n私は「${kD.name}」の人。${KANSHI_TEXT[kD.idx].split("。")[0]}。\n性格の核は「${MAIN[c.stars.chest]}」でした。\nあなたもやってみて👇`;
+  const sh=document.createElement("div");sh.className="sheet";sh.id="sv-share";
+  sh.innerHTML=`<h2>友達にシェアする</h2><p class="lead">あなたの結果のひと言と、診断のリンクを送れます。生年月日などの細かい内容は送られません。</p>
+    <p class="sharebox">${esc(shareTxt).replace(/\n/g,"<br>")}<br>${URL0}</p>
+    <div class="row" style="margin-top:10px"><button class="btn" id="sh-native" type="button">シェアする</button><a class="btn line" href="https://line.me/R/share?text=${encodeURIComponent(shareTxt+"\n"+URL0)}" target="_blank" rel="noopener">LINEで送る</a><button class="btn ghost" id="sh-copy" type="button">コピー</button><span class="status" id="sh-msg"></span></div>`;
+  box.appendChild(sh);
+  sh.querySelector("#sh-native").addEventListener("click",async()=>{try{if(navigator.share){await navigator.share({title:"命と心の性格診断",text:shareTxt,url:URL0});}else throw 0;}catch(e){if(e&&e.name==="AbortError")return;try{await navigator.clipboard.writeText(shareTxt+"\n"+URL0);$("#sh-msg").textContent="コピーしました";}catch(_){$("#sh-msg").textContent="LINEで送るか、上の文を長押しでコピーしてください";}}});
+  sh.querySelector("#sh-copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(shareTxt+"\n"+URL0);$("#sh-msg").textContent="コピーしました";}catch(e){$("#sh-msg").textContent="上の文を長押しでコピーしてください";}});
   // ページ内メニュー
-  const nav=document.createElement("nav");nav.className="sv-nav";nav.innerHTML=[["命式","chart-out"],["性格","sv-pers"],["出来事","sv-ev"],["相性","sv-cp"],["辞典","sv-dict"]].map(([l,id])=>`<a href="#${id}">${l}</a>`).join("");
+  const nav=document.createElement("nav");nav.className="sv-nav";nav.innerHTML=[["命式","chart-out"],["性格","sv-pers"],["出来事","sv-ev"],["相性","sv-cp"],["辞典","sv-dict"],["シェア","sv-share"]].map(([l,id])=>`<a href="#${id}">${l}</a>`).join("");
   box.insertBefore?box.insertBefore(nav,box.firstChild):0;
 }
 drawQs();loadDraft2();
