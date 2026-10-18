@@ -116,6 +116,8 @@ th{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em}
 .dict small{color:var(--muted)}
 .foot{font-size:12px;color:var(--muted);margin-top:8px}
 .status{font-size:12px;color:var(--muted)}
+.pfl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.pfc{font-size:12px;border:1px solid var(--line);border-radius:6px;padding:3px 8px;display:flex;flex-direction:column}.pfc small{font-size:10px;color:var(--muted)}
+.vmode{display:flex;border:1px solid var(--accent);border-radius:8px;overflow:hidden;margin-bottom:12px}.vmode button{flex:1;background:transparent;border:0;color:var(--accent);font:700 14px var(--font-body);padding:10px 4px;cursor:pointer}.vmode button+button{border-left:1px solid var(--accent)}.vmode button[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
 .vrow .vf{display:block;font-size:11px;font-weight:400;color:var(--muted);letter-spacing:0}
 .core .cone{margin:0 0 12px;font-family:var(--font-display);font-weight:800;font-size:19px;line-height:1.6;text-wrap:balance}
 .cpars{display:flex;flex-direction:column;gap:6px}.cpar{display:grid;grid-template-columns:5.5em 1fr 4.6em;gap:8px;align-items:center;font-size:13px}
@@ -1667,6 +1669,22 @@ function verdictHTML(A,B,sa,sb,na,nb){
     return `<div class="vrow v${r.lv}"><span class="vmk">${mk}</span><div><b>${MODE_LABEL[md]}<small class="vf">${MODE_FOCUS[md]}</small></b><p>${tx}</p><small>${r.pro.length?"＋ "+[...new Set(r.pro)].join("・"):""}${r.pro.length&&r.con.length?"　":""}${r.con.length?"− "+[...new Set(r.con)].join("・"):""}</small></div></div>`;}).join("")}</div>
     <p class="foot">算命学では、年柱は家・ルーツ、月柱は社会・仕事、日柱は本人と配偶者の場を表します。そのため関わり方ごとに、重視する柱を変えて判定しています。</p></div>`;}
 
+// ===== 心理学だけで見る =====
+const FACET_DESC={"社交性":"人と関わる場を好む","自己主張性":"自分から前に出て引っぱる","活力":"エネルギッシュに動ける","思いやり":"人の気持ちに寄り添う","敬意":"人を尊重して接する","信用":"人の良いところを信じる","秩序":"物事を整理して進める","生産性":"取りかかりが早く、やり切る","責任感":"任されたことを確実に果たす","不安":"心配ごとを抱えやすい","抑うつ":"気分が沈みやすい","情緒不安定性":"感情の波が大きい","知的好奇心":"深く考えるのが好き","美的感性":"芸術や美しいものに惹かれる","創造的想像力":"新しいアイデアを生み出す"};
+function psychOnlyHTML(meas,raw,mbti,name){
+  const v5=meas.map(v=>1+(v-1)/1.5);const fac=scoreFacets(raw);const lv=v=>v>=3.7?"高め":v<=2.3?"低め":"中くらい";
+  const rows=B5.map((n,i)=>{const v=v5[i];const desc=v>=3.7?B5_HI[i]:v<=2.3?B5_LO[i]:"場面によってどちらの面も出る";
+    const f=fac?FACETS[i].map(fn=>`<span class="pfc">${fn} <b>${fac[fn].toFixed(1)}</b><small>${FACET_DESC[fn]}</small></span>`).join(""):"";
+    return `<div class="prow"><div class="ph"><b>${n}</b><span class="pv">${v.toFixed(1)} <small>${lv(v)}</small></span></div><div class="pt" style="margin-top:4px"><span class="pb now" style="width:${(v-1)/4*100}%"></span></div><p class="integ">${desc}</p>${f?`<div class="pfl">${f}</div>`:""}</div>`;}).join("");
+  const dist=v5.map((v,i)=>[Math.abs(v-3),i,v]).sort((a,b)=>b[0]-a[0]).filter(x=>x[0]>=0.7).slice(0,2);
+  const sum=dist.length?`${esc(name)}さんの性格でいちばん特徴的なのは、${dist.map(([,i,v])=>`${B5[i]}が${v>3?"高い":"低い"}こと(${v>3?B5_HI[i]:B5_LO[i]})`).join("と、")}。`:`${esc(name)}さんは、どの特性も極端に偏らないバランス型です。`;
+  const mm=mbtiFrom(meas);
+  const mb=`<div class="sheet"><h2>MBTIで見ると</h2><div class="facts"><div class="fact"><div class="lbl">BFI-2から換算</div><div class="val">${mm}</div><div class="sub">${MBTI_DESC[mm]}</div></div>${mbti?`<div class="fact"><div class="lbl">自分で答えたタイプ</div><div class="val">${esc(mbti)}</div><div class="sub">${MBTI_DESC[mbti]||""}</div></div>`:""}</div>
+    ${mbti?`<p class="integ" style="margin-top:10px">${mm===mbti?"BFI-2の結果と、自分で思っているタイプが一致しています。自分のことを正確につかめている人です。":`${MBTI_AX.filter((_,k)=>mm[k]!==mbti[k]).map(ax=>`${ax.hi}/${ax.lo}`).join("・")}の軸が、BFI-2の結果と自己認識でずれています。自分ではそう思っていても、実際の行動の傾向は少し違う部分です。`}</p>`:""}
+    <p class="foot">換算は、E/Iが外向性、S/Nが開放性、T/Fが協調性、J/Pが勤勉性と対応するという研究(McCrae & Costa, 1989)に基づく目安です。</p></div>`;
+  return `<div class="sheet"><h2>心理学で見る${esc(name)}さん</h2><p class="integ-sum">${sum}</p><div class="ptable">${rows}</div>
+    <p class="foot">日本語版BFI-2短縮版(BFI-2-S-J、吉野ほか, 2025)。各特性は6問の平均で1〜5点、小さい数字は各側面の点数です。</p></div>${mb}`;}
+
 // ===== 保存(db → なければブラウザ内) =====
 let people=[];let store=null;let uid=null;
 const LS="sanmei-notes-v1";
@@ -1839,9 +1857,20 @@ function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const mea
   box.appendChild(sh);
   sh.querySelector("#sh-native").addEventListener("click",async()=>{try{if(navigator.share){await navigator.share({title:"命と心の性格診断",text:shareTxt,url:URL0});}else throw 0;}catch(e){if(e&&e.name==="AbortError")return;try{await navigator.clipboard.writeText(shareTxt+"\n"+URL0);$("#sh-msg").textContent="コピーしました";}catch(_){$("#sh-msg").textContent="LINEで送るか、上の文を長押しでコピーしてください";}}});
   sh.querySelector("#sh-copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(shareTxt+"\n"+URL0);$("#sh-msg").textContent="コピーしました";}catch(e){$("#sh-msg").textContent="上の文を長押しでコピーしてください";}});
+  // 見方の切り替え(命式/心理学/両方)
+  const po=document.createElement("div");po.id="sv-psy";po.style.cssText="display:flex;flex-direction:column;gap:18px";po.innerHTML=psychOnlyHTML(meas,o.t,o.m,o.n);box.insertBefore?box.insertBefore(po,extra):box.appendChild(po);
+  const vm=document.createElement("div");vm.className="sheet";vm.innerHTML=`<div class="vmode" role="group" aria-label="見方"><button type="button" data-vm="mei" aria-pressed="false">命式で見る</button><button type="button" data-vm="psy" aria-pressed="false">心理学で見る</button><button type="button" data-vm="both" aria-pressed="true">両方で見る</button></div><p class="lead" id="vm-lead"></p>`;
+  const setVM=m=>{vm.querySelectorAll("[data-vm]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.vm===m));
+    window.__chartMeas=m==="both"?meas:null;renderChart();
+    $("#chart-out").hidden=m==="psy";po.hidden=m!=="psy";extra.hidden=m!=="both";evBox.hidden=m==="psy";cp.hidden=m==="psy";out.hidden=m==="psy";dw.hidden=m==="psy";
+    nav.querySelectorAll("a").forEach(a=>{const id=a.getAttribute("href").slice(1);a.hidden=(m==="psy"&&["chart-out","sv-ev","sv-cp","sv-dict","sv-pers"].includes(id))||(m==="mei"&&["sv-pers"].includes(id));});
+    const pl=nav.querySelector('a[href="#sv-psy"]');if(pl)pl.hidden=m!=="psy";
+    $("#vm-lead").textContent={mei:"生年月日から読む、生まれ持った素質だけで見ています。",psy:"BFI-2とMBTIの結果だけで見ています。命式は使っていません。",both:"命式の素質と、心理学で測ったいまの性格を重ねて見ています。"}[m];};
+  vm.querySelectorAll("[data-vm]").forEach(b=>b.addEventListener("click",()=>{setVM(b.dataset.vm);window.scrollTo(0,0);}));
   // ページ内メニュー
   const nav=document.createElement("nav");nav.className="sv-nav";nav.innerHTML=[["命式","chart-out"],["性格","sv-pers"],["出来事","sv-ev"],["相性","sv-cp"],["辞典","sv-dict"],["シェア","sv-share"]].map(([l,id])=>`<a href="#${id}">${l}</a>`).join("");
-  box.insertBefore?box.insertBefore(nav,box.firstChild):0;
+  nav.insertAdjacentHTML?nav.insertAdjacentHTML("beforeend",'<a href="#sv-psy" hidden>心理学</a>'):0;
+  box.insertBefore?box.insertBefore(vm,box.firstChild):0;box.insertBefore?box.insertBefore(nav,box.firstChild):0;setVM("both");
 }
 drawQs();loadDraft2();
 
