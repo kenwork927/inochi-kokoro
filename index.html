@@ -410,6 +410,11 @@ td.hi{color:var(--accent);font-weight:700}td.lo{color:var(--seal);font-weight:70
   </header>
 
   <section class="panel" id="sv-form-panel" style="margin-top:18px">
+    <div class="sheet" id="sv-again" hidden style="border:2px solid var(--accent);background:var(--accent-soft)">
+      <h2>前回の診断結果があります</h2>
+      <p style="margin:0;font-size:14px" id="sv-again-txt"></p>
+      <div class="row" style="margin-top:10px"><button class="btn" id="sv-again-btn" type="button">結果をもう一度見る</button></div>
+    </div>
     <div class="sheet">
       <h2>この診断について</h2>
       <p style="margin:0;font-size:14px">生年月日から読む占いと、心理学の性格テストを組み合わせて、あなたの性格・強み・人生の流れを読み解きます。</p>
@@ -1617,8 +1622,18 @@ $("#sv-finish").addEventListener("click",()=>{const err=$("#sv-err");const dt=pa
   err.textContent="";
   const evs=[...document.querySelectorAll("#ev-rows .form")].map(f=>[f.querySelector(".ev-d").value,f.querySelector(".ev-t").value]).filter(([d,t])=>parseDate(d)&&t!=="").map(([d,t])=>[d,+t]);
   const o={v:1,n:$("#s-name").value.trim()||"協力者",d:$("#s-date").value,s:$("#s-sex").value,r:$("#s-rel").value,x:{order:$("#s-order").value,job:$("#s-job").value,status:$("#s-status").value},t:ans.tipi,a:ans.att,m:$("#s-mbti").value,e:evs,at:Date.now()};
-  $("#sv-code").value=encode(o);(function(){const m=$("#sv-sent");const body={_subject:"性格診断の回答:"+o.n,_template:"table",_captcha:"false","ニックネーム":o.n,"生年月日":o.d,"性別":o.s==="m"?"男性":"女性","関係":o.r||"-","MBTI":o.m||"-","兄弟の順番":o.x.order||"-","職業・分野":o.x.job||"-","交際状況":o.x.status||"-","出来事の数":String(o.e.length),"回答コード":$("#sv-code").value};
+  try{localStorage.setItem(LS_LAST,JSON.stringify(o));}catch(e){}$("#sv-code").value=encode(o);(function(){const m=$("#sv-sent");const body={_subject:"性格診断の回答:"+o.n,_template:"table",_captcha:"false","ニックネーム":o.n,"生年月日":o.d,"性別":o.s==="m"?"男性":"女性","関係":o.r||"-","MBTI":o.m||"-","兄弟の順番":o.x.order||"-","職業・分野":o.x.job||"-","交際状況":o.x.status||"-","出来事の数":String(o.e.length),"回答コード":$("#sv-code").value};
   fetch("https://formsubmit.co/ajax/dc01645154598bf6fcaf99d6ea450879",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(body)}).then(r=>r.json()).then(j=>{if(String(j.success)==="true"){m.textContent="ご協力ありがとうございました。回答はちゃんと届いています。";}else throw 0;}).catch(()=>{m.textContent="自動で送信できませんでした。お手数ですが、下のボタンでLINEから送ってください。";$("#sv-fallback").hidden=false;});})();$("#sv-line").href="https://line.me/R/share?text="+encodeURIComponent("命と心の性格診断の結果です\n"+$("#sv-code").value);showResult(dt,o);$("#sv-form-panel").hidden=true;$("#sv-done-panel").hidden=false;window.scrollTo(0,0);});
+// ===== この端末に回答と結果を残す =====
+const LS_DRAFT="inochi-draft",LS_LAST="inochi-last";const FIELDS=["s-name","s-date","s-sex","s-rel","s-order","s-job","s-status","s-mbti"];
+function saveDraft(){try{const f={};FIELDS.forEach(k=>f[k]=$("#"+k).value);localStorage.setItem(LS_DRAFT,JSON.stringify({f,t:ans.tipi}));}catch(e){}}
+function loadDraft2(){try{const d=JSON.parse(localStorage.getItem(LS_DRAFT)||"null");if(!d)return;FIELDS.forEach(k=>{if(d.f&&d.f[k]!=null)$("#"+k).value=d.f[k];});if(Array.isArray(d.t)&&d.t.length===10){ans.tipi=d.t;drawQs();}}catch(e){}}
+function openLast(){try{const o=JSON.parse(localStorage.getItem(LS_LAST)||"null");if(!o)return;const dt=parseDate(o.d);if(!dt)return;$("#sv-code").value=encode(o);showResult(dt,o);$("#sv-sent").textContent="この結果は前回送信済みです。ブックマークやホーム画面に追加しておくと、いつでも見返せます。";$("#sv-form-panel").hidden=true;$("#sv-done-panel").hidden=false;window.scrollTo(0,0);}catch(e){}}
+document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest("#sv-form-panel"))saveDraft();});
+document.addEventListener("change",e=>{if(e.target.closest&&e.target.closest("#sv-form-panel"))saveDraft();});
+document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#survey-root .scale button"))setTimeout(saveDraft,0);});
+$("#sv-again-btn").addEventListener("click",openLast);
+(function(){try{const o=JSON.parse(localStorage.getItem(LS_LAST)||"null");if(o&&parseDate(o.d)){$("#sv-again").hidden=false;$("#sv-again-txt").textContent=`${o.n}さんの診断結果がこのスマホに保存されています。答え直したいときは、このまま下から入力してください。`;}}catch(e){}})();
 $("#sv-back").addEventListener("click",()=>{$("#sv-form-panel").hidden=false;$("#sv-done-panel").hidden=true;});
 $("#sv-copy").addEventListener("click",async()=>{const t=$("#sv-code");try{await navigator.clipboard.writeText(t.value);$("#sv-copy").textContent="コピーしました";}catch(e){t.focus();t.select();$("#sv-copy").textContent="選択しました。長押しでコピー";}setTimeout(()=>$("#sv-copy").textContent="コードをコピー",2500);});
 function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const meas=scoreTIPI(o.t);
@@ -1628,7 +1643,7 @@ function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const mea
   extra.innerHTML=`${personalityHTML(c,meas,null,o.m,o.n)}${integHTML(c,pred,meas)}${o.m?`<div class="sheet"><h2>MBTIで見ると</h2><div class="facts"><div class="fact"><div class="lbl">命式から予想</div><div class="val">${mbtiFrom(pred)}</div></div><div class="fact"><div class="lbl">テストから換算</div><div class="val">${mbtiFrom(meas)}</div></div><div class="fact"><div class="lbl">あなたのタイプ</div><div class="val">${esc(o.m)}</div><div class="sub">命式の予想と${sameLetters(o.m,mbtiFrom(pred))}/4文字一致</div></div></div></div>`:""}
     <p class="foot">心理学のテストは自己理解の目安で、診断ではありません。生年月日と性格の関係は科学的には確かめられていないので、「当たった・外れた」を楽しむつもりで見てください。</p>`;
   box.appendChild(extra);}
-drawQs();
+drawQs();loadDraft2();
 
 $("#app-root").hidden=true;$("#survey-root").hidden=false;
 </script>
