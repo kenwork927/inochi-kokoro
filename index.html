@@ -116,6 +116,12 @@ th{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em}
 .dict small{color:var(--muted)}
 .foot{font-size:12px;color:var(--muted);margin-top:8px}
 .status{font-size:12px;color:var(--muted)}
+#survey-root .mydict{display:none}
+.sv-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:4px;background:var(--paper);border-bottom:1px solid var(--line);padding-block:6px;overflow-x:auto}
+.sv-nav a{flex:1 0 auto;text-align:center;padding:8px 10px;font-weight:700;font-size:14px;color:var(--accent);text-decoration:none;border-radius:6px}
+.sv-nav a:active{background:var(--accent-soft)}
+#sv-dict > summary{list-style:none}#sv-dict > summary::-webkit-details-marker{display:none}#sv-dict #p-dict{margin-top:14px}
+[id^="sv-"],#chart-out{scroll-margin-top:56px}
 .ptable{display:flex;flex-direction:column;gap:12px;margin-top:14px}
 .prow .ph{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px}
 .pd{font-size:12px;font-weight:700;border-radius:4px;padding:0 7px;font-variant-numeric:tabular-nums}.pd.up{color:var(--accent);border:1px solid var(--accent)}.pd.down{color:var(--seal);border:1px solid var(--seal)}.pd.flat{color:var(--muted);border:1px solid var(--line)}
@@ -1640,9 +1646,16 @@ function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const mea
   $("#c-name").value=o.n;$("#c-date").value=o.d;$("#c-sex").value=o.s;$("#c-blind").checked=false;selCell="chest";daiunSel=null;renderChart();
   const box=$("#sv-result");box.innerHTML="";box.appendChild($("#chart-out"));
   const extra=document.createElement("div");extra.style.cssText="display:flex;flex-direction:column;gap:18px";
-  extra.innerHTML=`${personalityHTML(c,meas,null,o.m,o.n)}${integHTML(c,pred,meas)}${o.m?`<div class="sheet"><h2>MBTIで見ると</h2><div class="facts"><div class="fact"><div class="lbl">命式から予想</div><div class="val">${mbtiFrom(pred)}</div></div><div class="fact"><div class="lbl">テストから換算</div><div class="val">${mbtiFrom(meas)}</div></div><div class="fact"><div class="lbl">あなたのタイプ</div><div class="val">${esc(o.m)}</div><div class="sub">命式の予想と${sameLetters(o.m,mbtiFrom(pred))}/4文字一致</div></div></div></div>`:""}
+  extra.id="sv-pers";extra.innerHTML=`${personalityHTML(c,meas,null,o.m,o.n)}${integHTML(c,pred,meas)}${o.m?`<div class="sheet"><h2>MBTIで見ると</h2><div class="facts"><div class="fact"><div class="lbl">命式から予想</div><div class="val">${mbtiFrom(pred)}</div></div><div class="fact"><div class="lbl">テストから換算</div><div class="val">${mbtiFrom(meas)}</div></div><div class="fact"><div class="lbl">あなたのタイプ</div><div class="val">${esc(o.m)}</div><div class="sub">命式の予想と${sameLetters(o.m,mbtiFrom(pred))}/4文字一致</div></div></div></div>`:""}
     <p class="foot">心理学のテストは自己理解の目安で、診断ではありません。生年月日と性格の関係は科学的には確かめられていないので、「当たった・外れた」を楽しむつもりで見てください。</p>`;
   box.appendChild(extra);
+  // 出来事の読み
+  const P0=chart(...dt);const evs=(o.e||[]).filter(e=>parseDate(e[0])&&EV_TYPES[e[1]]).sort((x,y)=>x[0]<y[0]?-1:1);
+  const evBox=document.createElement("div");evBox.className="sheet";evBox.id="sv-ev";
+  evBox.innerHTML=`<h2>人生の出来事を読む</h2>${evs.length?`<div class="plist">${evs.map(([d,t])=>{const r=eventRead(P0,o.s,d);const [y,m,dd]=parseDate(d);const type=EV_TYPES[t][0];
+    const tags=[];if(r.yTcs)tags.push(["天中殺の年",1]);if(r.mTcs)tags.push(["天中殺の月",1]);if(r.kango)tags.push(["干合",0]);r.br.forEach(b=>tags.push([b,["対冲","害","刑","自刑"].includes(b)?1:0]));
+    return `<div class="pitem"><div class="head"><span class="nm">${type}</span><span class="dt">${y}.${m}.${dd}・数え${r.age}歳</span></div>${tags.length?`<div class="row" style="gap:6px">${tags.map(([x,w])=>`<span class="tag-s ${w?"warn":""}">${x}</span>`).join("")}</div>`:""}<p class="evm">${eventMeaning(r,type)}</p></div>`;}).join("")}</div>`:`<p class="lead">入力画面の「人生の出来事」に日付を入れて答え直すと、その出来事が運勢のどんな時期に起きていたかがここに出ます。</p>`}`;
+  box.appendChild(evBox);
   const cp=document.createElement("div");cp.className="sheet";cp.id="sv-cp";
   cp.innerHTML=`<h2>相性を見る</h2><p class="lead">気になる人、パートナー、職場の人などの生年月日を入れると、恋愛・仕事・一般の相性と、ふたりの関係のタイミングが出ます。入れた相手の情報はどこにも送信されません。</p>
     <div class="form" style="margin-top:12px"><div class="field"><label for="cp-name">相手の名前</label><input id="cp-name" placeholder="例:ゆうと"></div><div class="field"><label for="cp-date">相手の生年月日</label><input id="cp-date" type="date" min="1900-01-01" max="2100-12-31"></div><div class="field" style="flex:0 1 110px"><label for="cp-sex">相手の性別</label><select id="cp-sex"><option value="f">女性</option><option value="m">男性</option></select></div></div>
@@ -1652,6 +1665,11 @@ function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const mea
   cp.querySelector("#cp-go").addEventListener("click",()=>{const d=$("#cp-date").value;if(!parseDate(d)){$("#cp-err").textContent="相手の生年月日を入れてください";return;}$("#cp-err").textContent="";
     $("#a-name").value=o.n;$("#a-date").value=o.d;$("#a-sex").value=o.s;$("#a-pick").value="";$("#b-pick").value="";$("#b-name").value=$("#cp-name").value.trim()||"相手";$("#b-date").value=d;$("#b-sex").value=$("#cp-sex").value;
     renderCompat();const co=$("#compat-out");if(co.parentNode!==out){out.innerHTML="";out.appendChild(co);}co.scrollIntoView&&co.scrollIntoView({behavior:"smooth",block:"start"});});
+  // 辞典
+  const dict=$("#p-dict");dict.hidden=false;const dw=document.createElement("details");dw.className="sheet";dw.id="sv-dict";dw.innerHTML=`<summary style="cursor:pointer"><h2 style="display:inline">辞典 ─ 十干・十二支・通変星・エネルギー</h2></summary>`;dw.appendChild(dict);box.appendChild(dw);
+  // ページ内メニュー
+  const nav=document.createElement("nav");nav.className="sv-nav";nav.innerHTML=[["命式","chart-out"],["性格","sv-pers"],["出来事","sv-ev"],["相性","sv-cp"],["辞典","sv-dict"]].map(([l,id])=>`<a href="#${id}">${l}</a>`).join("");
+  box.insertBefore?box.insertBefore(nav,box.firstChild):0;
 }
 drawQs();loadDraft2();
 
