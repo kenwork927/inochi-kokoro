@@ -440,7 +440,7 @@ td.hi{color:var(--accent);font-weight:700}td.lo{color:var(--seal);font-weight:70
       <div class="row" style="margin-top:10px"><button class="btn ghost small" id="ev-more">出来事を追加</button></div>
     </div>
     <div class="sheet">
-      <div class="row"><button class="btn" id="sv-finish">診断結果を見る</button></div>
+      <p class="foot" style="margin:0 0 10px">送信すると、回答はこの診断を作った人に届き、占いと性格の研究に使われます。</p><div class="row"><button class="btn" id="sv-finish">送信して結果を見る</button></div>
       <p class="status" id="sv-err" style="margin-top:8px;color:var(--seal)"></p>
     </div>
   </section>
@@ -448,11 +448,10 @@ td.hi{color:var(--accent);font-weight:700}td.lo{color:var(--seal);font-weight:70
   <section class="panel" id="sv-done-panel" hidden style="margin-top:18px">
     <div id="sv-result" style="display:flex;flex-direction:column;gap:18px"></div>
     <div class="sheet">
-      <h2>この診断を送ってくれた人へ</h2>
-      <p style="margin:0;font-size:14px">この診断は、送ってくれた人の研究にも使われています。協力してもいいと思ったら、下のコードをコピーしてLINEなどで送ってください。送らなければ、回答は誰にも届きません。</p>
-      <textarea id="sv-code" readonly style="margin-top:10px;font-size:12px;min-height:90px" aria-label="回答コード"></textarea>
-      <div class="row" style="margin-top:10px"><a class="btn line" id="sv-line" href="https://line.me/R/share" target="_blank" rel="noopener">LINEで送る</a><button class="btn ghost" id="sv-copy">コードをコピー</button></div>
-      <p class="foot">「LINEで送る」を押すとLINEが開くので、送ってくれた人を選んで送信してください。開かないときは「コードをコピー」してLINEに貼り付けてください。</p>
+      <h2>回答の送信</h2>
+      <p style="margin:0;font-size:14px" id="sv-sent">送信中です…</p>
+      <div id="sv-fallback" hidden style="margin-top:10px"><textarea id="sv-code" readonly style="font-size:12px;min-height:80px" aria-label="回答コード"></textarea>
+      <div class="row" style="margin-top:8px"><a class="btn line" id="sv-line" href="https://line.me/R/share" target="_blank" rel="noopener">LINEで送る</a><button class="btn ghost" id="sv-copy">コードをコピー</button></div></div>
       <div class="row" style="margin-top:8px"><button class="btn ghost small" id="sv-back">回答を直す</button></div>
     </div>
 
@@ -1569,7 +1568,8 @@ $("#sv-finish").addEventListener("click",()=>{const err=$("#sv-err");const dt=pa
   err.textContent="";
   const evs=[...document.querySelectorAll("#ev-rows .form")].map(f=>[f.querySelector(".ev-d").value,f.querySelector(".ev-t").value]).filter(([d,t])=>parseDate(d)&&t!=="").map(([d,t])=>[d,+t]);
   const o={v:1,n:$("#s-name").value.trim()||"協力者",d:$("#s-date").value,s:$("#s-sex").value,r:$("#s-rel").value,x:{order:$("#s-order").value,job:$("#s-job").value,status:$("#s-status").value},t:ans.tipi,a:ans.att,m:$("#s-mbti").value,e:evs,at:Date.now()};
-  $("#sv-code").value=encode(o);$("#sv-line").href="https://line.me/R/share?text="+encodeURIComponent("命と心の性格診断の結果です\n"+$("#sv-code").value);showResult(dt,o);$("#sv-form-panel").hidden=true;$("#sv-done-panel").hidden=false;window.scrollTo(0,0);});
+  $("#sv-code").value=encode(o);(function(){const m=$("#sv-sent");const body={_subject:"性格診断の回答:"+o.n,_template:"table",_captcha:"false","ニックネーム":o.n,"生年月日":o.d,"性別":o.s==="m"?"男性":"女性","関係":o.r||"-","MBTI":o.m||"-","兄弟の順番":o.x.order||"-","職業・分野":o.x.job||"-","交際状況":o.x.status||"-","出来事の数":String(o.e.length),"回答コード":$("#sv-code").value};
+  fetch("https://formsubmit.co/ajax/kenwork927@gmail.com",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(body)}).then(r=>r.json()).then(j=>{if(String(j.success)==="true"){m.textContent="ご協力ありがとうございました。回答はちゃんと届いています。";}else throw 0;}).catch(()=>{m.textContent="自動で送信できませんでした。お手数ですが、下のボタンでLINEから送ってください。";$("#sv-fallback").hidden=false;});})();$("#sv-line").href="https://line.me/R/share?text="+encodeURIComponent("命と心の性格診断の結果です\n"+$("#sv-code").value);showResult(dt,o);$("#sv-form-panel").hidden=true;$("#sv-done-panel").hidden=false;window.scrollTo(0,0);});
 $("#sv-back").addEventListener("click",()=>{$("#sv-form-panel").hidden=false;$("#sv-done-panel").hidden=true;});
 $("#sv-copy").addEventListener("click",async()=>{const t=$("#sv-code");try{await navigator.clipboard.writeText(t.value);$("#sv-copy").textContent="コピーしました";}catch(e){t.focus();t.select();$("#sv-copy").textContent="選択しました。長押しでコピー";}setTimeout(()=>$("#sv-copy").textContent="コードをコピー",2500);});
 function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const meas=scoreTIPI(o.t);const att=scoreATT(o.a);const S=c.stars;
