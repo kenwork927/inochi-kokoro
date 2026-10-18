@@ -116,6 +116,11 @@ th{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em}
 .dict small{color:var(--muted)}
 .foot{font-size:12px;color:var(--muted);margin-top:8px}
 .status{font-size:12px;color:var(--muted)}
+.dlist{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.drow{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.drow b{font-size:14px}.drow p{margin:2px 0 0;font-size:14px;line-height:1.7}
+.dmk{font-family:var(--font-display);font-weight:800;font-size:22px;line-height:1.2;text-align:center}.dmk.good{color:var(--accent)}.dmk.bad{color:var(--seal)}.dmk.mid{color:var(--muted)}
+table.mbt td b{font-family:var(--font-display);font-size:18px;margin-right:4px}table.mbt td small{display:block;font-size:11px;color:var(--muted)}
 #survey-root .mydict{display:none}
 .sharebox{margin:10px 0 0;padding:12px 14px;border:1px dashed var(--line);border-radius:8px;font-size:14px;line-height:1.7;word-break:break-all}
 .sv-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:4px;background:var(--paper);border-bottom:1px solid var(--line);padding-block:6px;overflow-x:auto}
@@ -799,13 +804,13 @@ function renderCompat(){
   const ea=elementCounts(A),eb=elementCounts(B);
   const give=(x,y)=>[0,1,2,3,4].filter(i=>x[i]<=1&&y[i]>=3).map(i=>EL_NAME[i]);
   const ga=give(ea,eb),gb=give(eb,ea);
-  out.innerHTML=`${verdictHTML(A,B,sa,sb,na,nb)}
+  out.innerHTML=`${verdictHTML(A,B,sa,sb,na,nb)}${detailCompatHTML(A,B,sa,sb,na,nb)}
   <div class="sheet">
-    <h2>お互いはどんな存在か</h2>
+    <h2>一般 ─ お互いはどんな存在か</h2>
     <p class="lead" style="margin-bottom:12px">日干 ${stemHTML(A.ds)}(${na})と ${stemHTML(B.ds)}(${nb})の関係から読みます。</p>
     <div class="pair">
-      <div class="role"><div class="who">${na}から見た${nb}</div><div class="star">${ab}</div>${["love","work","general"].map(md=>`<p><b class="ml">${MODE_LABEL[md]}</b>${ROLES[md][ab]}</p>`).join("")}</div>
-      <div class="role"><div class="who">${nb}から見た${na}</div><div class="star">${ba}</div>${["love","work","general"].map(md=>`<p><b class="ml">${MODE_LABEL[md]}</b>${ROLES[md][ba]}</p>`).join("")}</div>
+      <div class="role"><div class="who">${na}から見た${nb}</div><div class="star">${ab}</div><p>${ROLES.general[ab]}</p></div>
+      <div class="role"><div class="who">${nb}から見た${na}</div><div class="star">${ba}</div><p>${ROLES.general[ba]}</p></div>
     </div>
     ${kango?`<p class="notice" style="margin-top:12px"><b>日干が干合(${STEMS[Math.min(A.ds,B.ds)]}${STEMS[Math.max(A.ds,B.ds)]})</b><br>${["love","work","general"].map(md=>`<b class="ml">${MODE_LABEL[md]}</b>${KANGO_TEXT[md]}`).join("<br>")}</p>`:""}
     ${true?`<p class="foot">恋愛の学習メモ:伝統的には、男性から見て偏財・正財の相手が妻、女性から見て偏官・正官の相手が夫を表すとされます。${spouse}</p>`:""}
@@ -925,15 +930,7 @@ function psyResultHTML(c,pred,meas,att,mbti,filled,name){return `${meas?personal
       <div class="b5l"><span>${B5_LO[i]}</span><span>${B5_HI[i]}</span></div></div>`;}).join("")}</div>
     <p class="foot">予想の根拠:月支元命 ${MAIN[c.stars.chest]}(${STAR_WHY[MAIN[c.stars.chest]]})を2倍、ほか4つの通変星を1倍で足し、エネルギーの合計を外向性に反映。この対応づけは伝統的な星の意味から作った仮説です。</p>
   </div>`}
-  <div class="sheet">
-    <h2>MBTIで見ると</h2>
-    <div class="facts">
-      <div class="fact"><div class="lbl">命式から予想</div><div class="val">${mbtiFrom(pred)}</div><div class="sub">予想したビッグファイブから換算</div></div>
-      <div class="fact"><div class="lbl">質問の結果から</div><div class="val">${meas?mbtiFrom(meas):"—"}</div><div class="sub">ビッグファイブから換算</div></div>
-      <div class="fact"><div class="lbl">診断済みのタイプ</div><div class="val">${mbti||"—"}</div><div class="sub">${mbti?`命式の予想と${sameLetters(mbti,mbtiFrom(pred))}/4文字一致`:"16Personalitiesなどの結果があれば選択"}</div></div>
-    </div>
-    <p class="foot">換算は、E/Iが外向性、S/Nが開放性、T/Fが協調性、J/Pが勤勉性とそれぞれ関連するという研究(McCrae & Costa, 1989)に基づく目安です。神経症傾向はMBTIにはありません。</p>
-  </div>
+  ${mbtiChainHTML(c,pred,meas,mbti)}
   ${att?`<div class="sheet"><h2>愛着スタイル:${ATT_TYPE[att.t][0]}</h2><p style="margin:0">${ATT_TYPE[att.t][1]}</p>
     <div class="facts" style="margin-top:10px"><div class="fact"><div class="lbl">見捨てられ不安</div><div class="val">${att.ax.toFixed(1)}</div></div><div class="fact"><div class="lbl">親密さの回避</div><div class="val">${att.av.toFixed(1)}</div></div></div>
     <p class="foot">命式と重ねると:月支元命 ${MAIN[c.stars.chest]}の人が${ATT_TYPE[att.t][0]}のとき、${attStarNote(MAIN[c.stars.chest],att.t)}</p></div>`:""}`;}
@@ -1506,6 +1503,59 @@ const KANSHI_TEXT=["冬の水を吸って育つ若木。頭がよく、学ぶこ
 const KANSHI_TAG=[[[16,46,28,58,34],"魁罡","頭脳明晰で、極端なほどの強さと波を持つ日柱"],[[42,54,48],"羊刃","陽の干が最も強くなる日柱。激しさと強い意志"],[[33,23,39,29],"日貴","品があり、困った時に人から助けられる日柱"],[[50,52,4,16,58],"日徳","人柄に徳があり、穏やかな運を持つ日柱"],[[50,51,42,53,56,57,48,59],"専旺","干と支が同じ五行で、その性質が純粋に強く出る日柱"],[[10,11],"日座天中殺","日柱そのものが天中殺。常識の外で生きる力を持つ"]];
 const kanshiTags=i=>KANSHI_TAG.filter(t=>t[0].includes(i));
 const REL_CTX={"支合": {"0-1": "家で育った価値観が、そのまま社会で通用する。親や目上の引き立てで仕事が開けやすい。", "1-2": "仕事と私生活がなじむ。職場の人と親しくなりやすく、仕事が生活の一部になる。", "0-2": "家族や目上との縁が深い。親との関係が、そのまま自分の家庭の形になりやすい。"}, "半会": {"0-1": "生まれ育った環境が、社会での武器になる。地元や家業、親の人脈を活かせる。", "1-2": "仕事とプライベートが自然につながって広がる。仕事仲間が友人に、趣味が仕事になりやすい。", "0-2": "家系の力を受け継ぎ、自分の代で大きく広げる。"}, "対冲": {"0-1": "育った環境と社会での自分が正反対。家を出てから本領を発揮する。若いうちに環境が大きく変わる。", "1-2": "仕事の顔と家の顔がまったく違う。仕事か家庭か、どちらかに偏りやすい。", "0-2": "親や家系とは違う道を行く人。故郷を離れて生きる縁が強い。"}, "害": {"0-1": "親や目上の期待と、自分の仕事のやり方が少しずつかみ合わない。", "1-2": "仕事の疲れを家に持ち込みやすい。外と内の切り替えが下手。", "0-2": "親との間に、小さなわだかまりが残りやすい。"}, "刑": {"0-1": "家の価値観と社会のルールの間で揉まれ、鍛えられる。", "1-2": "仕事でも私生活でも自分に厳しい。ストイックさが長所にも短所にもなる。", "0-2": "親と似た部分ほど反発し合う。"}, "自刑": {"0-1": "同じこだわりが、家でも社会でも顔を出す。", "1-2": "仕事でも家でも同じこだわりを通そうとして、自分を追い込みやすい。", "0-2": "親と同じこだわりを持ち、そこでぶつかる。親に似ている部分ほど反発しやすい。"}, "干合": {"0-1": "目上の引き立てが、社会での成功につながる。", "1-2": "仕事に惚れ込むタイプ。仕事と自分が一体になりやすい。", "0-2": "親や目上と強く結びつく。家の影響を一生受ける。"}, "律音": {"0-1": "家でも社会でも同じ性質が強く出る。迷いがない。", "1-2": "仕事と自分が完全に重なる。生き方がそのまま仕事になる。", "0-2": "親とよく似た人生をたどりやすい。"}, "納音": {"0-1": "人生の前半に、家と社会の間で大きな転機がある。", "1-2": "仕事と家庭で両極端な面を持ち、どこかで大きく人生の舵を切る。", "0-2": "家系との関係に、大きな転換点がある。"}, "天剋地冲": {"0-1": "育ちと社会がぶつかり合う。若いうちの苦労は大きいが、乗り越えれば強い。", "1-2": "仕事と私生活が激しくぶつかる。どちらかを選ぶ決断を迫られやすい。", "0-2": "親や家系と真っ向からぶつかり、自分の力で生き直す人。"}};
+// ===== MBTIの流れ(命式→BFI→診断) =====
+const MBTI_AX=[{i:0,hi:"E",lo:"I",hiN:"外向",loN:"内向"},{i:4,hi:"N",lo:"S",hiN:"直観",loN:"感覚"},{i:1,hi:"F",lo:"T",hiN:"感情",loN:"思考"},{i:2,hi:"J",lo:"P",hiN:"判断",loN:"知覚"}];
+function mbtiChainHTML(c,pred,meas,mbti){
+  const pm=mbtiFrom(pred),mm=meas?mbtiFrom(meas):"";
+  const rows=MBTI_AX.map((ax,k)=>{const pl=pm[k],ml=mm?mm[k]:"",dl=mbti?mbti[k]:"";const sign=pl===ax.hi?1:-1;
+    let src=b5Sources(c,ax.i,sign);if(!src.length)src=["月支元命・エネルギーの強さ"];
+    const why=`${B5[ax.i]}の素質が${pred[ax.i]>4?"高め":pred[ax.i]<4?"低め":"中くらい"}(根拠:${src.join("・")})`;
+    const ch=!ml?"":ml===pl?"変わらず":"後天的に変化";
+    return `<tr><td><b>${pl}</b><small>${pl===ax.hi?ax.hiN:ax.loN}</small></td><td style="white-space:normal">${why}</td><td>${ml?`<b>${ml}</b><small>${ch}</small>`:"—"}</td><td>${dl?`<b>${dl}</b>`:"—"}</td></tr>`;}).join("");
+  const changed=mm?MBTI_AX.filter((_,k)=>pm[k]!==mm[k]):[];
+  const sum=!mm?"":changed.length?`生まれ持った型は<b>${pm}</b>。いまのBFI-2では<b>${mm}</b>で、${changed.map(ax=>`${ax.hiN}/${ax.loN}(${ax.hi}/${ax.lo})`).join("と")}が後天的に入れ替わっています。経験や環境の中で、この軸の使い方を変えてきたと読めます。`:`生まれ持った型<b>${pm}</b>が、いまのBFI-2でもそのまま出ています。素質どおりに生きてきたタイプです。`;
+  return `<div class="sheet"><h2>MBTI ─ 生まれ持った型からいまの型へ</h2>${sum?`<p class="integ-sum">${sum}${mbti?` 本人が答えたMBTIは<b>${esc(mbti)}</b>(BFI-2から換算した型と${sameLetters(mbti,mm)}/4文字一致)。`:""}</p>`:""}
+    <div class="table-wrap"><table class="mbt"><thead><tr><th>命式の型</th><th>根拠</th><th>いま(BFI-2)</th><th>診断</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="foot">換算は、E/Iが外向性、S/Nが開放性、T/Fが協調性、J/Pが勤勉性と対応するという研究(McCrae & Costa, 1989)に基づく目安です。</p></div>`;}
+
+// ===== 恋愛・仕事の詳しい相性 =====
+const GRP_NAME=["自立","表現","財・実務","組織・責任","知性・学び"];
+const WORK_FIELD=["専門・職人的な分業","企画・表現・ものづくり","営業・管理・お金まわり","組織運営・管理職","研究・教育・戦略"];
+function relRole(st){return {"比肩":["対等","同じ目線で並ぶ"],"劫財":["対等・競争","張り合いながら並ぶ"],"食神":["あなたが育てる側","相手を伸ばし、楽しませる"],"傷官":["あなたが磨く側","相手の才能を鋭く引き出す"],"偏財":["あなたが動かす側","相手を巻き込み、動かす"],"正財":["あなたが支える側","相手と暮らしや実務を固める"],"偏官":["相手がリードする側","相手に鍛えられる"],"正官":["相手が上に立つ側","相手に律される・評価される"],"偏印":["相手が刺激をくれる側","相手から新しい視点をもらう"],"印綬":["相手が教える側","相手に守られ、学ぶ"]}[st];}
+function mk(v){return v>=2?["◎","good"]:v>=1?["○","good"]:v<=-1?["×","bad"]:["△","mid"];}
+function detailCompatHTML(A,B,sa,sb,na,nb){
+  const ab=MAIN[mainStarIdx(A.ds,B.ds)],ba=MAIN[mainStarIdx(B.ds,A.ds)];const dr=branchRels(A.db,B.db).map(r=>r[0]);const dp=dayPillarRel(A,B).map(r=>r[0]);
+  const kango=Math.abs(A.ds-B.ds)===5;const sp=(s,st)=>(s==="m"&&["偏財","正財"].includes(st))||(s==="f"&&["偏官","正官"].includes(st));
+  const ea=elementCounts(A),eb=elementCounts(B);const comp=[0,1,2,3,4].some(i=>(ea[i]<=1&&eb[i]>=3)||(eb[i]<=1&&ea[i]>=3));
+  const tcsX=A.tcs.includes(B.db)||B.tcs.includes(A.db)||A.tcs.includes(B.yb)||B.tcs.includes(A.yb);
+  const clash=dr.includes("対冲")||dp.includes("天剋地冲");const hurt=dr.some(x=>["害","刑","自刑"].includes(x));const bond=dr.includes("支合")||dr.includes("半会");
+  const rough=["偏官","劫財","傷官"];
+  const row=(t,v,txt)=>{const [m,c]=mk(v);return `<div class="drow"><span class="dmk ${c}">${m}</span><div><b>${t}</b><p>${txt}</p></div></div>`;};
+  // 恋愛
+  let at=(kango?2:0)+(sp(sa,ab)||sp(sb,ba)?2:0)+(comp?1:0)+(dr.includes("支合")?1:0);
+  let an=(bond?1:0)+(A.tcsG===B.tcsG?1:0)+(["印綬","正財","正官"].some(x=>x===ab||x===ba)?1:0)-(clash?2:0);
+  let cf=(clash?2:0)+(hurt?1:0)+(rough.includes(ab)?1:0)+(rough.includes(ba)?1:0);
+  let lt=(["正財","正官"].includes(ab)||["正財","正官"].includes(ba)?1:0)+(dr.includes("支合")?1:0)-(tcsX?1:0)-(clash?1:0);
+  const [rA]=relRole(ab);const lead=["偏官","正官","印綬","偏印"].includes(ab)?nb:["偏官","正官","印綬","偏印"].includes(ba)?na:"";
+  const love=[
+   row("惹かれ合う力",Math.min(at,3)-1,`${kango?"日干が干合していて、理屈抜きに引き寄せられる縁。":""}${sp(sa,ab)?`${na}から見て${nb}は配偶者を表す${ab}。`:""}${sp(sb,ba)?`${nb}から見て${na}は配偶者を表す${ba}。`:""}${comp?"足りない五行を補い合うので、一緒にいると自然と惹かれる。":""}${at===0?"一目で強く惹かれる組み合わせではなく、時間をかけて距離が縮まる関係。":""}`),
+   row("一緒にいる安心感",an-1,bond?"日支どうしが結びつき、そばにいるだけで落ち着く。":clash?"日支が冲で、近づくほど落ち着かない。距離感の調整が要る。":A.tcsG===B.tcsG?"天中殺のグループが同じで、運気の波が重なり共感しやすい。":"特別な安心の縁はなく、言葉で安心を作っていく関係。"),
+   row("ぶつかりやすさ(少ないほど◎)",1-cf,cf>=3?"かなりぶつかる。主導権や価値観で衝突が起きやすいので、ルールを決めておくと楽。":cf>=1?`ときどきぶつかる。${rough.includes(ab)||rough.includes(ba)?`${rough.includes(ab)?ab:ba}の関係で、どちらかが強く出やすい。`:""}${hurt?"小さなすれ違いが積もりやすい。":""}`:"大きな衝突は起きにくい。"),
+   row("結婚・長く続く力",lt,lt>=1?"暮らしを一緒に積み上げられる組み合わせ。結婚向き。":tcsX?"相手が自分の天中殺にかかるため、思い通りに進まない時期がある。焦らず時間をかけて。":"恋愛としては成立しても、結婚まで行くには意識的な努力が要る。"),
+   `<div class="drow"><span class="dmk mid">→</span><div><b>主導権</b><p>${lead?`${lead}がリードしやすい。`:"どちらかが一方的にリードする関係ではない。"}${na}から見ると${relRole(ab)[1].replace("相手",nb)}関係、${nb}から見ると${relRole(ba)[1].replace("相手",na)}関係。</p></div></div>`];
+  // 仕事
+  const gA=Math.floor(A.stars.chest/2),gB=Math.floor(B.stars.chest/2);
+  let tr=(bond?1:0)+(["正官","印綬","正財"].includes(ab)||["正官","印綬","正財"].includes(ba)?1:0)-(hurt?1:0);
+  let dc=(clash?2:0)+(rough.includes(ab)||rough.includes(ba)?1:0)+(gA===gB&&gA===0?1:0);
+  let syn=(gA!==gB?1:0)+(kango?1:0)+(["偏財","正財","食神"].includes(ab)||["偏財","正財","食神"].includes(ba)?1:0);
+  const boss=["偏官","正官"].includes(ab)?`${nb}が上司、${na}が部下の形が合う。`:["偏官","正官"].includes(ba)?`${na}が上司、${nb}が部下の形が合う。`:["印綬","偏印"].includes(ab)?`${nb}が師匠・相談役になる形が合う。`:["印綬","偏印"].includes(ba)?`${na}が師匠・相談役になる形が合う。`:["比肩","劫財"].includes(ab)?"同僚・パートナーとして対等に組む形が合う。":`${["食神","傷官","偏財","正財"].includes(ab)?na:nb}が引っぱり、もう一方が実行する形が合う。`;
+  const work=[
+   `<div class="drow"><span class="dmk mid">→</span><div><b>役割分担</b><p>${boss}</p></div></div>`,
+   row("組むと伸びる力",syn-1,gA!==gB?`${na}は${GRP_NAME[gA]}、${nb}は${GRP_NAME[gB]}が核。強みが違うので補い合える。向いている仕事は「${WORK_FIELD[gA]}」×「${WORK_FIELD[gB]}」の組み合わせ。`:`ふたりとも${GRP_NAME[gA]}が核。得意分野がかぶるので、役割を分けないと同じところで競いがち。向いている分野は「${WORK_FIELD[gA]}」。`),
+   row("信頼の築きやすさ",tr,tr>=1?"約束や評価を通じて信頼が積み上がりやすい。長く組める。":hurt?"細かいすれ違いが不信につながりやすい。報告・連絡をこまめに。":"信頼は実績で少しずつ作る関係。"),
+   row("意思決定のぶつかり(少ないほど◎)",1-dc,dc>=2?"方針で真っ向からぶつかりやすい。決定権を最初にはっきりさせること。":dc>=1?"意見が割れる場面がある。役割で線を引けば回る。":"決めごとはスムーズに進む。")];
+  return `<div class="sheet"><h2>恋愛の相性を詳しく</h2><div class="dlist">${love.join("")}</div></div><div class="sheet"><h2>仕事の相性を詳しく</h2><div class="dlist">${work.join("")}</div></div>`;}
+
 // ===== 保存(db → なければブラウザ内) =====
 let people=[];let store=null;let uid=null;
 const LS="sanmei-notes-v1";
@@ -1647,7 +1697,7 @@ function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const mea
   $("#c-name").value=o.n;$("#c-date").value=o.d;$("#c-sex").value=o.s;$("#c-blind").checked=false;selCell="chest";daiunSel=null;renderChart();
   const box=$("#sv-result");box.innerHTML="";box.appendChild($("#chart-out"));
   const extra=document.createElement("div");extra.style.cssText="display:flex;flex-direction:column;gap:18px";
-  extra.id="sv-pers";extra.innerHTML=`${personalityHTML(c,meas,null,o.m,o.n)}${integHTML(c,pred,meas)}${o.m?`<div class="sheet"><h2>MBTIで見ると</h2><div class="facts"><div class="fact"><div class="lbl">命式から予想</div><div class="val">${mbtiFrom(pred)}</div></div><div class="fact"><div class="lbl">テストから換算</div><div class="val">${mbtiFrom(meas)}</div></div><div class="fact"><div class="lbl">あなたのタイプ</div><div class="val">${esc(o.m)}</div><div class="sub">命式の予想と${sameLetters(o.m,mbtiFrom(pred))}/4文字一致</div></div></div></div>`:""}
+  extra.id="sv-pers";extra.innerHTML=`${personalityHTML(c,meas,null,o.m,o.n)}${integHTML(c,pred,meas)}${mbtiChainHTML(c,pred,meas,o.m)}
     <p class="foot">心理学のテストは自己理解の目安で、診断ではありません。生年月日と性格の関係は科学的には確かめられていないので、「当たった・外れた」を楽しむつもりで見てください。</p>`;
   box.appendChild(extra);
   // 出来事の読み
