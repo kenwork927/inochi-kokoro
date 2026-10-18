@@ -1814,6 +1814,12 @@ document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest("#sv
 document.addEventListener("change",e=>{if(e.target.closest&&e.target.closest("#sv-form-panel"))saveDraft();});
 document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#survey-root .scale button"))setTimeout(saveDraft,0);});
 $("#sv-again-btn").addEventListener("click",openLast);
+(function(){const m=/#r=(SANMEI1-[A-Za-z0-9_\-]+)/.exec(location.hash||"");if(!m)return;try{let b=m[1].slice(8).replace(/-/g,"+").replace(/_/g,"/");while(b.length%4)b+="=";const bin=atob(b);const o=JSON.parse(new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0))));const dt=parseDate(o.d);if(!dt||!Array.isArray(o.t))return;
+  o.e=[];o.x={};window.__viewOnly=true;showResult(dt,o);$("#sv-form-panel").hidden=true;$("#sv-done-panel").hidden=false;
+  let nv;const ss=$("#sv-sent");if(ss&&ss.parentElement)ss.parentElement.hidden=true;const bk=$("#sv-back");if(bk)bk.hidden=true;nv=document.querySelector(".sv-nav");if(nv){const sl=nv.querySelector('a[href="#sv-share"]');if(sl)sl.hidden=true;}
+  const ban=document.createElement("div");ban.className="sheet";ban.style.cssText="border:2px solid var(--accent);background:var(--accent-soft)";ban.innerHTML=`<h2>${esc(o.n)}さんの診断結果</h2><p class="lead">${esc(o.n)}さんが共有した結果を表示しています。下の「相性を見る」に自分の生年月日を入れると、${esc(o.n)}さんとの相性も見られます。</p><div class="row" style="margin-top:10px"><a class="btn" href="./">自分も診断する</a></div>`;
+  const box=$("#sv-result");box.insertBefore(ban,box.firstChild);
+  const cn=$("#cp-name");if(cn){cn.placeholder="あなたの名前";}window.scrollTo(0,0);}catch(e){}})();
 (function(){try{const o=JSON.parse(localStorage.getItem(LS_LAST)||"null");if(o&&parseDate(o.d)){$("#sv-again").hidden=false;$("#sv-again-txt").textContent=`${o.n}さんの診断結果がこのスマホに保存されています。答え直したいときは、このまま下から入力してください。`;}}catch(e){}})();
 $("#sv-back").addEventListener("click",()=>{$("#sv-form-panel").hidden=false;$("#sv-done-panel").hidden=true;});
 $("#sv-copy").addEventListener("click",async()=>{const t=$("#sv-code");try{await navigator.clipboard.writeText(t.value);$("#sv-copy").textContent="コピーしました";}catch(e){t.focus();t.select();$("#sv-copy").textContent="選択しました。長押しでコピー";}setTimeout(()=>$("#sv-copy").textContent="コードをコピー",2500);});
@@ -1849,7 +1855,13 @@ function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const mea
   sh.innerHTML=`<h2>友達にシェアする</h2><p class="lead">あなたの結果のひと言と、診断のリンクを送れます。生年月日などの細かい内容は送られません。</p>
     <p class="sharebox">${esc(shareTxt).replace(/\n/g,"<br>")}<br>${URL0}</p>
     <div class="row" style="margin-top:10px"><button class="btn" id="sh-native" type="button">シェアする</button><a class="btn line" href="https://line.me/R/share?text=${encodeURIComponent(shareTxt+"\n"+URL0)}" target="_blank" rel="noopener">LINEで送る</a><button class="btn ghost" id="sh-copy" type="button">コピー</button><span class="status" id="sh-msg"></span></div>`;
-  box.appendChild(sh);
+  box.appendChild(sh);if(window.__viewOnly)sh.hidden=true;
+  if(!window.__viewOnly){const rc=encode({v:2,n:o.n,d:o.d,s:o.s,t:o.t,m:o.m});const rURL=URL0+"#r="+rc;
+    const rs=document.createElement("div");rs.className="sheet";rs.id="sv-rshare";
+    rs.innerHTML=`<h2>自分の結果を見せる</h2><p class="lead">このリンクを開いた人は、あなたの診断結果(命式・性格・相性の見方など)をそのまま見られます。見せたい相手にだけ送ってください。入るのは名前・生年月日・性格テストの答え・MBTIだけで、人生の出来事や職業などは入りません。</p>
+      <div class="row" style="margin-top:10px"><a class="btn line" href="https://line.me/R/share?text=${encodeURIComponent(o.n+"の診断結果です👇\n"+rURL)}" target="_blank" rel="noopener">LINEで送る</a><button class="btn ghost" id="rs-copy" type="button">リンクをコピー</button><span class="status" id="rs-msg"></span></div>`;
+    box.appendChild(rs);
+    rs.querySelector("#rs-copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(rURL);$("#rs-msg").textContent="コピーしました";}catch(e){$("#rs-msg").textContent="コピーできませんでした。LINEで送るを使ってください";}});}
   sh.querySelector("#sh-native").addEventListener("click",async()=>{try{if(navigator.share){await navigator.share({title:"命と心の性格診断",text:shareTxt,url:URL0});}else throw 0;}catch(e){if(e&&e.name==="AbortError")return;try{await navigator.clipboard.writeText(shareTxt+"\n"+URL0);$("#sh-msg").textContent="コピーしました";}catch(_){$("#sh-msg").textContent="LINEで送るか、上の文を長押しでコピーしてください";}}});
   sh.querySelector("#sh-copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(shareTxt+"\n"+URL0);$("#sh-msg").textContent="コピーしました";}catch(e){$("#sh-msg").textContent="上の文を長押しでコピーしてください";}});
   // 見方の切り替え(命式/心理学/両方)
