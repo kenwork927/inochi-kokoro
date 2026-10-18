@@ -803,7 +803,7 @@ function renderCompat(){
     ${kango?`<p class="notice" style="margin-top:12px"><b>日干が干合(${STEMS[Math.min(A.ds,B.ds)]}${STEMS[Math.max(A.ds,B.ds)]})</b><br>${["love","work","general"].map(md=>`<b class="ml">${MODE_LABEL[md]}</b>${KANGO_TEXT[md]}`).join("<br>")}</p>`:""}
     ${true?`<p class="foot">恋愛の学習メモ:伝統的には、男性から見て偏財・正財の相手が妻、女性から見て偏官・正官の相手が夫を表すとされます。${spouse}</p>`:""}
   </div>
-  ${psychCompatHTML(people.find(p=>p.id===$("#a-pick").value),people.find(p=>p.id===$("#b-pick").value),na,nb)}
+  ${$("#app-root").hidden?"":psychCompatHTML(people.find(p=>p.id===$("#a-pick").value),people.find(p=>p.id===$("#b-pick").value),na,nb)}
   ${dayPillarRel(A,B).length?`  <div class="sheet">
     <h2>日柱どうしの組み合わせ</h2>
     <div class="pair">
@@ -1642,7 +1642,17 @@ function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const mea
   const extra=document.createElement("div");extra.style.cssText="display:flex;flex-direction:column;gap:18px";
   extra.innerHTML=`${personalityHTML(c,meas,null,o.m,o.n)}${integHTML(c,pred,meas)}${o.m?`<div class="sheet"><h2>MBTIで見ると</h2><div class="facts"><div class="fact"><div class="lbl">命式から予想</div><div class="val">${mbtiFrom(pred)}</div></div><div class="fact"><div class="lbl">テストから換算</div><div class="val">${mbtiFrom(meas)}</div></div><div class="fact"><div class="lbl">あなたのタイプ</div><div class="val">${esc(o.m)}</div><div class="sub">命式の予想と${sameLetters(o.m,mbtiFrom(pred))}/4文字一致</div></div></div></div>`:""}
     <p class="foot">心理学のテストは自己理解の目安で、診断ではありません。生年月日と性格の関係は科学的には確かめられていないので、「当たった・外れた」を楽しむつもりで見てください。</p>`;
-  box.appendChild(extra);}
+  box.appendChild(extra);
+  const cp=document.createElement("div");cp.className="sheet";cp.id="sv-cp";
+  cp.innerHTML=`<h2>相性を見る</h2><p class="lead">気になる人、パートナー、職場の人などの生年月日を入れると、恋愛・仕事・一般の相性と、ふたりの関係のタイミングが出ます。入れた相手の情報はどこにも送信されません。</p>
+    <div class="form" style="margin-top:12px"><div class="field"><label for="cp-name">相手の名前</label><input id="cp-name" placeholder="例:ゆうと"></div><div class="field"><label for="cp-date">相手の生年月日</label><input id="cp-date" type="date" min="1900-01-01" max="2100-12-31"></div><div class="field" style="flex:0 1 110px"><label for="cp-sex">相手の性別</label><select id="cp-sex"><option value="f">女性</option><option value="m">男性</option></select></div></div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="cp-go" type="button">相性を見る</button><span class="status" id="cp-err"></span></div>`;
+  box.appendChild(cp);
+  const out=document.createElement("div");out.id="sv-cp-out";out.style.cssText="display:flex;flex-direction:column;gap:18px";box.appendChild(out);
+  cp.querySelector("#cp-go").addEventListener("click",()=>{const d=$("#cp-date").value;if(!parseDate(d)){$("#cp-err").textContent="相手の生年月日を入れてください";return;}$("#cp-err").textContent="";
+    $("#a-name").value=o.n;$("#a-date").value=o.d;$("#a-sex").value=o.s;$("#a-pick").value="";$("#b-pick").value="";$("#b-name").value=$("#cp-name").value.trim()||"相手";$("#b-date").value=d;$("#b-sex").value=$("#cp-sex").value;
+    renderCompat();const co=$("#compat-out");if(co.parentNode!==out){out.innerHTML="";out.appendChild(co);}co.scrollIntoView&&co.scrollIntoView({behavior:"smooth",block:"start"});});
+}
 drawQs();loadDraft2();
 
 $("#app-root").hidden=true;$("#survey-root").hidden=false;
