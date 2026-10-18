@@ -829,10 +829,7 @@ function renderCompat(){
     </div>
     ${(()=>{const r=dayPillarRel(A,B);return r.length?`<ul class="rel" style="margin-top:12px">${r.map(([t,m,w])=>`<li><span class="tag ${w?"warn":""}">${t}</span><span>${m}</span></li>`).join("")}</ul>`:"";})()}
   </div>`:""}
-  ${rels.length?`  <div class="sheet">
-    <h2>地支の関係</h2>
-    ${rels.length?`<ul class="rel">${rels.map(r=>`<li><span class="tag ${r.w?"warn":""}">${r.t}</span><span><b>${na}の${PILLAR[r.i]}支 ${BRANCHES[brA[r.i]]} × ${nb}の${PILLAR[r.j]}支 ${BRANCHES[brB[r.j]]}</b><br>${r.m}<span style="color:var(--muted)">(${r.i===r.j?PILLAR_MEAN[r.i]+"の場":"日支が関わる=ふたりの距離が近いほど出る"})</span></span></li>`).join("")}</ul>`:""}
-  </div>`:""}
+  ${wholeCompatHTML(A,B,na,nb)}
   ${tcs.length?`  <div class="sheet">
     <h2>天中殺の関係</h2>
     ${tcs.length?`<ul class="rel">${tcs.map(t=>`<li><span class="tag warn">天中殺</span><span>${t}</span></li>`).join("")}</ul>`:""}
@@ -1377,6 +1374,10 @@ function compatScore(A,B,sa,sb,mode){let sc=0;const pro=[],con=[];
   if(mode==="love"){const sp=(s,st)=>(s==="m"&&["偏財","正財"].includes(st))||(s==="f"&&["偏官","正官"].includes(st));if(sp(sa,ab)||sp(sb,ba)){sc+=2;pro.push("配偶者を表す星");}}
   const tc=A.tcs.includes(B.yb)||A.tcs.includes(B.db)||B.tcs.includes(A.yb)||B.tcs.includes(A.db);if(tc&&mode!=="general"){sc-=1;con.push("天中殺の関係");}
   if(A.tcsG===B.tcsG){sc+=1;pro.push("同じ天中殺グループ");}
+    {const ck=crossKango(A,B).filter(x=>!(x.i===2&&x.j===2));if(ck.length){sc+=Math.min(ck.length,2)*(mode==="love"?1:1);pro.push(`柱をまたぐ干合${ck.length}つ`);}
+   const cb=crossBranch(A,B).filter(x=>!(x.i===2&&x.j===2));const good=cb.filter(x=>!x.w).length,bad=cb.filter(x=>x.w).length;if(good>=2){sc+=1;pro.push("柱どうしの合が多い");}if(bad>=3){sc-=1;con.push("柱どうしの冲・刑が多い");}
+   const fa=fillsMissing(A,B),fb=fillsMissing(B,A);if(fa.length||fb.length){sc+=mode==="work"?1:1;pro.push("足りない星を補い合う");}
+   const gA=Math.floor(A.stars.chest/2),gB=Math.floor(B.stars.chest/2);if(mode==="work"){if(gA!==gB){sc+=1;pro.push("核が違い役割を分けやすい");}else{sc-=1;con.push("核が同じで張り合いやすい");}}else if(mode==="general"&&gA===gB){sc+=1;pro.push("核が同じで話が早い");}}
   const lv=sc>=5?3:sc>=3?2:sc>=1?1:0;return {sc,lv,pro,con};}
 function verdictHTML(A,B,sa,sb,na,nb){
   return `<div class="sheet"><h2>判定</h2><div class="verd">${["love","work","general"].map(md=>{const r=compatScore(A,B,sa,sb,md);const [mk,tx]=VERDICT[md][r.lv];
@@ -1504,14 +1505,15 @@ function detailCompatHTML(A,B,sa,sb,na,nb){
   const rough=["偏官","劫財","傷官"];
   const row=(t,v,txt)=>{const [m,c]=mk(v);return `<div class="drow"><span class="dmk ${c}">${m}</span><div><b>${t}</b><p>${txt}</p></div></div>`;};
   // 恋愛
-  let at=(kango?2:0)+(sp(sa,ab)||sp(sb,ba)?2:0)+(comp?1:0)+(dr.includes("支合")?1:0);
+  const xk=crossKango(A,B).filter(x=>!(x.i===2&&x.j===2)),fm=fillsMissing(A,B).concat(fillsMissing(B,A));
+  let at=(kango?2:0)+(sp(sa,ab)||sp(sb,ba)?2:0)+(comp?1:0)+(dr.includes("支合")?1:0)+(xk.length?1:0)+(fm.length?1:0);
   let an=(bond?1:0)+(A.tcsG===B.tcsG?1:0)+(["印綬","正財","正官"].some(x=>x===ab||x===ba)?1:0)-(clash?2:0);
   let cf=(clash?2:0)+(hurt?1:0)+(rough.includes(ab)?1:0)+(rough.includes(ba)?1:0);
   let lt=(["正財","正官"].includes(ab)||["正財","正官"].includes(ba)?1:0)+(dr.includes("支合")?1:0)-(tcsX?1:0)-(clash?1:0);
   const [rA]=relRole(ab);const lead=["偏官","正官","印綬","偏印"].includes(ab)?nb:["偏官","正官","印綬","偏印"].includes(ba)?na:"";
   const love=[
-   row("惹かれ合う力",Math.min(at,3)-1,`${kango?"日干が干合していて、理屈抜きに引き寄せられる縁。":""}${sp(sa,ab)?`${na}から見て${nb}は配偶者を表す${ab}。`:""}${sp(sb,ba)?`${nb}から見て${na}は配偶者を表す${ba}。`:""}${comp?"足りない五行を補い合うので、一緒にいると自然と惹かれる。":""}${at===0?"一目で強く惹かれる組み合わせではなく、時間をかけて距離が縮まる関係。":""}`),
-   row("一緒にいる安心感",an-1,bond?"日支どうしが結びつき、そばにいるだけで落ち着く。":clash?"日支が冲で、近づくほど落ち着かない。距離感の調整が要る。":A.tcsG===B.tcsG?"天中殺のグループが同じで、運気の波が重なり共感しやすい。":"特別な安心の縁はなく、言葉で安心を作っていく関係。"),
+   row("惹かれ合う力",Math.min(at,3)-1,`${kango?"日干が干合していて、理屈抜きに引き寄せられる縁。":""}${sp(sa,ab)?`${na}から見て${nb}は配偶者を表す${ab}。`:""}${sp(sb,ba)?`${nb}から見て${na}は配偶者を表す${ba}。`:""}${comp?"足りない五行を補い合うので、一緒にいると自然と惹かれる。":""}${xk.length?`柱をまたぐ干合が${xk.length}つあり、日柱以外の場でも引き寄せ合う。`:""}${fm.length?"お互いの命式に足りない星を持ち込み合う。":""}${at===0?"一目で強く惹かれる組み合わせではなく、時間をかけて距離が縮まる関係。":""}`),
+   row("一緒にいる安心感",an,bond?"日支どうしが結びつき、そばにいるだけで落ち着く。":clash?"日支が冲で、近づくほど落ち着かない。距離感の調整が要る。":A.tcsG===B.tcsG?"天中殺のグループが同じで、運気の波が重なり共感しやすい。":"特別な安心の縁はなく、言葉で安心を作っていく関係。"),
    row("ぶつかりやすさ(少ないほど◎)",1-cf,cf>=3?"かなりぶつかる。主導権や価値観で衝突が起きやすいので、ルールを決めておくと楽。":cf>=1?`ときどきぶつかる。${rough.includes(ab)||rough.includes(ba)?`${rough.includes(ab)?ab:ba}の関係で、どちらかが強く出やすい。`:""}${hurt?"小さなすれ違いが積もりやすい。":""}`:"大きな衝突は起きにくい。"),
    row("結婚・長く続く力",lt,lt>=1?"暮らしを一緒に積み上げられる組み合わせ。結婚向き。":tcsX?"相手が自分の天中殺にかかるため、思い通りに進まない時期がある。焦らず時間をかけて。":"恋愛としては成立しても、結婚まで行くには意識的な努力が要る。"),
    `<div class="drow"><span class="dmk mid">→</span><div><b>主導権</b><p>${lead?`${lead}がリードしやすい。`:"どちらかが一方的にリードする関係ではない。"}${na}から見ると${relRole(ab)[1].replace("相手",nb)}関係、${nb}から見ると${relRole(ba)[1].replace("相手",na)}関係。</p></div></div>`];
@@ -1631,6 +1633,25 @@ function coreHTML(c,name,sex,meas){
     <div class="sumt">${rows.map(([k,v])=>`<div class="sr"><b>${k}</b><span>${v}</span></div>`).join("")}</div>
     <h3 style="margin-top:14px">性格パラメーター</h3><div class="cpars">${par}</div>
     <p class="foot">枠=命式から読む素質(1〜5)${meas?"、塗り=BFI-2で測ったいまの性格":"。BFI-2に答えると、いまの性格も重ねて表示されます"}。この診断は、日柱だけでなく、月支元命・通変星の偏り・柱どうしの合冲・エネルギーの流れを合わせて判断しています。</p></div>`;}
+
+// ===== 命式全体で見る相性 =====
+const PIL_N=["年","月","日"];const PIL_SCENE=["家・ルーツ","社会・仕事","本人・私生活"];
+function crossKango(A,B){const sA=[A.ys,A.ms,A.ds],sB=[B.ys,B.ms,B.ds];const out=[];for(let i=0;i<3;i++)for(let j=0;j<3;j++)if(Math.abs(sA[i]-sB[j])===5)out.push({i,j});return out;}
+function crossBranch(A,B){const bA=[A.yb,A.mb,A.db],bB=[B.yb,B.mb,B.db];const out=[];for(let i=0;i<3;i++)for(let j=0;j<3;j++)for(const [t,m,w] of branchRels(bA[i],bB[j]))if(t!=="同支")out.push({i,j,t,m,w});return out;}
+// 相手の3つの天干が、自分から見てどの通変星系統か → 足りない系統を補うか
+function bringGroups(X,Y){const g=[0,0,0,0,0];[Y.ys,Y.ms,Y.ds].forEach(s=>g[Math.floor(mainStarIdx(X.ds,s)/2)]++);return g;}
+function fillsMissing(X,Y){const bal=tsuhenBalance(X);const g=bringGroups(X,Y);return [0,1,2,3,4].filter(i=>bal[i]===0&&g[i]>0);}
+function wholeCompatHTML(A,B,na,nb){
+  const ck=crossKango(A,B),cb=crossBranch(A,B);const fa=fillsMissing(A,B),fb=fillsMissing(B,A);
+  const gA=Math.floor(A.stars.chest/2),gB=Math.floor(B.stars.chest/2);
+  const items=[];
+  ck.forEach(({i,j})=>items.push([`干合`,0,`${na}の${PIL_N[i]}干と${nb}の${PIL_N[j]}干が干合。${i===2&&j===2?"本人どうしが強く引き寄せ合う、最も深い縁。":`${na}の「${PIL_SCENE[i]}」と${nb}の「${PIL_SCENE[j]}」の場で、自然に結びつく。`}`]));
+  const seen=new Set();cb.forEach(({i,j,t,m,w})=>{const key=t+i+j;if(seen.has(key))return;seen.add(key);items.push([t,w,`${na}の${PIL_N[i]}支×${nb}の${PIL_N[j]}支。${m}(${na}の「${PIL_SCENE[i]}」と${nb}の「${PIL_SCENE[j]}」の間で)`]);});
+  const fill=[];if(fa.length)fill.push(`${nb}は、${na}の命式にない<b>${fa.map(i=>TS_GROUP[i][0]).join("・")}</b>を持ち込む人。${na}にとって「足りないものをくれる」存在で、惹かれやすく、一緒にいると伸びる。`);
+  if(fb.length)fill.push(`${na}は、${nb}の命式にない<b>${fb.map(i=>TS_GROUP[i][0]).join("・")}</b>を持ち込む人。`);
+  const core=gA===gB?`性格の核がどちらも${TS_GROUP[gA][0]}。価値観や動機が似ていて話が早いが、同じところで張り合いやすい。`:`${na}の核は${TS_GROUP[gA][0]}、${nb}の核は${TS_GROUP[gB][0]}。大事にするものが違うので、役割を分ければ補い合える。`;
+  return `<div class="sheet"><h2>命式全体の重なり</h2><p class="lead" style="margin-bottom:10px">日柱だけでなく、ふたりの年・月・日の干と支をすべて組み合わせて見ています。</p>
+    <ul class="rel"><li><span class="tag">性格の核</span><span>${core}</span></li>${fill.map(t=>`<li><span class="tag">補い合い</span><span>${t}</span></li>`).join("")}${items.map(([t,w,m])=>`<li><span class="tag ${w?"warn":""}">${t}</span><span>${m}</span></li>`).join("")}</ul></div>`;}
 
 // ===== 保存(db → なければブラウザ内) =====
 let people=[];let store=null;let uid=null;
