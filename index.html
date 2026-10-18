@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta property="og:title" content="命と心の性格診断"><meta property="og:description" content="生年月日と20問の質問で、占いと心理学からあなたの性格を診断します。">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-family:system-ui,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head><body>
+<title>命と心の性格診断</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap">
+<style>
+/* Layout: 暦帳のような一列の帳面。上部タブ、各タブは縦に積む紙片。陰占は縦書きの柱、陽占は3×3の人体図 */
+:root{
+  --paper:#EEF1EC; --surface:#FBFCFA; --ink:#1E272A; --muted:#5B6866; --line:#D3DAD5;
+  --accent:#27525C; --accent-soft:#DCE8E8; --seal:#A8402C;
+  --el0:#4A7A4E; --el1:#B0432D; --el2:#9A7424; --el3:#7D838D; --el4:#2B476A;
+  --font-display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --font-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#131A1C; --surface:#1B2427; --ink:#E2E8E5; --muted:#96A4A1; --line:#2F3C3F;
+  --accent:#86BAC2; --accent-soft:#223639; --seal:#E07A62;
+  --el0:#7DB582; --el1:#E2795F; --el2:#D2AA55; --el3:#AEB4BD; --el4:#7FA2D0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#131A1C; --surface:#1B2427; --ink:#E2E8E5; --muted:#96A4A1; --line:#2F3C3F;
+  --accent:#86BAC2; --accent-soft:#223639; --seal:#E07A62;
+  --el0:#7DB582; --el1:#E2795F; --el2:#D2AA55; --el3:#AEB4BD; --el4:#7FA2D0; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.7}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+header.top{padding-block:22px 6px}
+header.top h1{font-family:var(--font-display);font-weight:800;font-size:28px;letter-spacing:.06em;margin:0;line-height:1.2}
+header.top p{margin:4px 0 0;color:var(--muted);font-size:13px}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);display:flex;gap:4px;border-bottom:1px solid var(--line);margin-block:10px 18px;overflow-x:auto}
+nav.tabs button{flex:1 0 auto;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);font:700 14px var(--font-body);padding:12px 10px 10px;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.cell:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section.panel{display:flex;flex-direction:column;gap:18px}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+.sheet h2{font-family:var(--font-display);font-size:19px;margin:0 0 10px;letter-spacing:.04em;text-wrap:balance}
+.sheet h3{font-size:14px;margin:0 0 6px;color:var(--muted);letter-spacing:.08em}
+.lead{color:var(--muted);font-size:13px;margin:0}
+.form{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px;min-width:0}
+.field label{font-size:12px;color:var(--muted);letter-spacing:.06em}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%}
+textarea{min-height:76px;resize:vertical}
+.btn{font:700 14px var(--font-body);border-radius:8px;padding:10px 14px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--surface)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.small{padding:6px 10px;font-size:13px}
+.btn.danger{border-color:var(--seal);color:var(--seal);background:transparent}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.notice{font-size:13px;color:var(--muted);border-left:3px solid var(--seal);padding:4px 10px;margin:0}
+/* 陰占 */
+.inzen{display:grid;grid-template-columns:auto repeat(3,1fr);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.inzen div{padding:8px 4px;text-align:center;border-bottom:1px solid var(--line)}
+.inzen .hd{font-size:12px;color:var(--muted);background:var(--paper);letter-spacing:.1em}
+.inzen .lb{font-size:12px;color:var(--muted);padding-inline:10px;text-align:left;display:flex;align-items:center}
+.inzen .k{font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.1}
+.inzen .z{font-family:var(--font-display);font-size:18px}
+.inzen .z small{display:block;font-family:var(--font-body);font-size:11px;color:var(--muted)}
+.inzen div:nth-last-child(-n+4){border-bottom:0}
+.el0{color:var(--el0)}.el1{color:var(--el1)}.el2{color:var(--el2)}.el3{color:var(--el3)}.el4{color:var(--el4)}
+/* 人体図 */
+.body-chart{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:420px;margin-inline:auto}
+.cell{border:1px solid var(--line);border-radius:8px;padding:10px 4px 8px;text-align:center;background:var(--surface);cursor:pointer;min-height:78px;display:flex;flex-direction:column;justify-content:center;gap:2px;font:inherit;color:inherit}
+.cell.empty{border-style:dashed;cursor:default;background:transparent}
+.cell .pos{font-size:11px;color:var(--muted);letter-spacing:.08em}
+.cell .st{font-family:var(--font-display);font-weight:800;font-size:19px;letter-spacing:.05em}
+.cell .en{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cell.center{background:var(--accent-soft);border-color:var(--accent)}
+.cell.ju .st{font-weight:600}
+.cell[aria-pressed="true"]{outline:2px solid var(--accent)}
+.detail{margin-top:12px;padding:12px 14px;border-radius:8px;background:var(--paper);font-size:14px}
+.detail b{font-family:var(--font-display);font-size:17px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.fact{border-top:1px solid var(--line);padding-top:8px}
+.fact .lbl{font-size:12px;color:var(--muted);letter-spacing:.06em}
+.fact .val{font-family:var(--font-display);font-size:20px;font-weight:800}
+.fact .sub{font-size:12px;color:var(--muted)}
+.seal{display:inline-block;border:1.5px solid var(--seal);color:var(--seal);border-radius:4px;padding:0 6px;font-size:12px;font-weight:700;margin:2px 4px 0 0}
+/* 五行 */
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:2em 1fr 2em;align-items:center;gap:8px;font-size:13px}
+.bar .track{height:10px;background:var(--paper);border-radius:5px;overflow:hidden;border:1px solid var(--line)}
+.bar .fill{height:100%;border-radius:5px}
+.bar .n{font-variant-numeric:tabular-nums;color:var(--muted);text-align:right}
+/* 相性 */
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.pair{grid-template-columns:1fr}}
+.role{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.role .who{font-size:12px;color:var(--muted)}
+.role .star{font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--accent)}
+.role p{margin:4px 0 0;font-size:14px}
+.rel{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.rel li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:14px}
+.rel .tag{font-family:var(--font-display);font-weight:800;font-size:13px;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:1px 7px;white-space:nowrap}
+.rel .tag.warn{border-color:var(--seal);color:var(--seal)}
+/* 研究ノート */
+.plist{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+.pitem{border-bottom:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;gap:6px}
+.pitem .head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.pitem .nm{font-weight:700;font-size:16px}
+.pitem .dt{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.chip{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:1px 9px;color:var(--muted)}
+.chip.ex{border-color:var(--seal);color:var(--seal)}
+.pitem .note{font-size:14px;white-space:pre-wrap;margin:0}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em}
+/* 辞典 */
+.dict{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.dict div{border-top:1px solid var(--line);padding-top:8px;font-size:14px}
+.dict b{font-family:var(--font-display);font-size:17px;display:block}
+.dict small{color:var(--muted)}
+.foot{font-size:12px;color:var(--muted);margin-top:8px}
+.status{font-size:12px;color:var(--muted)}
+a.btn{text-decoration:none;display:inline-block}.btn.line{background:#06C755;border-color:#06C755;color:#fff}
+.sumt{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.sr{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px;line-height:1.7}
+.sr b{font-size:13px;color:var(--accent)}
+@media (max-width:480px){.sr{grid-template-columns:1fr;gap:2px}}
+.evm{margin:0;font-size:14px;line-height:1.75}
+.mydict{margin-top:6px;font-size:13px}.mydict summary{cursor:pointer;color:var(--accent)}.mydict textarea{margin:6px 0;min-height:60px}
+.reld{max-width:420px;margin:6px auto 0}.reld svg{width:100%;height:auto;display:block}
+.rlist{margin:8px 0 0;padding-left:1.1em;font-size:13px;display:flex;flex-direction:column;gap:4px}.rlist b{color:var(--accent)}.rlist b.w{color:var(--seal)}
+.summary p{margin:0 0 12px;font-size:15px;line-height:1.9}.summary p b{font-family:var(--font-display);font-size:17px;display:block;margin-bottom:2px}.summary p:last-child{margin:0}
+.yl .r{grid-template-columns:3.4em 3.4em 1fr;padding-block:9px}.yl .g{font-size:20px}
+.verd{display:flex;flex-direction:column;gap:10px}
+.vrow{display:grid;grid-template-columns:48px 1fr;gap:12px;align-items:start;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.vrow .vmk{font-family:var(--font-display);font-weight:800;font-size:34px;line-height:1;text-align:center}
+.vrow.v3 .vmk,.vrow.v2 .vmk{color:var(--accent)}.vrow.v0 .vmk{color:var(--seal)}.vrow.v1 .vmk{color:var(--muted)}
+.vrow.v3{border:2px solid var(--accent);background:var(--accent-soft)}.vrow.v0{border-color:var(--seal)}
+.vrow b{font-size:14px;letter-spacing:.06em}.vrow p{margin:2px 0 4px;font-size:16px;font-weight:700;line-height:1.6}.vrow small{font-size:12px;color:var(--muted)}
+.daiun .dl .r{cursor:pointer;border-radius:6px;margin-inline:-8px;padding-inline:8px}
+.daiun .dl .r:hover{background:var(--paper)}
+.daiun .dl .r.sel{outline:2px solid var(--accent);outline-offset:-2px}
+.dbig{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.dbig.main{border:2px solid var(--accent);background:var(--accent-soft)}
+.dbig .dlb{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--accent)}.dbig .dlb span{color:var(--muted);font-weight:400;letter-spacing:0;font-variant-numeric:tabular-nums}
+.dbig .dhead{display:flex;align-items:center;gap:14px}
+.dbig .dks{font-family:var(--font-display);font-weight:800;font-size:40px;line-height:1}
+.dbig:not(.main) .dks{font-size:30px}
+.dbig .dth{font-family:var(--font-display);font-weight:800;font-size:21px;line-height:1.3;text-wrap:balance}
+.dbig:not(.main) .dth{font-size:17px}
+.dbig .dts{font-size:13px;color:var(--muted)}
+.dbig p{margin:0;font-size:15px;line-height:1.8}
+.daiun .dl .r{grid-template-columns:5.6em 3.4em 1fr;padding-block:11px}
+.daiun .dl .g{font-size:22px}
+.daiun .rt{font-size:15px}.daiun .rs{font-size:12px;color:var(--muted)}
+.bread{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.brow{display:grid;grid-template-columns:8.5em 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+@media (max-width:480px){.brow{grid-template-columns:1fr;gap:4px}}
+.brow .bp{display:flex;flex-direction:column}.brow .bp small{font-size:11px;color:var(--muted);line-height:1.4}
+.brow .bs{font-family:var(--font-display);font-weight:800;font-size:16px;margin-right:8px;color:var(--accent)}
+small.un{font-size:11px;color:var(--muted);font-weight:400;margin-left:4px}
+.dict.wide{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.kan .sec{margin-top:8px}.kan .sec .lb2{display:inline-block;font-size:11px;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:0 6px;margin-right:6px}
+.syn{display:flex;flex-direction:column;gap:12px}.syn b{font-size:14px}.syn p{margin:2px 0 0;font-size:14px}
+.kan .kh b:not(.ks){font-size:15px}
+.ks{font-family:var(--font-display);font-weight:800;font-size:22px;letter-spacing:.04em}
+table.tsu td small{display:block;font-size:11px;color:var(--muted)}table.tsu th{white-space:nowrap}
+.kan{border-top:1px solid var(--line);padding:10px 0}.kan:first-of-type{border-top:0}.kan.main .ks{font-size:28px}
+.kan .kh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.kan .kh span{font-size:12px;color:var(--muted)}
+.kan p{margin:4px 0 0;font-size:14px}
+.star .ts{font-family:var(--font-body);font-size:12px;color:var(--muted);font-weight:400;margin-left:8px}
+.ml{display:inline-block;font-size:11px;border:1px solid var(--line);border-radius:4px;padding:0 6px;margin-right:6px;color:var(--muted);font-weight:700}
+.role p+p{margin-top:8px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column}
+.tile span{font-size:12px;color:var(--muted);letter-spacing:.06em}.tile b{font-family:var(--font-display);font-size:26px;font-variant-numeric:tabular-nums;line-height:1.2}
+.says{margin-top:14px;padding:12px 14px;background:var(--accent-soft);border-radius:8px}.says p{margin:0 0 6px;font-size:14px}.says p:last-child{margin:0}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px;margin-top:16px}
+@media (max-width:560px){.charts{grid-template-columns:1fr}}
+.charts figure{margin:0;min-width:0}
+.charts figcaption{font-weight:700;font-size:14px;margin-bottom:8px;display:flex;flex-direction:column}.charts figcaption small{font-weight:400;font-size:11px;color:var(--muted)}
+.hb{display:flex;flex-direction:column;gap:6px}
+.hbr{display:grid;grid-template-columns:5.6em 1fr 4.2em;gap:8px;align-items:center;font-size:13px}
+.hbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbt{position:relative;height:12px;background:var(--paper);border-radius:2px}
+.hbf{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:0 4px 4px 0}
+.hbr:hover .hbf{filter:brightness(1.15)}
+.hbc{position:absolute;top:-3px;bottom:-3px;border-left:2px dashed var(--muted)}
+.hbv{font-variant-numeric:tabular-nums;text-align:right;font-weight:700}.hbv small{font-weight:400;color:var(--muted)}
+.prog{display:flex;flex-direction:column;gap:6px}
+.prog .pl{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}.prog .pl b{color:var(--ink);font-variant-numeric:tabular-nums}
+.prog .pt{height:8px;border-radius:4px;background:var(--paper);border:1px solid var(--line);overflow:hidden}.prog .pt span{display:block;height:100%;background:var(--accent)}
+.inlist{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.inrow{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.inrow .dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--line)}.inrow .dot.on{background:var(--accent);border-color:var(--accent)}
+.inrow .it{display:flex;flex-direction:column;min-width:0;font-size:14px}.inrow .it span{font-size:12px;color:var(--muted)}
+.unlocks{display:flex;flex-direction:column;gap:10px}
+.unlock{border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.unlock p{margin:0;font-size:14px}
+.unlock .uh{display:flex;justify-content:space-between;align-items:center;gap:8px}.unlock .uh b{font-family:var(--font-display);font-size:16px}
+.unlock.locked{border-style:dashed;background:var(--paper)}.unlock.locked p{color:var(--muted)}
+.chip.ok{border-color:var(--accent);color:var(--accent)}
+.persona.inner h2{display:none}.unlock .btn{align-self:flex-start}
+.persona p{margin:0 0 10px;font-size:15px;line-height:1.85}
+.persona ul{margin:0;padding-left:1.2em;font-size:14px}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-top:10px;cursor:pointer}
+.check input{width:auto;margin-top:5px}
+.copyline{display:flex;gap:8px}.copyline input{flex:1;min-width:0;font-size:13px}
+.tag-s{font-size:12px;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:0 7px}
+.tag-s.warn{border-color:var(--seal);color:var(--seal)}
+.qs{display:flex;flex-direction:column}
+.q{padding:10px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.qt{font-size:14px}
+.scale{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;max-width:360px}
+.scale button{font:700 14px var(--font-body);font-variant-numeric:tabular-nums;padding:7px 0;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--muted);cursor:pointer}
+.scale button[aria-checked="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.b5{display:flex;flex-direction:column;gap:14px}
+.b5h{display:flex;gap:10px;align-items:baseline;font-size:14px}
+.b5v{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted)}
+.b5t{position:relative;height:14px;margin:6px 7px;border-radius:7px;background:linear-gradient(90deg,var(--paper),var(--accent-soft));border:1px solid var(--line)}
+.b5t .pm,.b5t .ms{position:absolute;top:50%;width:14px;height:14px;transform:translate(-50%,-50%)}
+.b5t .pm{border:2px solid var(--accent);background:var(--surface);transform:translate(-50%,-50%) rotate(45deg);width:11px;height:11px}
+.b5t .ms{border-radius:50%;background:var(--seal);border:2px solid var(--surface)}
+.b5l{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--muted);line-height:1.4}
+.b5l span:last-child{text-align:right}
+td.hi{color:var(--accent);font-weight:700}td.lo{color:var(--seal);font-weight:700}
+.seg{display:flex;border:1px solid var(--accent);border-radius:8px;overflow:hidden}
+.seg button{flex:1;background:transparent;border:0;color:var(--accent);font:700 14px var(--font-body);padding:9px 6px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--accent)}
+.seg button[aria-checked="true"]{background:var(--accent);color:var(--surface)}
+.dl{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.dl .r{display:grid;grid-template-columns:5.5em 3.2em 1fr;gap:8px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.dl .r.now{background:var(--accent-soft);margin-inline:-8px;padding-inline:8px;border-radius:6px}
+.dl .a{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+.dl .g{font-family:var(--font-display);font-weight:800;font-size:18px}
+.yr td,.yr th{white-space:normal;vertical-align:top}
+.yr td.y{white-space:nowrap;font-variant-numeric:tabular-nums}
+.mark{font-weight:700;white-space:nowrap}
+.mark.good{color:var(--el0)}.mark.mid{color:var(--muted)}.mark.bad{color:var(--seal)}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:none}}
+</style>
+
+<div class="wrap" id="app-root">
+  <header class="top">
+    <h1>命と心のノート</h1>
+    <p>生年月日だけで出せる命式と人体図、ふたりの相性、自分だけの研究記録</p>
+  </header>
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="t-profile" aria-selected="false" data-tab="profile">プロフィール</button>
+    <button role="tab" id="t-chart" aria-selected="true" data-tab="chart">命式</button>
+    <button role="tab" id="t-psych" aria-selected="false" data-tab="psych">性格</button>
+    <button role="tab" id="t-compat" aria-selected="false" data-tab="compat">相性</button>
+    <button role="tab" id="t-events" aria-selected="false" data-tab="events">出来事</button>
+    <button role="tab" id="t-notes" aria-selected="false" data-tab="notes">研究ノート</button>
+    <button role="tab" id="t-dict" aria-selected="false" data-tab="dict">辞典</button>
+  </nav>
+
+  <!-- 命式 -->
+  <section class="panel" id="p-profile" role="tabpanel" hidden>
+    <div class="sheet">
+      <div class="form"><div class="field" style="flex-basis:100%"><label for="pf-pick">誰のプロフィールか</label><select id="pf-pick"></select></div></div>
+    </div>
+    <div id="pf-out" style="display:flex;flex-direction:column;gap:18px"></div>
+  </section>
+
+  <section class="panel" id="p-chart" role="tabpanel">
+    <div class="sheet">
+      <div class="form">
+        <div class="field"><label for="c-name">名前</label><input id="c-name" value="例：さくら"></div>
+        <div class="field"><label for="c-date">生年月日</label><input id="c-date" type="date" min="1900-01-01" max="2100-12-31" value="1995-03-21"></div><div class="field" style="flex:0 1 110px"><label for="c-sex">性別(大運用)</label><select id="c-sex"><option value="f" selected>女性</option><option value="m">男性</option></select></div>
+      </div>
+    </div>
+    <div id="chart-out" class="panel" style="display:flex;flex-direction:column;gap:18px"></div>
+    <div class="sheet">
+      <h2>研究ノートに保存</h2>
+      <div class="form">
+        <div class="field"><label for="c-tag">関係</label>
+          <select id="c-tag"><option>自分</option><option>恋人・パートナー</option><option>気になる人</option><option>元恋人</option><option>家族</option><option selected>友人</option><option>仕事</option><option>有名人</option><option>協力者</option></select></div>
+        <div class="field" style="flex-basis:100%"><label for="c-note">メモ(実際の印象や出来事)</label><textarea id="c-note" placeholder="例：初対面から話しやすかった。意見が違うと引かない。"></textarea></div>
+      </div>
+      <label class="check" for="c-blind"><input type="checkbox" id="c-blind"> 先入観なしで記録する(命式を隠して、先に性格の質問とメモを済ませる)</label>
+      <div class="row" style="margin-top:10px"><button class="btn" id="c-save">保存する</button><span class="status" id="c-saved"></span></div>
+    </div>
+  </section>
+
+  <!-- 性格 -->
+  <section class="panel" id="p-psych" role="tabpanel" hidden>
+    <div class="sheet">
+      <h2>命式 × 心理学</h2>
+      <p class="lead">心理学の質問に答えて、命式から予想した性格と実際の性格を並べます。研究ノートの人を選ぶと、結果をその人に保存できます。</p>
+      <div class="form" style="margin-top:12px"><div class="field"><label for="psy-pick">誰の性格を見るか</label><select id="psy-pick"></select></div></div>
+    </div>
+    <div id="psy-out" style="display:flex;flex-direction:column;gap:18px"></div>
+  </section>
+
+  <!-- 相性 -->
+  <section class="panel" id="p-compat" role="tabpanel" hidden>
+    <div class="sheet">
+      <h2>ふたりを選ぶ</h2>
+      <p class="lead">研究ノートから選ぶか、生年月日を直接入れてください。</p>
+      <div class="pair" style="margin-top:12px">
+        <div class="form">
+          <div class="field" style="flex-basis:100%"><label for="a-pick">あなた(A)</label><select id="a-pick"></select></div>
+          <div class="field"><label for="a-name">名前</label><input id="a-name" value="例：さくら"></div>
+          <div class="field"><label for="a-date">生年月日</label><input id="a-date" type="date" min="1900-01-01" max="2100-12-31" value="1995-03-21"></div><div class="field" style="flex:0 1 110px"><label for="a-sex">性別(大運用)</label><select id="a-sex"><option value="f" selected>女性</option><option value="m">男性</option></select></div>
+        </div>
+        <div class="form">
+          <div class="field" style="flex-basis:100%"><label for="b-pick">相手(B)</label><select id="b-pick"></select></div>
+          <div class="field"><label for="b-name">名前</label><input id="b-name" value="例：ゆうと"></div>
+          <div class="field"><label for="b-date">生年月日</label><input id="b-date" type="date" min="1900-01-01" max="2100-12-31" value="1993-08-09"></div><div class="field" style="flex:0 1 110px"><label for="b-sex">性別(大運用)</label><select id="b-sex"><option value="f">女性</option><option value="m" selected>男性</option></select></div>
+        </div>
+      </div>
+    </div>
+    <div id="compat-out" style="display:flex;flex-direction:column;gap:18px"></div>
+  </section>
+
+  <!-- 出来事 -->
+  <section class="panel" id="p-events" role="tabpanel" hidden>
+    <div class="sheet">
+      <h2>出来事ログ</h2>
+      <p class="lead">人生の大きな出来事を日付つきで残すと、その時期の年運・月運・大運・天中殺と自動で照らし合わせます。タイミングの読みが本当に当たるかを確かめるための記録です。</p>
+      <div class="form" style="margin-top:12px"><div class="field" style="flex-basis:100%"><label for="ev-pick">誰の出来事か</label><select id="ev-pick"></select></div></div>
+      <div id="ev-form" class="form" style="margin-top:10px">
+        <div class="field"><label for="ev-date">日付</label><input id="ev-date" type="date" min="1900-01-01" max="2100-12-31"></div>
+        <div class="field"><label for="ev-type">出来事</label><select id="ev-type"></select></div>
+        <div class="field" style="flex-basis:100%"><label for="ev-note">メモ(任意)</label><input id="ev-note" placeholder="例:職場の同期として出会った"></div>
+        <div class="row"><button class="btn" id="ev-add">追加する</button><span class="status" id="ev-msg"></span></div>
+      </div>
+    </div>
+    <div class="sheet"><div id="ev-out"></div></div>
+  </section>
+
+  <!-- 研究ノート -->
+  <section class="panel" id="p-notes" role="tabpanel" hidden>
+    <div class="sheet">
+      <h2>分析のまとめ</h2>
+      <div id="dash"></div>
+    </div>
+    <div class="sheet">
+      <h2>研究ノート</h2>
+      <p class="lead">実際の人の命式と、あなたが感じた印象を並べて残す場所です。数が増えるほど「この干支・通変星の人とはこうなりやすい」という自分なりの法則が見えてきます。</p>
+      <div class="form" style="margin-top:12px">
+        <div class="field"><label for="f-tag">関係で絞る</label><select id="f-tag"><option value="">すべて</option></select></div>
+        <div class="field"><label for="f-star">月支元命で絞る</label><select id="f-star"><option value="">すべて</option></select></div>
+      </div>
+      <p class="status" id="store-status" style="margin-top:8px"></p>
+      <div class="plist" id="plist" style="margin-top:8px"></div>
+    </div>
+    <div class="sheet">
+      <h2>ほかの人のデータを集める</h2>
+      <p class="lead">協力してくれる人に、下のリンクを送ってください。このアプリの回答専用画面が開きます。相手は回答を終えると自分の命式と性格の結果が見られて、最後に「回答コード」が出ます。そのコードを送ってもらい、ここに貼り付けると研究ノートに追加されます。相手は命式を見る前に答えるので、自然に先入観なしの記録になります。</p>
+      <div class="copyline" style="margin-top:12px"><input id="survey-url" readonly value="https://claude.ai/artifact/HGPxYJYvUuYyVhGZ3C7H6T#answer" aria-label="アンケートのリンク"><button class="btn small" id="copy-url">コピー</button></div>
+      <p class="foot">このアプリを、画面右上の共有メニューで「リンクを知っている人」に公開すると、相手が開けるようになります。相手には回答画面だけが表示され、あなたの研究ノートは見えません。回答はコードとして相手の手元にだけ残り、相手が送ってくれた分だけがあなたに届きます。</p>
+      <div class="form" style="margin-top:12px"><div class="field" style="flex-basis:100%"><label for="imp-code">届いた回答コード(何人分でもまとめて貼り付けられます)</label><textarea id="imp-code" placeholder="SANMEI1-…"></textarea></div></div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="imp-btn">研究ノートに追加</button><span class="status" id="imp-msg"></span></div>
+    </div>
+    <div class="sheet">
+      <h2>命式と性格の研究</h2>
+      <label class="check" for="r-blind"><input type="checkbox" id="r-blind"> 先入観なしの記録だけで集計する</label>
+      <div id="research" style="margin-top:10px"></div>
+    </div>
+    <div class="sheet">
+      <h2>出来事とタイミングの研究</h2>
+      <div id="ev-research"></div>
+    </div>
+    <div class="sheet">
+      <h2>命式と暮らしの研究</h2>
+      <div id="ex-research"></div>
+    </div>
+    <div class="sheet" id="pattern-sheet">
+      <h2>「自分」から見た比較表</h2>
+      <p class="lead">関係が「自分」の人を基準に、保存した人が日干同士でどんな通変星にあたるかを並べます。実際のメモと見比べて、星の意味が当たっているか検証してみてください。</p>
+      <div class="table-wrap" style="margin-top:10px" id="pattern"></div>
+    </div>
+  </section>
+
+  <!-- 辞典 -->
+  <section class="panel" id="p-dict" role="tabpanel" hidden>
+    <div class="sheet">
+      <h2>算命学の基本</h2>
+      <p class="lead">算命学は生年月日の干支から、その人の本質(陰占)と心の働き・エネルギー(陽占)を読む占術です。四柱推命と違い生まれた時刻を使わないので、誕生日さえわかれば誰でも命式が出せます。</p>
+      <div class="facts" style="margin-top:12px">
+        <div class="fact"><div class="lbl">陰占</div><div class="sub">年・月・日の干支と蔵干。素材としての「その人」。日干が自分自身を表す。</div></div>
+        <div class="fact"><div class="lbl">陽占(人体図)</div><div class="sub">日干と他の干の関係から出す通変星(5つ)と、初年・中年・晩年のエネルギーの強さ(3つ)。</div></div>
+        <div class="fact"><div class="lbl">天中殺</div><div class="sub">60干支を10ずつ区切ったとき余る2つの地支。その人にとって「計算の効かない」領域。</div></div>
+        <div class="fact"><div class="lbl">節入り</div><div class="sub">月の区切りは1日ではなく二十四節気の「節」。年の区切りは立春。</div></div>
+      </div>
+    </div>
+    <div class="sheet"><h2>十干</h2><p class="lead">日干はその人自身を表します。10種類の干の性質。</p><div class="dict wide" id="d-stem" style="margin-top:10px"></div></div>
+    <div class="sheet"><h2>十二支</h2><p class="lead">地支は季節と場所を表し、干が「どこに立っているか」を決めます。</p><div class="dict" id="d-br" style="margin-top:10px"></div></div>
+    <div class="sheet"><h2>通変星</h2><p class="lead">日干から見た、ほかの干との五行・陰陽の関係で決まる心の性質。</p><div id="d-ts" style="margin-top:10px"></div><div class="dict wide" id="d-main" style="margin-top:14px"></div></div>
+    <div class="sheet"><h2>エネルギーの強さ</h2><p class="lead">日干が年・月・日の各地支でどれだけ力を持つかを1〜12で表したもの。通変星が「どんな性格か」なら、エネルギーは「その性格がどれくらい表に出るか」の音量にあたります。</p><div class="dict wide" id="d-ju" style="margin-top:10px"></div><h3 style="margin-top:16px">もとになる十二運</h3><div id="d-un"></div></div>
+    <div class="sheet"><h2>人体図の位置</h2><div class="dict" id="d-pos" style="margin-top:10px"></div></div>
+    <p class="foot">計算は一般的な算命学の方式(二十八元の蔵干、節入り日を当月に含める、戊=丙・己=丁としたエネルギーの計算)に基づきます。節入りの時刻は天文計算で求めているため、節入り当日・前日生まれは流派の暦とずれることがあります。</p>
+  </section>
+</div>
+
+<div class="wrap" id="survey-root" hidden>
+  <header class="top">
+    <h1>命と心の性格診断</h1>
+    <p>生年月日と20問ほどの質問から、占い(算命学)と心理学の両方であなたの性格を診断します。所要時間は5分ほどです。</p>
+  </header>
+
+  <section class="panel" id="sv-form-panel" style="margin-top:18px">
+    <div class="sheet">
+      <h2>この診断について</h2>
+      <p style="margin:0;font-size:14px">生年月日から読む占いと、心理学の性格テストを組み合わせて、あなたの性格・強み・人生の流れを読み解きます。</p>
+      <ul style="font-size:14px;margin:8px 0 0;padding-left:1.2em">
+        <li>名前はニックネームで大丈夫です。</li>
+        <li>回答はこの画面の中だけで処理され、どこにも送信されません。</li>
+        <li>人生の出来事の質問は任意です。答えたくないものは空欄のままで構いません。</li>
+      </ul>
+    </div>
+    <div class="sheet">
+      <h2>あなたについて</h2>
+      <div class="form">
+        <div class="field"><label for="s-name">ニックネーム</label><input id="s-name" maxlength="40" placeholder="例:みなと"></div>
+        <div class="field"><label for="s-date">生年月日</label><input id="s-date" type="date" min="1900-01-01" max="2100-12-31"></div>
+        <div class="field" style="flex:0 1 110px"><label for="s-sex">性別</label><select id="s-sex"><option value="f">女性</option><option value="m">男性</option></select></div>
+        <div class="field"><label for="s-rel">送ってくれた人との関係(任意)</label><select id="s-rel"><option value="">答えない</option><option>友人</option><option>家族</option><option>恋人・パートナー</option><option>仕事</option><option>その他</option></select></div>
+      </div>
+      <div class="form" style="margin-top:10px">
+        <div class="field"><label for="s-order">兄弟の順番(任意)</label><select id="s-order"><option value="">答えない</option><option>一人っ子</option><option>長子</option><option>中間子</option><option>末子</option></select></div>
+        <div class="field"><label for="s-job">職業・分野(任意)</label><select id="s-job"><option value="">答えない</option><option>会社員(事務・企画)</option><option>営業・販売</option><option>専門職(医療・法律など)</option><option>技術・エンジニア</option><option>クリエイティブ</option><option>教育・保育</option><option>接客・サービス</option><option>経営・自営</option><option>学生</option><option>その他</option></select></div>
+        <div class="field"><label for="s-status">交際状況(任意)</label><select id="s-status"><option value="">答えない</option><option>独身(交際なし)</option><option>交際中</option><option>既婚</option><option>その他</option></select></div>
+      </div>
+      <p class="foot">性別は、算命学の大運(10年ごとの運気)の向きを決めるためだけに使います。</p>
+    </div>
+    <div class="sheet">
+      <h2>性格の質問</h2>
+      <p class="lead">自分にどれくらい当てはまるかを選んでください。1=まったく違う、4=どちらでもない、7=とてもそう。深く考えず、直感で大丈夫です。</p>
+      <h3 style="margin-top:14px">ふだんの自分(10問)</h3>
+      <div class="qs" id="q-tipi"></div>
+      <h3 style="margin-top:16px">恋愛や親しい人との関係(6問)</h3>
+      <div class="qs" id="q-att"></div>
+      <h3 style="margin-top:16px">MBTI</h3>
+      <div class="form"><div class="field"><label for="s-mbti">診断を受けたことがあれば、そのタイプ</label><select id="s-mbti"></select></div></div>
+    </div>
+    <div class="sheet">
+      <h2>人生の出来事(任意)</h2>
+      <p class="lead">覚えている大きな出来事があれば、日付と一緒に教えてください。日にちが曖昧なら、その月の15日などで構いません。</p>
+      <div id="ev-rows" style="display:flex;flex-direction:column;gap:10px;margin-top:12px"></div>
+      <div class="row" style="margin-top:10px"><button class="btn ghost small" id="ev-more">出来事を追加</button></div>
+    </div>
+    <div class="sheet">
+      <div class="row"><button class="btn" id="sv-finish">診断結果を見る</button></div>
+      <p class="status" id="sv-err" style="margin-top:8px;color:var(--seal)"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="sv-done-panel" hidden style="margin-top:18px">
+    <div id="sv-result" style="display:flex;flex-direction:column;gap:18px"></div>
+    <div class="sheet">
+      <h2>この診断を送ってくれた人へ</h2>
+      <p style="margin:0;font-size:14px">この診断は、送ってくれた人の研究にも使われています。協力してもいいと思ったら、下のコードをコピーしてLINEなどで送ってください。送らなければ、回答は誰にも届きません。</p>
+      <textarea id="sv-code" readonly style="margin-top:10px;font-size:12px;min-height:90px" aria-label="回答コード"></textarea>
+      <div class="row" style="margin-top:10px"><a class="btn line" id="sv-line" href="https://line.me/R/share" target="_blank" rel="noopener">LINEで送る</a><button class="btn ghost" id="sv-copy">コードをコピー</button></div>
+      <p class="foot">「LINEで送る」を押すとLINEが開くので、送ってくれた人を選んで送信してください。開かないときは「コードをコピー」してLINEに貼り付けてください。</p>
+      <div class="row" style="margin-top:8px"><button class="btn ghost small" id="sv-back">回答を直す</button></div>
+    </div>
+
+  </section>
+</div>
+
+
+<script>
+// ===== 算命学 計算エンジン =====
+const STEMS = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+const BRANCHES = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+const STEM_EL = [0,0,1,1,2,2,3,3,4,4]; // 木火土金水
+const EL_NAME = ["木","火","土","金","水"];
+const BRANCH_EL = [4,2,0,0,2,1,1,2,3,3,2,4];
+const STEM_READ = ["きのえ","きのと","ひのえ","ひのと","つちのえ","つちのと","かのえ","かのと","みずのえ","みずのと"];
+
+function jdn(y,m,d){const a=Math.floor((14-m)/12),yy=y+4800-a,mm=m+12*a-3;return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045;}
+function jdnToDate(j){let a=j+32044,b=Math.floor((4*a+3)/146097),c=a-Math.floor(146097*b/4),d=Math.floor((4*c+3)/1461),e=c-Math.floor(1461*d/4),m=Math.floor((5*e+2)/153);return {y:100*b+d-4800+Math.floor(m/10),m:m+3-12*Math.floor(m/10),d:e-Math.floor((153*m+2)/5)+1};}
+const rad=x=>x*Math.PI/180;
+function sunLon(jd){const T=(jd+69/86400-2451545)/36525;let L0=280.46646+36000.76983*T+0.0003032*T*T;let M=357.52911+35999.05029*T-0.0001537*T*T;const C=(1.914602-0.004817*T-0.000014*T*T)*Math.sin(rad(M))+(0.019993-0.000101*T)*Math.sin(rad(2*M))+0.000289*Math.sin(rad(3*M));const om=125.04-1934.136*T;let l=L0+C-0.00569-0.00478*Math.sin(rad(om));return ((l%360)+360)%360;}
+// 節入り: 寅月=315°から30°ごと
+function setsuDate(jdEnd,target){let jd=jdEnd-(((sunLon(jdEnd)-target)%360+360)%360)/0.9856;for(let i=0;i<8;i++){let diff=((sunLon(jd)-target+540)%360)-180;jd-=diff/0.9856;}return Math.floor(jd+0.5+9/24);} // JST の日付(JDN)
+
+// 二十八元(算命学): [干, 日数上限] 節入り日=1日目
+const ZOKAN = {
+  0:[[9,99]], 1:[[9,9],[7,12],[5,99]], 2:[[4,7],[2,14],[0,99]], 3:[[1,99]],
+  4:[[1,9],[9,12],[4,99]], 5:[[4,5],[6,14],[2,99]], 6:[[5,19],[3,99]], 7:[[3,9],[1,12],[5,99]],
+  8:[[4,10],[8,13],[6,99]], 9:[[7,99]], 10:[[7,9],[3,12],[4,99]], 11:[[0,12],[8,99]]
+};
+function zokan(b,days){for(const [s,lim] of ZOKAN[b]) if(days<=lim) return s; return ZOKAN[b][ZOKAN[b].length-1][0];}
+function zokanAll(b){return ZOKAN[b].map(x=>x[0]);}
+
+// 十大主星
+const MAIN = ["比肩","劫財","食神","傷官","偏財","正財","偏官","正官","偏印","印綬"];
+function mainStarIdx(me,other){const em=STEM_EL[me],eo=STEM_EL[other];const same=(me%2)===(other%2);let g;
+  if(eo===em)g=0; else if(eo===(em+1)%5)g=1; else if(eo===(em+2)%5)g=2; else if(em===(eo+2)%5)g=3; else g=4;
+  return g*2+(same?0:1);}
+// 十二大従星
+const JU = ["胎","養","長生","沐浴","冠帯","建禄","帝旺","衰","病","死","墓","絶"];
+const JU_ENERGY = [3,6,9,7,10,11,12,8,4,2,5,1];
+// 十二運 順: 長生,沐浴,冠帯,建禄,帝旺,衰,病,死,墓,絶,胎,養 → JU index
+const UN_TO_JU = [2,3,4,5,6,7,8,9,10,11,0,1];
+const CHOSEI = {0:11,1:6,2:2,3:9,4:2,5:9,6:5,7:0,8:8,9:3};
+function juStar(stem,br){const s=CHOSEI[stem];const k=stem%2===0?((br-s)%12+12)%12:((s-br)%12+12)%12;return UN_TO_JU[k];}
+
+const TCS = [[10,11],[8,9],[6,7],[4,5],[2,3],[0,1]];
+const TCS_NAME = ["戌亥","申酉","午未","辰巳","寅卯","子丑"];
+
+function chart(y,m,d){
+  const J=jdn(y,m,d);const jdEnd=J+0.125; // JST 24:00
+  const lon=sunLon(jdEnd);const mi=Math.floor((((lon-315)%360)+360)%360/30); // 0=寅
+  const target=(315+mi*30)%360;const sj=setsuDate(jdEnd,target);const days=J-sj+1;
+  let yy=y; if(m<=2 && mi>=10) yy=y-1; if(m===1 && mi===11){} // 丑月(1月)は前年
+  const yIdx=((yy-4)%60+60)%60; const ys=yIdx%10, yb=yIdx%12;
+  const mb=(mi+2)%12; const ms=((ys%5)*2+2+mi)%10;
+  const dIdx=((J+49)%60+60)%60; const ds=dIdx%10, db=dIdx%12;
+  const zy=zokan(yb,days), zm=zokan(mb,days), zd=zokan(db,days);
+  const stars={head:mainStarIdx(ds,ys),chest:mainStarIdx(ds,zm),belly:mainStarIdx(ds,ms),right:mainStarIdx(ds,zd),left:mainStarIdx(ds,zy),
+    shoulder:juStar(ds,yb),leftFoot:juStar(ds,mb),rightFoot:juStar(ds,db)};
+  const tcsG=Math.floor(dIdx/10);const tcs=TCS[tcsG];
+  const flags=[];if(tcs.includes(yb))flags.push("生年中殺");if(tcs.includes(mb))flags.push("生月中殺");if(dIdx===10||dIdx===11)flags.push("日座中殺");
+  const sj2=jdnToDate(sj);
+  const nextSj=setsuDate(jdEnd+32,(target+30)%360);
+  return {y,m,d,J,yIdx,ys,yb,ms,mb,dIdx,ds,db,days,zy,zm,zd,stars,tcsG,tcs,flags,setsu:sj2,onSetsu:days===1,setsuYear:yy,toNext:nextSj-J};
+}
+// 大運: 陽男陰女=順行, 陰男陽女=逆行。立運=日数÷3(四捨五入、最低1)。年齢は数え年
+function daiun(c,sex){ // sex: "m" | "f"
+  const yang=c.ys%2===0;const fwd=(yang&&sex==="m")||(!yang&&sex==="f");
+  const n=fwd?c.toNext:c.days;let start=Math.round(n/3);if(start<1)start=1;if(start>10)start=10;
+  const mIdx=(()=>{for(let i=0;i<60;i++)if(i%10===c.ms&&i%12===c.mb)return i;})();
+  const list=[];for(let k=1;k<=10;k++){const idx=((mIdx+(fwd?k:-k))%60+60)%60;const s=idx%10,b=idx%12;const age=start+(k-1)*10;
+    list.push({idx,s,b,age,from:c.y+age-1,to:c.y+age+8,star:mainStarIdx(c.ds,s),ju:juStar(c.ds,b),tcs:c.tcs.includes(b)});}
+  return {fwd,start,list};
+}
+function yearGanshi(Y){const i=((Y-4)%60+60)%60;return {i,s:i%10,b:i%12};}
+if(false)module.exports={daiun,yearGanshi,chart,STEMS,BRANCHES,MAIN,JU,TCS_NAME,mainStarIdx};
+
+// ===== 解釈テキスト =====
+const MAIN_INFO = {
+ "比肩":["守り・自立","自分のペースと陣地を守る。頑固だが芯がぶれない。"],
+ "劫財":["協調・仲間","横のつながりで動く。誰とでも組めるしたたかさ。"],
+ "食神":["自然体・表現","のびやかに楽しむ。見たまま感じたままを伝える。"],
+ "傷官":["感性・繊細","鋭い感受性と美意識。孤独の中で表現が磨かれる。"],
+ "偏財":["愛情・引力","人を惹きつけ、与えることで回る。面倒見がよい。"],
+ "正財":["堅実・蓄積","コツコツ積み上げ、家庭や暮らしを守り育てる。"],
+ "偏官":["行動・闘争","考えるより先に動く。まっすぐでスピードがある。"],
+ "正官":["責任・名誉","役割をきちんと果たす。自制心とプライドの強さ。"],
+ "偏印":["冒険・改革","未知に飛び込み、型を壊して新しく作り直す。"],
+ "印綬":["知性・伝統","古典や経験から学ぶ。理性的で母性的な面倒見。"]
+};
+const JU_INFO = {
+ "胎":["胎児","多才で変化が多い。いくつもの顔を持つ。"],
+ "養":["赤ちゃん","無邪気で愛される。人に可愛がられる力。"],
+ "長生":["子ども","品格と学ぶ意欲。自尊心が高い。"],
+ "沐浴":["思春期","夢とロマン、自由への憧れ。外の世界へ向かう。"],
+ "冠帯":["青年","批判精神と行動力。はっきりものを言う。"],
+ "建禄":["壮年","慎重で現実的。地に足のついた判断。"],
+ "帝旺":["家長","最大のエネルギー。リーダーとして背負う力。"],
+ "衰":["老人","落ち着きと自制。一歩引いて全体を見る。"],
+ "病":["病人","鋭い感性と夢想。目に見えないものを感じ取る。"],
+ "死":["死人","純粋で無欲。執着を手放す力。"],
+ "墓":["入墓","探究心とこだわり。一つのことを深める。"],
+ "絶":["あの世","瞬発力と集中力。一瞬で動く。"]
+};
+const POS_INFO = {
+ head:["頭(北)","目上・親との関係、精神の向かう先"],
+ chest:["胸(中央)","月支元命。その人の本質、いちばん素の自分"],
+ belly:["腹(南)","目下・子どもとの関係、行動の現れ方"],
+ left:["左手(東)","友人・兄弟・社会での顔"],
+ right:["右手(西)","配偶者・家庭での顔"],
+ shoulder:["左肩","初年期(〜30歳ごろ)のエネルギー"],
+ leftFoot:["左足","中年期のエネルギー"],
+ rightFoot:["右足","晩年期のエネルギー"]
+};
+// 相手の日干が、自分の日干から見て何星か → 相手が自分にとってどんな存在か(関わり方別)
+const ROLES = {
+ love:{
+  "比肩":"友達のように対等でいられる恋。気楽で自然体だが、お互い自分のペースを崩さないので、近づくきっかけを意識して作る必要がある。",
+  "劫財":"仲間の輪から始まりやすい恋。グループの中で自然に距離が縮まり、恋人になってもチームのような感覚が続く。",
+  "食神":"一緒にいて楽しく、肩の力が抜ける恋。あなたがリードし、相手を喜ばせることに幸せを感じやすい。",
+  "傷官":"心の深いところを揺さぶられる恋。ロマンチックで感情の波が大きい。尽くして疲れやすいので、ひとりの時間も守って。",
+  "偏財":"惹かれ合う力が強い恋。あなたが愛情を注ぎ、守りたくなる。尽くしすぎてバランスが崩れないように。",
+  "正財":"結婚や暮らしにつながりやすい堅実な恋。燃え上がるより、じわじわ育つ安心感がある。",
+  "偏官":"刺激的で、追いかけたくなる恋。ケンカも多いが情熱的。主導権争いにしないことが長続きのコツ。",
+  "正官":"尊敬から始まる恋。きちんとした相手で、結婚相手として意識しやすい。見栄を張りすぎると窮屈になる。",
+  "偏印":"新しい世界を見せてくれる恋。旅や学びを一緒にすると深まる。束縛はかえって離れる原因になる。",
+  "印綬":"包み込まれる安心感のある恋。甘えられる反面、親子のような関係に寄りやすい。"},
+ work:{
+  "比肩":"対等な同僚として、それぞれの持ち場を任せ合うと強い。共同作業より分業向き。",
+  "劫財":"チームを組むと力を発揮する相手。人脈づくりや交渉の場で頼りになる。",
+  "食神":"あなたが育て、アイデアを引き出せる相手。部下や後輩として伸ばしやすい。",
+  "傷官":"感性や企画の面で刺激し合える相手。細かく指示するより、自由度を渡すと良い仕事になる。",
+  "偏財":"あなたが動かして成果を出せる相手。人を集める仕事や営業で好相性。",
+  "正財":"実務・管理・お金まわりを任せられる堅実なパートナー。長期のプロジェクト向き。",
+  "偏官":"あなたを鍛え、プレッシャーをかけてくる相手。厳しい上司やライバルとして成長させてくれる。",
+  "正官":"評価やルール、肩書きをもたらす相手。上司や取引先として信頼を築くと、信用や昇進につながる。",
+  "偏印":"新しい分野や企画を持ち込んでくる相手。改革や新規事業で組むと面白い。",
+  "印綬":"知識や経験を教えてくれる相手。師匠やメンターのような存在になりやすい。"},
+ general:{
+  "比肩":"気を遣わない幼なじみのような関係。会わなくても続くが、意地を張ると疎遠になりやすい。",
+  "劫財":"輪の中に入れてくれる仲間。一緒に出かけたり集まったりすると楽しい。",
+  "食神":"一緒にいると笑っていられる友人。あなたが世話を焼く側になりやすい。",
+  "傷官":"深い話ができる繊細な友人。大人数より、ふたりの時間で関係が深まる。",
+  "偏財":"頼られて面倒を見ることが多い関係。人を紹介し合うと縁が広がる。",
+  "正財":"長く穏やかに続く関係。暮らしの知恵を分け合える。",
+  "偏官":"はっきりものを言い合える関係。ぶつかることもあるが、背中を押してもらえる。",
+  "正官":"礼儀をもってつき合う関係。きちんとした相談相手になる。",
+  "偏印":"刺激をくれる友人。旅や新しい体験に誘ってくれる。",
+  "印綬":"相談すると的確に答えてくれる、先輩や親のような存在。"}
+};
+const MODE_LABEL={love:"恋愛",work:"仕事",general:"一般"};
+const KANGO_TEXT={love:"強く惹かれ合い、一緒にいることで互いの性質が変わっていく縁。理屈抜きに離れがたい組み合わせです。",work:"組むと互いのやり方が変わり、ひとりではできない形が生まれるパートナーシップの縁です。",general:"出会うべくして出会ったような、縁の深い組み合わせです。"};
+let mode="love";
+function modeForTag(t){return ["恋人・パートナー","気になる人","元恋人"].includes(t)?"love":t==="仕事"?"work":"general";}
+
+
+// ===== 運勢の流れ(大運・年運) =====
+function yearRead(P,Y,sex){const g=yearGanshi(Y);const star=MAIN[mainStarIdx(P.ds,g.s)];const tcs=P.tcs.includes(g.b);const kango=Math.abs(g.s-P.ds)===5;
+  const br=branchRels(g.b,P.db).map(r=>r[0]);return {g,star,tcs,kango,br};}
+function fortuneHTML(c,sex,name){
+  const D=daiun(c,sex);const nowAge=curYear-c.y+1;
+  const cur=D.list.find(x=>curYear>=x.from&&curYear<=x.to);const ci=cur?D.list.indexOf(cur):0;const si=(daiunSel!=null&&D.list[daiunSel])?daiunSel:ci;const sel=D.list[si];
+  const selLbl=si===ci&&cur?"いまの大運":sel.from>curYear?"これからの大運":"過去の大運";
+  const big=(x,lbl,main)=>{if(!x)return "";const th=DAIUN_THEME[x.star];return `<div class="dbig ${main?"main":""}"><div class="dlb">${lbl}<span>${x.from}〜${x.to}年・数え${x.age}〜${x.age+9}歳</span></div>
+    <div class="dhead"><b class="dks">${stemHTML(x.s)}${brHTML(x.b)}</b><div><div class="dth">${th[0]}</div><div class="dts">${MAIN[x.star]}・エネルギー${eLabelU(x.ju)}</div></div></div>
+    <p>${th[1]}${main?` ${eShow(x.ju,x.star)}`:""}</p>${x.tcs?`<p class="notice">大運天中殺の10年。環境や人間関係が大きく動きやすく、自分の力ではどうにもならない流れが来ることも。無理に逆らわず、流れに乗る意識が大切です。</p>`:""}</div>`;};
+  const rows=D.list.slice(0,9).map((x,i)=>{const now=x===cur;const th=DAIUN_THEME[x.star];
+    return `<div class="r ${now?"now":""} ${i===si?"sel":""}" role="button" tabindex="0" data-du="${i}" aria-pressed="${i===si}"><span class="a">${x.from}〜<br>${x.age}〜${x.age+9}歳</span><span class="g">${stemHTML(x.s)}${brHTML(x.b)}</span><span><b class="rt">${th[0]}</b>${now?` <span class="chip">いま</span>`:""}${x.tcs?` <span class="seal">大運天中殺</span>`:""}<br><span class="rs">${MAIN[x.star]}・エネルギー${eLabelU(x.ju)}</span></span></div>`;}).join("");
+  const yrs=[0,1,2,3,4].map(k=>{const Y=curYear+k;const r=yearRead(c,Y,sex);
+    const notes=[];if(r.tcs)notes.push("天中殺の年");if(r.kango)notes.push("日干と干合(縁が動く)");if(r.br.includes("支合"))notes.push("日支と支合(結びつき)");if(r.br.includes("対冲"))notes.push("日支と対冲(変化・移動)");if(r.br.includes("半会"))notes.push("日支と半会(広がり)");
+    return `<tr><td class="y">${Y}<br><span class="g" style="font-family:var(--font-display);font-weight:800">${stemHTML(r.g.s)}${brHTML(r.g.b)}</span></td><td>${r.star}<br><span style="color:var(--muted);font-size:13px">${MAIN_INFO[r.star][0]}</span></td><td>${notes.join("、")||"—"}</td></tr>`;}).join("");
+  return `<div class="sheet daiun"><h2>大運 ─ 10年ごとのテーマ</h2>
+    <p class="lead" style="margin-bottom:14px">${D.fwd?"順行":"逆行"}・${D.start}歳から10年ごとに切り替わります(年齢は数え年、いま数え${nowAge}歳)。</p>
+    ${big(sel,selLbl,true)}
+    <h3 style="margin-top:18px">一生の流れ<small style="font-weight:400;color:var(--muted);margin-left:8px;letter-spacing:0">押すとその10年が上に出ます</small></h3>
+    <div class="dl">${rows}</div></div>
+  ${yearThemesHTML(c,sex)}`;
+}
+// ふたりの年ごとのタイミング
+function coupleYear(A,B,sa,sb,Y,mode){
+  const a=yearRead(A,Y,sa),b=yearRead(B,Y,sb);let sc=0;const why=[];const na="A",nb="B";
+  for(const [p,s,lbl] of [[a,sa,"A"],[b,sb,"B"]]){
+    if(p.kango){sc+=2;why.push(`${lbl}の日干と干合`);}
+    if(p.br.includes("支合")){sc+=1;why.push(`${lbl}の日支と支合`);}
+    if(p.br.includes("半会")){sc+=1;why.push(`${lbl}の日支と半会`);}
+    const love=(s==="f"&&["偏官","正官"].includes(p.star))||(s==="m"&&["偏財","正財"].includes(p.star));
+    if(mode==="love"&&love){sc+=1;why.push(`${lbl}に${p.star}(${s==="f"?"夫":"妻"}を表す通変星)が巡る`);}
+    if(mode==="work"&&["偏官","正官","偏財","正財"].includes(p.star)){sc+=1;why.push(`${lbl}に${p.star}(${["偏官","正官"].includes(p.star)?"役割・評価":"成果・財"})`);}
+    if(mode==="general"&&["比肩","劫財","食神"].includes(p.star)){sc+=1;why.push(`${lbl}に${p.star}(人づきあい)`);}
+    if(p.tcs){sc-=2;why.push(`${lbl}が天中殺の年`);}
+    if(p.br.includes("対冲")){sc-=1;why.push(`${lbl}の日支と対冲`);}
+  }
+  const lab=(a.tcs||b.tcs||sc<0)?["慎重に","bad"]:sc>=2?["追い風","good"]:["ふつう","mid"];
+  return {Y,g:a.g,sc,lab,why};
+}
+const TAG_ORDER=["自分","恋人・パートナー","気になる人","元恋人","家族","友人","仕事","有名人","協力者"];
+const PILLAR=["年","月","日"];
+const PILLAR_MEAN=["家系・ルーツ","社会・価値観","家庭・ふたりの場"];
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const parseDate=v=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v||"");if(!m)return null;const y=+m[1],mo=+m[2],d=+m[3];if(y<1900||y>2100)return null;return [y,mo,d];};
+const elSpan=(ch,el)=>`<span class="el${el}">${ch}</span>`;
+const stemHTML=i=>elSpan(STEMS[i],STEM_EL[i]);
+const brHTML=i=>elSpan(BRANCHES[i],BRANCH_EL[i]);
+const curYear=new Date().getFullYear();
+
+function tcsYears(c){const out=[];for(let y=curYear-1;y<=curYear+12;y++){const b=((y-4)%12+12)%12;if(c.tcs.includes(b))out.push(y);}const g=[];for(const y of out){if(g.length&&g[g.length-1][1]===y-1)g[g.length-1][1]=y;else g.push([y,y]);}return g.slice(0,2);}
+function elementCounts(c){const n=[0,0,0,0,0];[c.ys,c.ms,c.ds,c.zy,c.zm,c.zd].forEach(s=>n[STEM_EL[s]]++);[c.yb,c.mb,c.db].forEach(b=>n[BRANCH_EL[b]]++);return n;}
+function barsHTML(n){const max=Math.max(...n,1);return `<div class="bars">${n.map((v,i)=>`<div class="bar"><span class="el${i}" style="font-family:var(--font-display);font-weight:800">${EL_NAME[i]}</span><span class="track"><span class="fill" style="display:block;width:${v/max*100}%;background:var(--el${i})"></span></span><span class="n">${v}</span></div>`).join("")}</div>`;}
+
+// ===== 命式タブ =====
+let selCell="chest";let daiunSel=null;
+function renderChart(){
+  const out=$("#chart-out");
+  if($("#c-blind").checked){out.innerHTML=`<div class="sheet"><h2>命式を隠しています</h2><p class="lead">先入観なしの記録モードです。名前と生年月日を入れて下で保存すると、「性格」タブで質問に答えたあとに命式が見られます。</p></div>`;return;}const dt=parseDate($("#c-date").value);
+  if(!dt){out.innerHTML=`<div class="sheet"><p class="lead">1900〜2100年の生年月日を入れると命式が出ます。</p></div>`;return;}
+  const c=chart(...dt);const name=$("#c-name").value.trim()||"この人";
+  const S=c.stars;
+  const cell=(key,kind)=>{const isJu=kind==="ju";const nm=isJu?ENERGY_LV[eLv(JU_ENERGY[S[key]])][0]:MAIN[S[key]];const p=POS_INFO[key][0];
+    return `<button class="cell ${isJu?"ju":""} ${key==="chest"?"center":""}" data-key="${key}" aria-pressed="${selCell===key}"><span class="pos">${p}</span><span class="st">${nm}</span><span class="en">${isJu?"エネルギー "+JU_ENERGY[S[key]]+"・"+UNSEI[S[key]]:MAIN_INFO[nm][0]}</span></button>`;};
+  const energy=JU_ENERGY[S.shoulder]+JU_ENERGY[S.leftFoot]+JU_ENERGY[S.rightFoot];
+  const yrs=tcsYears(c).map(([a,b])=>a===b?`${a}`:`${a}–${b}`).join("、");
+  const near=c.onSetsu||c.days>=29;
+  out.innerHTML=`
+  <div class="sheet">
+    <h2>${esc(name)}の陰占</h2>
+    <div class="inzen" style="margin-top:8px">
+      <div class="hd"></div><div class="hd">日</div><div class="hd">月</div><div class="hd">年</div>
+      <div class="lb">天干</div><div class="k">${stemHTML(c.ds)}</div><div class="k">${stemHTML(c.ms)}</div><div class="k">${stemHTML(c.ys)}</div>
+      <div class="lb">地支</div><div class="k">${brHTML(c.db)}</div><div class="k">${brHTML(c.mb)}</div><div class="k">${brHTML(c.yb)}</div>
+      <div class="lb">蔵干</div><div class="z">${stemHTML(c.zd)}<small>${zokanAll(c.db).map(s=>STEMS[s]).join("・")}</small></div><div class="z">${stemHTML(c.zm)}<small>${zokanAll(c.mb).map(s=>STEMS[s]).join("・")}</small></div><div class="z">${stemHTML(c.zy)}<small>${zokanAll(c.yb).map(s=>STEMS[s]).join("・")}</small></div>
+    </div>
+    <p class="lead" style="margin-top:10px">日干 <b>${STEMS[c.ds]}</b>(${STEM_READ[c.ds]}・${EL_NAME[STEM_EL[c.ds]]})があなた自身。節入り ${c.setsu.m}/${c.setsu.d} から ${c.days} 日目なので、蔵干は大きい字のものを使います。</p>
+    <h3 style="margin-top:16px">干と支の関係</h3>
+    ${relDiagram(c)}${relLegendHTML(c)}
+    ${near?`<p class="notice" style="margin-top:8px">節入りの境目に近い生まれです。流派の万年暦では月柱や蔵干が変わることがあるので、気になる場合は照らし合わせてください。</p>`:""}
+  </div>
+  <div class="sheet">
+    <h2>人体図</h2>
+    <p class="lead" style="margin-bottom:12px">マスを押すと意味が出ます。肩と足のマスは、その時期のエネルギーの強さ(1〜12)です。</p>
+    <div class="body-chart">
+      <div class="cell empty" aria-hidden="true"></div>${cell("head")}${cell("shoulder","ju")}
+      ${cell("right")}${cell("chest")}${cell("left")}
+      ${cell("rightFoot","ju")}${cell("belly")}${cell("leftFoot","ju")}
+    </div>
+    <div class="detail" id="detail"></div>
+    <h3 style="margin-top:18px">人体図の読み</h3>
+    <p class="lead" style="margin-bottom:8px">それぞれの位置にある通変星やエネルギーが、どの場面でどう出るか。</p>
+    ${bodyReadHTML(c)}
+  </div>
+  ${fortuneHTML(c,$("#c-sex").value,name)}
+  ${pillarKanshiHTML(c)}
+  ${tcsGogyoHTML(c)}
+  ${weekdayHTML(c)}
+  ${summaryHTML(c,name,$("#c-sex").value)}`;
+  out.querySelectorAll(".cell[data-key]").forEach(b=>b.addEventListener("click",()=>{selCell=b.dataset.key;renderChart();}));
+  out.querySelectorAll("[data-du]").forEach(r=>{const go=()=>{const y=window.scrollY;daiunSel=+r.dataset.du;renderChart();window.scrollTo(0,y);};r.addEventListener("click",go);r.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});});
+  showDetail(c);
+}
+function kanshiSheets(c,name){
+  const P=[[c.ds,c.db,c.zd,2],[c.ms,c.mb,c.zm,1],[c.ys,c.yb,c.zy,0]];const combos=pillarCombos(c);const bal=tsuhenBalance(c);const mx=Math.max(...bal);
+  return `<div class="sheet"><h2>通変星とエネルギー</h2><p class="lead" style="margin-bottom:10px">四柱推命の見方。日干から見た各干の通変星と、各柱でのエネルギーの強さ(時柱は使いません)。</p>
+    <div class="table-wrap"><table class="tsu"><thead><tr><th></th><th>日柱</th><th>月柱</th><th>年柱</th></tr></thead><tbody>
+    <tr><th>干支</th>${P.map(([s,b])=>`<td><b class="ks">${stemHTML(s)}${brHTML(b)}</b><small>${kanshiIdx(s,b)+1}番</small></td>`).join("")}</tr>
+    <tr><th>天干の通変星</th>${P.map(([s,,,r])=>`<td>${r===2?"日主(自分)":TSUHEN[mainStarIdx(c.ds,s)]}</td>`).join("")}</tr>
+    <tr><th>蔵干の通変星</th>${P.map(([,,z,r])=>`<td>${TSUHEN[mainStarIdx(c.ds,z)]}${r===1?"<small>月支元命</small>":""}</td>`).join("")}</tr>
+    <tr><th>エネルギー</th>${P.map(([,b])=>`<td>${eLabelU(juStar(c.ds,b))}</td>`).join("")}</tr>
+    </tbody></table></div>
+    <p class="foot">月支の蔵干の通変星(月支元命)は、四柱推命で性格の核とされる「格」にあたります。</p></div>
+  <div class="sheet"><h2>柱ごとの性格</h2><p class="lead">同じ人でも、年柱・月柱・日柱にある60干支によって、場面ごとに出る性格が変わります。</p>
+    ${pillarReading(c).reverse().map(x=>`<div class="kan ${x.r===2?"main":""}"><div class="kh"><b class="ks">${stemHTML(x.s)}${brHTML(x.b)}</b><b>${x.title}</b><span>${x.role}・${x.k.read}・60干支の${x.k.idx+1}番目</span></div>${x.secs.map(([l,t])=>`<div class="sec"><span class="lb2">${l}</span><p style="margin-top:4px">${t}</p></div>`).join("")}</div>`).join("")}
+  </div>
+  <div class="sheet"><h2>柱の組み合わせで変わること</h2>
+    <div class="syn">${pillarSynthesis(c).map(([t,m])=>`<div><b>${t}</b><p>${m}</p></div>`).join("")}</div>
+    <h3 style="margin-top:16px">柱どうしの合・冲</h3>
+    ${combos.length?`<ul class="rel">${combos.map(([nm,t,m,w])=>`<li><span class="tag ${w?"warn":""}">${t}</span><span><b>${nm[0]}</b>(${nm[1]})<br>${m}</span></li>`).join("")}</ul>`:`<p class="lead">柱どうしに目立った合・冲はありません。それぞれの場で性質が素直に出やすい命式です。</p>`}
+    <h3 style="margin-top:16px">通変星の偏り</h3>
+    <div class="bars">${TS_GROUP.map(([g,sub],i)=>`<div class="bar" style="grid-template-columns:3em 1fr 2em"><span style="font-weight:700">${g}</span><span class="track"><span class="fill" style="display:block;width:${bal[i]/5*100}%;background:var(--accent)"></span></span><span class="n">${bal[i]}</span></div>`).join("")}</div>
+    <p style="margin:10px 0 0;font-size:14px">${TS_GROUP.filter((_,i)=>bal[i]===mx&&mx>=2).map(([g,sub,m])=>`<b>${g}(${sub})</b>が多い命式。${m}。`).join("")||"通変星がまんべんなく散らばっていて、偏りの少ないバランス型です。"}${bal.map((v,i)=>v===0?TS_GROUP[i][0]:null).filter(Boolean).length?`<br><span style="color:var(--muted)">命式にない系統:${bal.map((v,i)=>v===0?TS_GROUP[i][0]:null).filter(Boolean).join("・")}。その性質は、それを持つ人との関わりで補われやすいとされます。</span>`:""}</p>
+    <p class="foot">人体図の5か所(頭・胸・腹・左手・右手)の通変星で数えています。</p>
+  </div>`;
+}
+function showDetail(c){const k=selCell;const isJu=["shoulder","leftFoot","rightFoot"].includes(k);const v=c.stars[k];const nm=isJu?"エネルギー:"+eLabelU(v):TSUHEN[v];
+  $("#detail").innerHTML=`<b>${nm}</b> ${isJu?"":`<span class="chip">${MAIN_INFO[nm][0]}</span>`} <span class="chip">${POS_INFO[k][0]}</span><div style="margin-top:6px;font-weight:700">${POS_INFO[k][0]}にあると:${posReading(c,k)}</div><div style="margin-top:6px">${isJu?ENERGY_LV[eLv(JU_ENERGY[v])][1]+`<div style="font-size:13px;color:var(--muted);margin-top:4px">十二運:${UNSEI[v]}(${UNSEI_INFO[v]})</div>`:TSUHEN_DETAIL[v]}</div><div style="color:var(--muted);font-size:13px;margin-top:6px">この位置が表すもの:${POS_INFO[k][1]}</div>`;}
+
+// ===== 相性 =====
+function branchRels(a,b){const r=[];const d=Math.abs(a-b);
+  if(a===b){ if([4,6,9,11].includes(a)) r.push(["自刑","同じ形のこだわりがぶつかり、互いに譲れない部分が出る。",1]); else r.push(["同支","同じ地支。感覚が似ていて理解しやすい。",0]); return r;}
+  if((a+b)%12===1) r.push(["支合","自然に結びつき、安心感が生まれやすい。",0]);
+  if(a%4===b%4) r.push(["半会","一緒にいると世界が広がる。協力して大きくなれる。",0]);
+  if(d===6) r.push(["対冲","正反対の性質。衝突もあるが、互いに大きな変化をもたらす。",1]);
+  if((a+b)%12===7) r.push(["害","小さなすれ違いが積み重なりやすい。言葉にして確かめ合うと良い。",1]);
+  const k=[a,b].sort((x,y)=>x-y).join(",");
+  if(["0,3","2,5","5,8","2,8","1,10","7,10","1,7"].includes(k)) r.push(["刑","こだわりがぶつかり合うが、互いを磨く関係にもなる。",1]);
+  return r;}
+function renderCompat(){
+  const out=$("#compat-out");const da=parseDate($("#a-date").value),dbb=parseDate($("#b-date").value);
+  if(!da||!dbb){out.innerHTML=`<div class="sheet"><p class="lead">ふたりの生年月日を入れてください。</p></div>`;return;}
+  const A=chart(...da),B=chart(...dbb);const na=esc($("#a-name").value.trim()||"A"),nb=esc($("#b-name").value.trim()||"B");
+  const ab=MAIN[mainStarIdx(A.ds,B.ds)],ba=MAIN[mainStarIdx(B.ds,A.ds)];
+  const kango=Math.abs(A.ds-B.ds)===5;
+  const sa=$("#a-sex").value,sb=$("#b-sex").value;
+  const isSp=(s,st)=>(s==="m"&&["偏財","正財"].includes(st))||(s==="f"&&["偏官","正官"].includes(st));
+  const spouse=[isSp(sa,ab)?`${na}から見て${nb}は配偶者を表す通変星にあたります。`:"",isSp(sb,ba)?`${nb}から見て${na}は配偶者を表す通変星にあたります。`:""].join("");
+  const DA=daiun(A,sa),DB=daiun(B,sb);
+  const curD=D=>D.list.find(x=>curYear>=x.from&&curYear<=x.to);
+  const yrs=[];for(let k=0;k<10;k++){const Y=curYear+k;const r={};for(const md of ["love","work","general"])r[md]=coupleYear(A,B,sa,sb,Y,md);yrs.push({Y,g:r.love.g,r,why:[...new Set([...r.love.why,...r.work.why,...r.general.why])]});}
+  const sw=(D,n)=>D.list.filter(x=>x.from>curYear&&x.from<curYear+10).map(x=>({Y:x.from,t:`${n}の大運が${STEMS[x.s]}${BRANCHES[x.b]}(${MAIN[x.star]})に切り替わる`}));
+  const switches=[...sw(DA,na),...sw(DB,nb)];
+  const nameAB=t=>t.replace(/^A/,na).replace(/^B/,nb);
+  const dLine=(D,n)=>{const x=curD(D);return x?`<li><span class="tag ${x.tcs?"warn":""}">${n}</span><span>いまの大運 <b>${STEMS[x.s]}${BRANCHES[x.b]}</b>(${x.from}〜${x.to})… ${MAIN[x.star]}・エネルギー${eLabelU(x.ju)}。${MAIN_INFO[MAIN[x.star]][0]}がテーマの時期${x.tcs?"。大運天中殺の最中で、環境や人間関係が動きやすい":""}。</span></li>`:`<li><span class="tag">${n}</span><span>まだ最初の大運に入る前です。</span></li>`;};
+  const brA=[A.yb,A.mb,A.db],brB=[B.yb,B.mb,B.db];
+  const rels=[];
+  // 同じ柱どうしを優先し、日支×日支を先頭に
+  for(const i of [2,1,0]) for(const j of [2,1,0]){ if(i!==j && !(i===2||j===2)) continue; for(const [t,m,w] of branchRels(brA[i],brB[j])) rels.push({t,m,w,i,j}); }
+  const tcs=[];
+  if(A.tcs.includes(B.yb)) tcs.push(`${nb}の年支(${BRANCHES[B.yb]})は${na}の天中殺にあたります。${na}にとって理屈では測れない、強い影響を受けやすい相手です。`);
+  if(A.tcs.includes(B.db)) tcs.push(`${nb}の日支(${BRANCHES[B.db]})は${na}の天中殺にあたります。身近になるほど、思い通りにならない面が出やすくなります。`);
+  if(B.tcs.includes(A.yb)) tcs.push(`${na}の年支(${BRANCHES[A.yb]})は${nb}の天中殺にあたります。${nb}は${na}から予想外の影響を受けやすい立場です。`);
+  if(B.tcs.includes(A.db)) tcs.push(`${na}の日支(${BRANCHES[A.db]})は${nb}の天中殺にあたります。`);
+  if(A.tcsG===B.tcsG) tcs.push(`ふたりとも${TCS_NAME[A.tcsG]}天中殺。物事の受け止め方や運気の波が似ていて、同じ時期に変化を迎えやすい組み合わせです。`);
+  const ea=elementCounts(A),eb=elementCounts(B);
+  const give=(x,y)=>[0,1,2,3,4].filter(i=>x[i]<=1&&y[i]>=3).map(i=>EL_NAME[i]);
+  const ga=give(ea,eb),gb=give(eb,ea);
+  out.innerHTML=`${verdictHTML(A,B,sa,sb,na,nb)}
+  <div class="sheet">
+    <h2>お互いはどんな存在か</h2>
+    <p class="lead" style="margin-bottom:12px">日干 ${stemHTML(A.ds)}(${na})と ${stemHTML(B.ds)}(${nb})の関係から読みます。</p>
+    <div class="pair">
+      <div class="role"><div class="who">${na}から見た${nb}</div><div class="star">${ab}</div>${["love","work","general"].map(md=>`<p><b class="ml">${MODE_LABEL[md]}</b>${ROLES[md][ab]}</p>`).join("")}</div>
+      <div class="role"><div class="who">${nb}から見た${na}</div><div class="star">${ba}</div>${["love","work","general"].map(md=>`<p><b class="ml">${MODE_LABEL[md]}</b>${ROLES[md][ba]}</p>`).join("")}</div>
+    </div>
+    ${kango?`<p class="notice" style="margin-top:12px"><b>日干が干合(${STEMS[Math.min(A.ds,B.ds)]}${STEMS[Math.max(A.ds,B.ds)]})</b><br>${["love","work","general"].map(md=>`<b class="ml">${MODE_LABEL[md]}</b>${KANGO_TEXT[md]}`).join("<br>")}</p>`:""}
+    ${true?`<p class="foot">恋愛の学習メモ:伝統的には、男性から見て偏財・正財の相手が妻、女性から見て偏官・正官の相手が夫を表すとされます。${spouse}</p>`:""}
+  </div>
+  ${psychCompatHTML(people.find(p=>p.id===$("#a-pick").value),people.find(p=>p.id===$("#b-pick").value),na,nb)}
+  ${dayPillarRel(A,B).length?`  <div class="sheet">
+    <h2>日柱どうしの組み合わせ</h2>
+    <div class="pair">
+      <div class="kan"><div class="kh"><b class="ks">${stemHTML(A.ds)}${brHTML(A.db)}</b><span>${na}の日柱</span></div><p>${kanshiInfo(A.ds,A.db).image}。</p></div>
+      <div class="kan"><div class="kh"><b class="ks">${stemHTML(B.ds)}${brHTML(B.db)}</b><span>${nb}の日柱</span></div><p>${kanshiInfo(B.ds,B.db).image}。</p></div>
+    </div>
+    ${(()=>{const r=dayPillarRel(A,B);return r.length?`<ul class="rel" style="margin-top:12px">${r.map(([t,m,w])=>`<li><span class="tag ${w?"warn":""}">${t}</span><span>${m}</span></li>`).join("")}</ul>`:"";})()}
+  </div>`:""}
+  ${rels.length?`  <div class="sheet">
+    <h2>地支の関係</h2>
+    ${rels.length?`<ul class="rel">${rels.map(r=>`<li><span class="tag ${r.w?"warn":""}">${r.t}</span><span><b>${na}の${PILLAR[r.i]}支 ${BRANCHES[brA[r.i]]} × ${nb}の${PILLAR[r.j]}支 ${BRANCHES[brB[r.j]]}</b><br>${r.m}<span style="color:var(--muted)">(${r.i===r.j?PILLAR_MEAN[r.i]+"の場":"日支が関わる=ふたりの距離が近いほど出る"})</span></span></li>`).join("")}</ul>`:""}
+  </div>`:""}
+  ${tcs.length?`  <div class="sheet">
+    <h2>天中殺の関係</h2>
+    ${tcs.length?`<ul class="rel">${tcs.map(t=>`<li><span class="tag warn">天中殺</span><span>${t}</span></li>`).join("")}</ul>`:""}
+    <p class="foot">${na}:${TCS_NAME[A.tcsG]}天中殺 / ${nb}:${TCS_NAME[B.tcsG]}天中殺</p>
+  </div>`:""}
+  <div class="sheet">
+    <h2>関係のタイミング</h2>
+    <p class="lead" style="margin-bottom:10px">ふたりそれぞれの大運と、これから10年の年運を重ねて見ます。恋愛・仕事・一般の3つの関わり方で、それぞれ判定しています。</p>
+    <ul class="rel">${dLine(DA,na)}${dLine(DB,nb)}</ul>
+    <div class="table-wrap" style="margin-top:14px"><table class="yr"><thead><tr><th>年</th><th>恋愛</th><th>仕事</th><th>一般</th><th>理由</th></tr></thead><tbody>
+    ${yrs.map(r=>{const sws=switches.filter(x=>x.Y===r.Y).map(x=>x.t);return `<tr><td class="y">${r.Y}<br><span style="font-family:var(--font-display);font-weight:800">${stemHTML(r.g.s)}${brHTML(r.g.b)}</span></td>${["love","work","general"].map(md=>`<td><span class="mark ${r.r[md].lab[1]}">${r.r[md].lab[0]}</span></td>`).join("")}<td>${[...shortWhy(r.why,na,nb),...sws.map(t=>`<b>${t.replace(/の大運が.+$/,"大運切替")}</b>`)].join("・")||"—"}</td></tr>`;}).join("")}
+    </tbody></table></div>
+    <p class="foot">追い風=干合・支合・半会や関わり方に合う通変星が巡る年。慎重に=どちらかの天中殺や日支の対冲が重なる年。大運が切り替わる年は、関係の形が変わりやすい転機として見ます。恋愛では付き合い始めや結婚、仕事では独立・契約・新規事業のスタートを、天中殺の年に避けるのが算命学の定石です。</p>
+  </div>
+  ${ga.length||gb.length?`  <div class="sheet">
+    <h2>五行の補い合い</h2>
+    <div class="pair">
+      <div><h3>${na}</h3>${barsHTML(ea)}</div>
+      <div><h3>${nb}</h3>${barsHTML(eb)}</div>
+    </div>
+    <p style="margin:12px 0 0;font-size:14px">${ga.length?`${nb}は、${na}に少ない<b>${ga.join("・")}</b>を多く持っています。`:""}${gb.length?`${na}は、${nb}に少ない<b>${gb.join("・")}</b>を多く持っています。`:""}足りないものを補ってくれる相手には、自然と惹かれやすいと読みます。</p>
+  </div>`:""}`;
+}
+
+// ===== 心理学: ビッグファイブ(TIPI)・愛着スタイル・MBTI =====
+const B5 = ["外向性","協調性","誠実性","神経症傾向","開放性"];
+const B5_HI = ["人と関わるほど元気になる、話し好きで活発","思いやりがあり、人とぶつかるのを避ける","計画的で、決めたことをやり抜く","不安や緊張を感じやすく、感情が揺れやすい","新しいことや抽象的な考えに惹かれる"];
+const B5_LO = ["ひとりの時間で回復する、落ち着いて控えめ","率直で、自分の意見をはっきり通す","柔軟で、その場の流れに合わせる","動じにくく、気持ちが安定している","慣れたやり方や現実的なものを好む"];
+// TIPI (Gosling, Rentfrow & Swann, 2003) の10項目を日本語にしたもの。[文, 次元, 逆転]
+const TIPI = [
+ ["活発で、外向的だ",0,false],["他人に不満をもち、もめごとを起こしやすい",1,true],["しっかりしていて、自分に厳しい",2,false],["心配性で、うろたえやすい",3,false],["新しいことが好きで、変わった考えをもつ",4,false],
+ ["ひかえめで、おとなしい",0,true],["人に気をつかう、やさしい人間だ",1,false],["だらしなく、うっかりしている",2,true],["冷静で、気分が安定している",3,true],["発想力に欠けた、平凡な人間だ",4,true]];
+const ATT = [["相手に本当に好かれているか、不安になることが多い",0],["連絡が来ないと、気になって仕方がない",0],["いつか見捨てられるのではと心配になる",0],
+ ["深く頼られると、息苦しく感じる",1],["自分の気持ちを相手に話すのは苦手だ",1],["近づきすぎると、距離を取りたくなる",1]];
+const ATT_TYPE = {
+ secure:["安定型","人を信頼しつつ、自分のペースも保てる。近づくことも離れることも怖くない。"],
+ anxious:["不安型","相手の気持ちを確かめたくなりやすい。愛情深いが、不安から相手を追いかけてしまうことも。"],
+ avoidant:["回避型","自立していて、深く踏み込まれると距離を取りたくなる。気持ちを言葉にする練習が鍵。"],
+ fearful:["恐れ・回避型","近づきたい気持ちと怖さが同居しやすい。安心できる相手と少しずつ距離を縮めるのが合う。"]};
+const MBTI_TYPES=["INTJ","INTP","ENTJ","ENTP","INFJ","INFP","ENFJ","ENFP","ISTJ","ISFJ","ESTJ","ESFJ","ISTP","ISFP","ESTP","ESFP"];
+// 算命学→ビッグファイブの仮説(このアプリ独自の対応づけ。研究で検証する前提)
+const STAR_B5 = {
+ "比肩":[0,-1,1,0,-1],"劫財":[1,1,0,0,0],"食神":[1,0,-1,-1,0],"傷官":[-1,-1,0,1,1],"偏財":[1,1,0,0,0],
+ "正財":[0,1,1,0,-1],"偏官":[1,-1,0,0,0],"正官":[0,0,1,1,-1],"偏印":[0,0,-1,0,1],"印綬":[-1,1,1,0,1]};
+const STAR_WHY = {
+ "比肩":"自分のペースを守る頑固さ→協調性低め・誠実性高め","劫財":"仲間と動く協調の通変星→外向性・協調性高め","食神":"のびやかな楽天家→外向性高め・神経症傾向低め",
+ "傷官":"繊細な感性と孤独→神経症傾向・開放性高め、外向性低め","偏財":"人を惹きつけ与える→外向性・協調性高め","正財":"堅実にコツコツ→誠実性・協調性高め、開放性低め",
+ "偏官":"まっすぐ攻める行動力→外向性高め・協調性低め","正官":"責任感とプライド→誠実性・神経症傾向高め","偏印":"型破りな冒険家→開放性高め・誠実性低め","印綬":"知性と伝統、面倒見→開放性・誠実性・協調性高め"};
+
+function predictB5(c){const S=c.stars;const sc=[0,0,0,0,0];const add=(st,w)=>STAR_B5[MAIN[st]].forEach((v,i)=>sc[i]+=v*w);
+  add(S.chest,2);add(S.head,1);add(S.belly,1);add(S.left,1);add(S.right,1);
+  const en=JU_ENERGY[S.shoulder]+JU_ENERGY[S.leftFoot]+JU_ENERGY[S.rightFoot];if(en>=26)sc[0]+=1;if(en<=16)sc[0]-=1;
+  return sc.map(v=>Math.max(1,Math.min(7,4+v*0.5)));}
+function scoreTIPI(ans){if(!ans||ans.length!==10||ans.some(v=>!v))return null;const s=[[],[],[],[],[]];TIPI.forEach(([,d,r],i)=>s[d].push(r?8-ans[i]:ans[i]));return s.map(a=>(a[0]+a[1])/2);}
+function scoreATT(ans){if(!ans||ans.length!==6||ans.some(v=>!v))return null;const ax=(ans[0]+ans[1]+ans[2])/3,av=(ans[3]+ans[4]+ans[5])/3;
+  const t=ax<4&&av<4?"secure":ax>=4&&av<4?"anxious":ax<4&&av>=4?"avoidant":"fearful";return {ax,av,t};}
+const lvl=v=>v>=5?1:v<=3?-1:0;
+const mbtiFrom=b=>(b[0]>4?"E":"I")+(b[4]>4?"N":"S")+(b[1]>4?"F":"T")+(b[2]>4?"J":"P");
+function sameLetters(a,b){let n=0;for(let i=0;i<4;i++)if(a[i]===b[i])n++;return n;}
+
+// ===== 性格タブ =====
+let psySubject=null; // 研究ノートの人のid、またはnull(命式タブの入力)
+let psyDraft={tipi:Array(10).fill(0),att:Array(6).fill(0),mbti:""};
+function psyPerson(){return psySubject?people.find(p=>p.id===psySubject):null;}
+function loadDraft(){const p=psyPerson();const ps=p&&p.psych;psyDraft={tipi:ps&&ps.tipi?[...ps.tipi]:Array(10).fill(0),att:ps&&ps.att?[...ps.att]:Array(6).fill(0),mbti:ps&&ps.mbti||""};}
+function scaleRow(name,i,val,txt){return `<div class="q"><div class="qt">${txt}</div><div class="scale" role="radiogroup" aria-label="${esc(txt)}">${[1,2,3,4,5,6,7].map(v=>`<button role="radio" aria-checked="${val===v}" data-q="${name}" data-i="${i}" data-v="${v}">${v}</button>`).join("")}</div></div>`;}
+function renderPsych(){
+  const out=$("#psy-out");const sel=$("#psy-pick");
+  sel.innerHTML=`<option value="">命式タブで入力中の人</option>`+people.filter(p=>parseDate(p.date)).map(p=>`<option value="${esc(p.id)}">${esc(p.name)}(${esc(p.tag)})</option>`).join("");sel.value=psySubject||"";
+  const p=psyPerson();const date=p?p.date:$("#c-date").value;const name=p?p.name:($("#c-name").value.trim()||"この人");const dt=parseDate(date);
+  if(!dt){out.innerHTML=`<div class="sheet"><p class="lead">命式タブで生年月日を入れるか、研究ノートの人を選んでください。</p></div>`;return;}
+  const c=chart(...dt);const pred=predictB5(c);const self=!p||p.tag==="自分";const hide=!!(p&&p.blind&&!(p.psych&&scoreTIPI(p.psych.tipi)));
+  const meas=scoreTIPI(psyDraft.tipi);const att=scoreATT(psyDraft.att);const filled=psyDraft.tipi.filter(Boolean).length;
+  const subj=self?"あなた自身":"この人";const lead=self?"自分に当てはまる程度":`${esc(name)}を思い浮かべて、当てはまる程度`;
+  out.innerHTML=`
+  <div class="sheet">
+    <h2>${esc(name)}の性格を測る</h2>
+    <p class="lead">${lead}を選んでください。1=まったく違う、4=どちらでもない、7=とてもそう。${self?"":"他の人は、あなたから見た印象で答えます(観察者評定)。"}</p>
+    <h3 style="margin-top:14px">ビッグファイブ(10問)</h3>
+    <div class="qs">${TIPI.map(([t],i)=>scaleRow("tipi",i,psyDraft.tipi[i],t)).join("")}</div>
+    <h3 style="margin-top:16px">恋愛での愛着スタイル(6問・簡易版)</h3>
+    <div class="qs">${ATT.map(([t],i)=>scaleRow("att",i,psyDraft.att[i],t)).join("")}</div>
+    <h3 style="margin-top:16px">MBTI</h3>
+    <div class="form"><div class="field"><label for="psy-mbti">診断済みのタイプ(わからなければ空欄)</label><select id="psy-mbti"><option value="">わからない</option>${MBTI_TYPES.map(t=>`<option ${psyDraft.mbti===t?"selected":""}>${t}</option>`).join("")}</select></div></div>
+    <div class="row" style="margin-top:12px">${p?`<button class="btn" id="psy-save">${esc(name)}に保存する</button>`:`<span class="status">結果を残すには、命式タブで研究ノートに保存してから、上で選んでください。</span>`}<span class="status" id="psy-saved"></span></div>
+  </div>
+  ${hide?`<div class="sheet"><h2>命式はまだ隠しています</h2><p class="lead">先入観なしの記録です。質問に全部答えて保存すると、命式からの予想と比べた結果が出ます。</p></div>`:psyResultHTML(c,pred,meas,att,psyDraft.mbti,filled,p?p.name:$("#c-name").value.trim())}
+  <p class="foot">心理学の尺度は自己理解の目安で、診断ではありません。TIPIは短い尺度なので傾向をざっくり見るためのものです。愛着スタイルの6問はこのアプリ用の簡易チェックです。生年月日と性格の関係は科学的には確かめられていないので、研究ノートで「どれくらい当たるか」を自分のデータで確かめてみてください。</p>`;
+  out.querySelectorAll(".scale button").forEach(b=>b.addEventListener("click",()=>{const y=window.scrollY;psyDraft[b.dataset.q][+b.dataset.i]=+b.dataset.v;renderPsych();window.scrollTo(0,y);}));
+  $("#psy-mbti").addEventListener("change",e=>{psyDraft.mbti=e.target.value;const y=window.scrollY;renderPsych();window.scrollTo(0,y);});
+  const sv=$("#psy-save");if(sv)sv.addEventListener("click",async()=>{const pp=psyPerson();if(!pp)return;await savePerson({...pp,psych:{tipi:[...psyDraft.tipi],att:[...psyDraft.att],mbti:psyDraft.mbti,at:Date.now()}});const s=$("#psy-saved");if(s){s.textContent="保存しました";setTimeout(()=>{if(s)s.textContent="";},2500);}});
+}
+function psyResultHTML(c,pred,meas,att,mbti,filled,name){return `${meas?personalityHTML(c,meas,att,mbti,name):`<div class="sheet"><h2>性格のまとめ</h2><p class="lead">性格の質問に全部答えると、命式と心理学の結果をあわせた「こんな人」のまとめが出ます。</p></div>`}
+  <div class="sheet">
+    <h2>算命学の予想と、実際の性格</h2>
+    <p class="lead" style="margin-bottom:12px">◇が命式から予想した位置、●が質問の結果。${meas?"":`(質問 ${filled}/10 回答済み。全部答えると●が出ます)`}</p>
+    <div class="b5">${B5.map((n,i)=>{const pm=pred[i],ms=meas?meas[i]:null;const ok=ms==null?null:(lvl(pm)===0||lvl(pm)===lvl(ms));
+      return `<div class="b5r"><div class="b5h"><b>${n}</b>${ms==null?"":`<span class="mark ${ok?"good":"bad"}">${ok?"一致":"ずれ"}</span>`}<span class="b5v">${ms==null?"":ms.toFixed(1)}</span></div>
+      <div class="b5t"><span class="pm" style="left:${(pm-1)/6*100}%" title="予想 ${pm.toFixed(1)}"></span>${ms==null?"":`<span class="ms" style="left:${(ms-1)/6*100}%" title="結果 ${ms.toFixed(1)}"></span>`}</div>
+      <div class="b5l"><span>${B5_LO[i]}</span><span>${B5_HI[i]}</span></div></div>`;}).join("")}</div>
+    <p class="foot">予想の根拠:月支元命 ${MAIN[c.stars.chest]}(${STAR_WHY[MAIN[c.stars.chest]]})を2倍、ほか4つの通変星を1倍で足し、エネルギーの合計を外向性に反映。この対応づけは伝統的な星の意味から作った仮説です。</p>
+  </div>
+  <div class="sheet">
+    <h2>MBTIで見ると</h2>
+    <div class="facts">
+      <div class="fact"><div class="lbl">命式から予想</div><div class="val">${mbtiFrom(pred)}</div><div class="sub">予想したビッグファイブから換算</div></div>
+      <div class="fact"><div class="lbl">質問の結果から</div><div class="val">${meas?mbtiFrom(meas):"—"}</div><div class="sub">ビッグファイブから換算</div></div>
+      <div class="fact"><div class="lbl">診断済みのタイプ</div><div class="val">${mbti||"—"}</div><div class="sub">${mbti?`命式の予想と${sameLetters(mbti,mbtiFrom(pred))}/4文字一致`:"16Personalitiesなどの結果があれば選択"}</div></div>
+    </div>
+    <p class="foot">換算は、E/Iが外向性、S/Nが開放性、T/Fが協調性、J/Pが誠実性とそれぞれ関連するという研究(McCrae & Costa, 1989)に基づく目安です。神経症傾向はMBTIにはありません。</p>
+  </div>
+  ${att?`<div class="sheet"><h2>愛着スタイル:${ATT_TYPE[att.t][0]}</h2><p style="margin:0">${ATT_TYPE[att.t][1]}</p>
+    <div class="facts" style="margin-top:10px"><div class="fact"><div class="lbl">見捨てられ不安</div><div class="val">${att.ax.toFixed(1)}</div></div><div class="fact"><div class="lbl">親密さの回避</div><div class="val">${att.av.toFixed(1)}</div></div></div>
+    <p class="foot">命式と重ねると:月支元命 ${MAIN[c.stars.chest]}の人が${ATT_TYPE[att.t][0]}のとき、${attStarNote(MAIN[c.stars.chest],att.t)}</p></div>`:""}`;}
+function attStarNote(st,t){const giving=["偏財","食神","印綬","正財"].includes(st),indep=["比肩","偏印","偏官","傷官"].includes(st);
+  if(t==="secure")return "通変星の良さがそのまま出やすく、関係を安定して育てられます。";
+  if(t==="anxious")return giving?"与える通変星と不安が重なり、尽くしすぎて疲れやすい傾向に注意。":indep?"自立の通変星なのに不安が強いと、強がりと寂しさのギャップが出やすくなります。":"相手の反応を気にしすぎないよう、自分の基準を持つと楽になります。";
+  if(t==="avoidant")return indep?"自立の通変星と回避が重なり、ひとりで抱え込みやすい傾向が強まります。":"人を大切にする星なのに距離を取ってしまう、もどかしさが出やすい組み合わせです。";
+  return "通変星の性質が状況によって強く出たり引っ込んだりしやすいので、安心できる相手選びが特に大切です。";}
+
+// ===== 性格まとめ(命式+心理学) =====
+const STEM_NATURE=[["大樹","まっすぐ上へ伸びる向上心があり、曲がったことが苦手。"],["草花","しなやかで人に合わせる柔軟さと、踏まれても立ち上がる粘り強さがある。"],["太陽","明るくおおらかで、隠しごとが苦手。周りを自然に照らす。"],["灯火","内に秘めた情熱と温かさを持ち、身近な人を細やかに照らす。"],["山","どっしり構えて動じず、人を受け止める包容力がある。"],["田畑","面倒見がよく、人やものを育てることに力を発揮する。"],["鉄","決断が早く正義感が強い。白黒をはっきりさせたい。"],["宝石","美意識とプライドが高く、繊細で磨かれるほど輝く。"],["海","スケールが大きく自由。知恵があり、ひとところに留まらない。"],["雨露","静かで思慮深く、柔らかな知性で周りを潤す。"]];
+const B5_STR=[["場を明るくし、人を巻き込める","ひとりで深く考え、集中できる"],["人に信頼され、和を保てる","言うべきことをはっきり言える"],["決めたことをやり抜ける","柔軟で、臨機応変に動ける"],["危険や人の痛みに敏感に気づける","プレッシャーに強く、動じない"],["発想が豊かで、新しいことを楽しめる","現実的で、安定して物事を進められる"]];
+const B5_CAU=[["ひとりで回復する時間を軽く見がち","気持ちが周りに伝わりにくい"],["自分を後回しにしすぎる","きつく受け取られることがある"],["完璧を求めて自分を追い込みやすい","先延ばしや抜け漏れが出やすい"],["ストレスや不安をためこみやすい","人の不安に気づきにくい"],["飽きっぽく、ひとつに定まりにくい","変化に慎重になりすぎる"]];
+const STAR_STR={"比肩":"自分の軸がぶれない","劫財":"誰とでも組める社交力","食神":"人を楽しませる自然体","傷官":"鋭い感性と表現力","偏財":"人を惹きつける愛情","正財":"コツコツ積み上げる堅実さ","偏官":"すぐに動ける行動力","正官":"任されたことを果たす責任感","偏印":"新しい道を切り開く冒険心","印綬":"学びを深める知性"};
+const STAR_CAU={"比肩":"頑固になり、人に頼れない","劫財":"周りに合わせすぎて本音が埋もれる","食神":"楽な方へ流れやすい","傷官":"傷つきやすく、孤立しやすい","偏財":"尽くしすぎて見返りを求めてしまう","正財":"変化を怖がり、守りに入りすぎる","偏官":"短気になり、ぶつかりやすい","正官":"体面を気にして無理をする","偏印":"飽きると投げ出しやすい","印綬":"理屈っぽくなり、過去にとらわれる"};
+function personalityHTML(c,meas,att,mbti,name){
+  const S=c.stars;const st=MAIN[S.chest];const nat=STEM_NATURE[c.ds];const who=name?esc(name)+"さん":"この人";
+  const en=JU_ENERGY[S.shoulder]+JU_ENERGY[S.leftFoot]+JU_ENERGY[S.rightFoot];
+  const enT=en>=26?"エネルギーが強く、自分から動いて道を切り開くタイプです。":en<=16?"エネルギーは穏やかで、周りと調和しながら力を発揮するタイプです。":"エネルギーはバランス型で、状況に応じて力の出し方を変えられます。";
+  const pred=predictB5(c);const paras=[];
+  const kI=kanshiInfo(c.ds,c.db);const bal=tsuhenBalance(c);const bmx=Math.max(...bal);
+  paras.push(`日柱は<b>${kI.name}</b>(${kI.read})。${KANSHI_TEXT[kI.idx]}日支に${kI.tsuhen}を抱えるので、私生活では${kI.tsInfo.split("。")[0]}の面が出やすいでしょう。${pillarSynthesis(c)[0][1]}${bmx>=2?`命式全体では${TS_GROUP.filter((_,i)=>bal[i]===bmx).map(g=>g[0]).join("・")}の通変星が多く、${TS_GROUP.find((_,i)=>bal[i]===bmx)[2]}。`:""}`);
+  paras.push(`${who}の本質は、日干 ${stemHTML(c.ds)} が表す「${nat[0]}」。${nat[1]}心の核にある月支元命の${st}は${MAIN_INFO[st][0]}を表し、${MAIN_INFO[st][1]}${enT}`);
+  const strengths=[STAR_STR[st]],cautions=[STAR_CAU[st]];
+  if(meas){
+    const tops=B5.map((n,i)=>({i,d:meas[i]-4})).filter(x=>Math.abs(x.d)>=1.5).sort((a,b)=>Math.abs(b.d)-Math.abs(a.d)).slice(0,3);
+    paras.push(tops.length?`心理学の質問では、${tops.map(x=>`${B5[x.i]}が${x.d>0?"高め":"低め"}(${x.d>0?B5_HI[x.i]:B5_LO[x.i]})`).join("、")}という特徴がはっきり出ています。`:"心理学の質問では、どの面も極端に偏らない、バランスの取れた性格と出ています。");
+    tops.forEach(x=>{strengths.push(B5_STR[x.i][x.d>0?0:1]);cautions.push(B5_CAU[x.i][x.d>0?0:1]);});
+    const agree=[],diff=[];B5.forEach((n,i)=>{const p=lvl(pred[i]),m=lvl(meas[i]);if(p&&p===m)agree.push(n);else if(p&&m&&p!==m)diff.push([n,p]);});
+    if(agree.length)paras.push(`${agree.join("・")}は、命式の読みと心理学の結果が同じ方向を指しています。ここは${who}らしさの芯と言えそうです。`);
+    if(diff.length)paras.push(`一方で${diff.map(([n,p])=>`${n}(命式では${p>0?"高め":"低め"}の予想)`).join("、")}は、命式の読みとは逆に出ました。通変星が持つ性質を、これまでの経験や環境で別の形に育ててきた部分かもしれません。`);
+  }else{
+    const hi=B5.filter((n,i)=>lvl(pred[i])>0),lo=B5.filter((n,i)=>lvl(pred[i])<0);
+    B5.forEach((n,i)=>{const l=lvl(pred[i]);if(l){strengths.push(B5_STR[i][l>0?0:1]);cautions.push(B5_CAU[i][l>0?0:1]);}});
+    if(hi.length||lo.length)paras.push(`命式から心理学の言葉に置きかえると、${hi.length?hi.join("・")+"が高め":""}${hi.length&&lo.length?"、":""}${lo.length?lo.join("・")+"が低め":""}の人になりやすいと読めます。性格の質問に答えると、実際どうかを確かめられます。`);
+  }
+  if(att)paras.push(`親しい関係では${ATT_TYPE[att.t][0]}寄り。${ATT_TYPE[att.t][1]}`);
+  if(mbti)paras.push(`MBTIは${esc(mbti)}${mbti===mbtiFrom(meas||pred)?"で、ほかの結果とも一致しています。":"です。"}`);
+  const uniq=a=>[...new Set(a)].slice(0,4);
+  return `<div class="sheet persona"><h2>${who}はこんな人</h2>${[paras[1],paras[0],...paras.slice(2)].map(t=>`<p>${t}</p>`).join("")}
+    <div class="pair" style="margin-top:12px"><div><h3>強み</h3><ul>${uniq(strengths).map(t=>`<li>${t}</li>`).join("")}</ul></div><div><h3>気をつけたいこと</h3><ul>${uniq(cautions).map(t=>`<li>${t}</li>`).join("")}</ul></div></div>
+    <p class="foot">${meas?"命式・心理学の質問":"命式"}から自動でまとめた文章です。当たっていると感じた所、違うと感じた所をメモに残すと研究の材料になります。</p></div>`;
+}
+
+// ===== 研究: 命式と性格の関係 =====
+function renderResearch(){
+  const el=$("#research");const rows=people.filter(p=>parseDate(p.date)&&p.psych&&scoreTIPI(p.psych.tipi)&&(!$("#r-blind").checked||p.blind));
+  if(rows.length<3){el.innerHTML=`<p class="lead">性格データのある人が3人以上になると集計が出ます(いま ${rows.length}人)。「性格」タブで、保存した人の質問に答えて保存してください。</p>`;return;}
+  const hit=[0,0,0,0,0],tot=[0,0,0,0,0];const byStar={};let mb=0,mbn=0;
+  for(const p of rows){const c=chart(...parseDate(p.date));const pr=predictB5(c),ms=scoreTIPI(p.psych.tipi);
+    pr.forEach((v,i)=>{if(lvl(v)!==0){tot[i]++;if(lvl(v)===lvl(ms[i]))hit[i]++;}});
+    const st=MAIN[c.stars.chest];(byStar[st]=byStar[st]||[]).push({ms,mbti:p.psych.mbti});
+    if(p.psych.mbti){mb+=sameLetters(p.psych.mbti,mbtiFrom(pr));mbn++;}}
+  const pct=(a,b)=>b?Math.round(a/b*100)+"%":"—";
+  el.innerHTML=`<p class="lead" style="margin-bottom:10px">性格データのある ${rows.length}人で、命式からの予想(高い/低いと予想したもの)がどれくらい当たったか。偶然でも約3分の1は当たります。</p>
+  <div class="table-wrap"><table><thead><tr><th>次元</th><th>的中</th><th>件数</th></tr></thead><tbody>${B5.map((n,i)=>`<tr><td>${n}</td><td><b>${pct(hit[i],tot[i])}</b></td><td>${tot[i]}</td></tr>`).join("")}
+  ${mbn?`<tr><td>MBTI(文字単位)</td><td><b>${pct(mb,mbn*4)}</b></td><td>${mbn}人</td></tr>`:""}</tbody></table></div>
+  <h3 style="margin-top:16px">月支元命ごとの実際の性格(平均)</h3>
+  <div class="table-wrap"><table><thead><tr><th>月支元命</th><th>人数</th>${B5.map(n=>`<th>${n.slice(0,2)}</th>`).join("")}<th>MBTI</th></tr></thead><tbody>${Object.entries(byStar).sort((a,b)=>b[1].length-a[1].length).map(([st,arr])=>{const avg=B5.map((_,i)=>arr.reduce((s,x)=>s+x.ms[i],0)/arr.length);const m=arr.map(x=>x.mbti).filter(Boolean);
+    return `<tr><td>${st}</td><td>${arr.length}</td>${avg.map(v=>`<td style="font-variant-numeric:tabular-nums" class="${v>=5?"hi":v<=3?"lo":""}">${v.toFixed(1)}</td>`).join("")}<td>${m.join(" ")||"—"}</td></tr>`;}).join("")}</tbody></table></div>
+  <p class="foot">人数が少ないうちは偶然の影響が大きいので、10人、20人と増えてから傾向を読むのがおすすめです。</p>`;
+}
+// 相性に心理学を重ねる
+function psychCompatHTML(pa,pb,na,nb){
+  const A=pa&&pa.psych,B=pb&&pb.psych;if(!A&&!B)return `<div class="sheet"><h2>心理学から見たふたり</h2><p class="lead">研究ノートから選んだ人に「性格」タブの結果が保存されていると、ここに心理学の相性が出ます。</p></div>`;
+  const ma=A&&scoreTIPI(A.tipi),mb=B&&scoreTIPI(B.tipi),aa=A&&scoreATT(A.att),ab=B&&scoreATT(B.att);const pts=[];
+  if(ma&&mb){const d=B5.map((_,i)=>Math.abs(ma[i]-mb[i]));
+    if(d[2]<=1.5)pts.push(["誠実性が近い","生活や仕事の進め方のテンポが合いやすく、長く続く関係で特に効いてきます。",0]);else pts.push(["誠実性の差","段取りや時間感覚の違いがすれ違いの元に。役割分担で補い合うと強みになります。",1]);
+    if(d[1]<=1.5)pts.push(["協調性が近い","衝突したときの向き合い方が似ていて、話し合いがしやすい組み合わせです。",0]);
+    if(d[0]>=2.5)pts.push(["外向性の差","ひとりの時間と人との時間、どちらで充電するかが違います。予定の入れ方で配慮を。",1]);
+    if(ma[3]>=5&&mb[3]>=5)pts.push(["ふたりとも不安を感じやすい","お互いの不安が連鎖しやすいので、落ち着いているときに安心できるルールを決めておくと良い。",1]);}
+  if(aa&&ab){const k=[aa.t,ab.t].sort().join("+");
+    if(k==="anxious+avoidant")pts.push(["不安型×回避型","追いかける側と距離を取る側に分かれやすい、よくある組み合わせ。気持ちと必要な距離を言葉で伝え合うのが鍵。",1]);
+    else if(aa.t==="secure"||ab.t==="secure")pts.push(["安定型がいる","安定型の人が関係の土台になり、もう一方も安心しやすくなります。",0]);}
+  const mbL=A&&A.mbti&&B&&B.mbti?`<p style="margin:10px 0 0;font-size:14px">MBTI:${na} ${A.mbti} × ${nb} ${B.mbti}(${sameLetters(A.mbti,B.mbti)}/4文字共通)。${A.mbti[0]!==B.mbti[0]?"E/Iが違うので、人づきあいの量で調整を。":""}${A.mbti[3]!==B.mbti[3]?"J/Pが違うので、予定の決め方でぶつかりやすい。":""}</p>`:"";
+  return `<div class="sheet"><h2>心理学から見たふたり</h2>${pts.length?`<ul class="rel">${pts.map(([t,m,w])=>`<li><span class="tag ${w?"warn":""}">${t}</span><span>${m}</span></li>`).join("")}</ul>`:""}${mbL}
+  <p class="foot">${na}:${aa?ATT_TYPE[aa.t][0]:"愛着未回答"} / ${nb}:${ab?ATT_TYPE[ab.t][0]:"愛着未回答"}。算命学の「どんな存在か」と、ここの心理学の傾向が同じ方向を指しているかも見比べてみてください。</p></div>`;
+}
+
+// ===== 出来事ログ =====
+const EV_TYPES=[["出会い","start"],["交際開始","start"],["結婚","start"],["別れ・離婚","end"],["就職・転職","start"],["独立・起業","start"],["昇進・成功","up"],["挫折・失敗","down"],["引っ越し","change"],["病気・けが","down"],["身内との別れ","down"],["その他","change"]];
+const EV_CAT={start:"始まり",end:"終わり",up:"好調",down:"不調",change:"変化"};
+function eventRead(P,sex,dateStr){const dt=parseDate(dateStr);if(!dt)return null;const e=chart(...dt);
+  const D=daiun(P,sex);const du=D.list.find(x=>dt[0]>=x.from&&dt[0]<=x.to);
+  return {yS:e.ys,yB:e.yb,mS:e.ms,mB:e.mb,yTcs:P.tcs.includes(e.yb),mTcs:P.tcs.includes(e.mb),star:MAIN[mainStarIdx(P.ds,e.ys)],kango:Math.abs(e.ys-P.ds)===5,
+    br:branchRels(e.yb,P.db).map(r=>r[0]),du,age:dt[0]-P.y+1};}
+let evSubject=null,evConfirm=null;
+function renderEvents(){
+  const sel=$("#ev-pick");const list=people.filter(p=>parseDate(p.date));
+  if(!evSubject||!list.some(p=>p.id===evSubject))evSubject=(list.find(p=>p.tag==="自分")||list[0]||{}).id||null;
+  sel.innerHTML=list.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}(${esc(p.tag)})</option>`).join("");if(evSubject)sel.value=evSubject;
+  const out=$("#ev-out");const p=people.find(x=>x.id===evSubject);
+  $("#ev-form").hidden=!p;
+  if(!p){out.innerHTML=`<p class="lead">研究ノートに人を保存すると、その人の出来事を記録できます。</p>`;return;}
+  const P=chart(...parseDate(p.date));const evs=(p.events||[]).map((e,i)=>({...e,i})).sort((a,b)=>a.date<b.date?-1:1);
+  if(!evs.length){out.innerHTML=`<p class="lead">${esc(p.name)}の出来事はまだありません。上のフォームから、覚えている大きな出来事を日付つきで追加してください。日にちが曖昧なら、その月の15日などで大丈夫です。</p>`;return;}
+  out.innerHTML=`<div class="plist">${evs.map(e=>{const r=eventRead(P,p.sex||"f",e.date);if(!r)return "";const [y,m,d]=parseDate(e.date);
+    const tags=[];if(r.yTcs)tags.push(["天中殺の年",1]);if(r.mTcs)tags.push(["天中殺の月",1]);if(r.kango)tags.push(["日干と干合",0]);r.br.forEach(b=>tags.push(["日支と"+b,["対冲","害","刑","自刑"].includes(b)?1:0]));if(r.du&&r.du.tcs)tags.push(["大運天中殺",1]);
+    const cat=(EV_TYPES.find(t=>t[0]===e.type)||["","change"])[1];
+    return `<div class="pitem"><div class="head"><span class="nm">${esc(e.type)}</span><span class="dt">${y}.${m}.${d}・数え${r.age}歳</span><span class="chip">${EV_CAT[cat]}</span></div>
+      <div style="font-size:14px">年 <b style="font-family:var(--font-display)">${stemHTML(r.yS)}${brHTML(r.yB)}</b>(${r.star})・月 <b style="font-family:var(--font-display)">${stemHTML(r.mS)}${brHTML(r.mB)}</b>${r.du?`・大運 <b style="font-family:var(--font-display)">${stemHTML(r.du.s)}${brHTML(r.du.b)}</b>(${MAIN[r.du.star]})`:""}</div>
+      ${tags.length?`<div class="row" style="gap:6px">${tags.map(([t,w])=>`<span class="tag-s ${w?"warn":""}">${t}</span>`).join("")}</div>`:""}
+      <p class="evm">${eventMeaning(r,e.type)}</p>
+      ${e.note?`<p class="note">${esc(e.note)}</p>`:""}
+      <div class="row">${evConfirm===e.i?`<span style="font-size:13px">削除しますか?</span><button class="btn danger small" data-ev="yes" data-i="${e.i}">削除する</button><button class="btn ghost small" data-ev="no">やめる</button>`:`<button class="btn ghost small" data-ev="del" data-i="${e.i}" style="color:var(--seal);border-color:var(--seal)">削除</button>`}</div></div>`;}).join("")}</div>`;
+}
+async function addEvent(){const p=people.find(x=>x.id===evSubject);if(!p)return;const date=$("#ev-date").value;const msg=$("#ev-msg");
+  if(!parseDate(date)){msg.textContent="日付を入れてください";return;}if(date<p.date){msg.textContent="生年月日より前の日付です";return;}
+  const ev={date,type:$("#ev-type").value,note:$("#ev-note").value.trim()};await savePerson({...p,events:[...(p.events||[]),ev]});$("#ev-note").value="";msg.textContent="追加しました";setTimeout(()=>msg.textContent="",2000);}
+
+// 研究: 出来事とタイミングの集計
+function eventResearchHTML(){
+  const rows=[];for(const p of people){if(!parseDate(p.date)||!p.events)continue;const P=chart(...parseDate(p.date));for(const e of p.events){const r=eventRead(P,p.sex||"f",e.date);if(!r)continue;rows.push({cat:(EV_TYPES.find(t=>t[0]===e.type)||["","change"])[1],r});}}
+  if(rows.length<5)return `<p class="lead">出来事が5件以上たまると集計が出ます(いま ${rows.length}件)。「出来事」タブで記録してください。</p>`;
+  const cats=["start","end","up","down","change"];const pct=(a,b)=>b?Math.round(a/b*100)+"%":"—";
+  const line=(lbl,arr)=>{const n=arr.length;const yt=arr.filter(x=>x.r.yTcs).length,mt=arr.filter(x=>x.r.mTcs).length,en=arr.filter(x=>x.r.kango||x.r.br.includes("支合")||x.r.br.includes("半会")).length,cl=arr.filter(x=>x.r.br.includes("対冲")).length;
+    return `<tr><td>${lbl}</td><td>${n}</td><td>${pct(yt,n)}</td><td>${pct(mt,n)}</td><td>${pct(en,n)}</td><td>${pct(cl,n)}</td></tr>`;};
+  return `<p class="lead" style="margin-bottom:10px">記録された ${rows.length}件の出来事が、どんな時期に起きたか。いちばん下の「偶然なら」の目安と比べて、大きく上回る種類があれば算命学の読みを支持する手がかりになります。</p>
+  <div class="table-wrap"><table><thead><tr><th>種類</th><th>件数</th><th>天中殺の年</th><th>天中殺の月</th><th>干合・支合・半会の年</th><th>対冲の年</th></tr></thead><tbody>
+  ${cats.map(c=>{const a=rows.filter(x=>x.cat===c);return a.length?line(EV_CAT[c],a):"";}).join("")}${line("すべて",rows)}
+  <tr><td style="color:var(--muted)">偶然なら</td><td></td><td style="color:var(--muted)">約17%</td><td style="color:var(--muted)">約17%</td><td style="color:var(--muted)">約35%</td><td style="color:var(--muted)">約8%</td></tr></tbody></table></div>
+  <p class="foot">算命学の定石では、天中殺の時期に始めたことは長続きしにくく、終わりや変化は起きやすいとされます。「始まり」が天中殺に少なく「終わり・変化」が多ければ、定石どおりの傾向です。</p>`;
+}
+
+// ===== アンケート回答コードの取り込み =====
+function decodeAnswer(code){
+  const m=/SANMEI1-([A-Za-z0-9_\-]+)/.exec((code||"").replace(/\s+/g,""));if(!m)throw new Error("コードの形式が違います。SANMEI1- から始まる文字列をそのまま貼り付けてください。");
+  let b=m[1].replace(/-/g,"+").replace(/_/g,"/");while(b.length%4)b+="=";
+  let o;try{const bin=atob(b);const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));o=JSON.parse(new TextDecoder().decode(bytes));}catch(e){throw new Error("コードが途中で切れているようです。最後までコピーされているか確認してください。");}
+  const ok=a=>Array.isArray(a)&&a.every(v=>Number.isInteger(v)&&v>=1&&v<=7);
+  if(!parseDate(o.d))throw new Error("生年月日が読み取れませんでした。");
+  if(!ok(o.t)||o.t.length!==10)throw new Error("性格の回答が足りません。");
+  return {name:String(o.n||"協力者").slice(0,40),date:o.d,sex:o.s==="m"?"m":"f",tag:"協力者",note:(o.r?`関係:${String(o.r).slice(0,20)}`:""),
+    psych:{tipi:o.t,att:ok(o.a)&&o.a.length===6?o.a:Array(6).fill(0),mbti:MBTI_TYPES.includes(o.m)?o.m:"",at:o.at||Date.now()},
+    extra:Object.fromEntries(Object.keys(EXTRA).map(k=>[k,o.x&&EXTRA[k][1].includes(o.x[k])?o.x[k]:""])),
+    events:(Array.isArray(o.e)?o.e:[]).filter(e=>Array.isArray(e)&&parseDate(e[0])&&EV_TYPES[e[1]]).slice(0,20).map(e=>({date:e[0],type:EV_TYPES[e[1]][0],note:""})),
+    blind:true,source:"survey",created:Date.now()};
+}
+async function importCode(){const msg=$("#imp-msg");const codes=($("#imp-code").value.match(/SANMEI1-[A-Za-z0-9_\-]+/g)||[]);
+  if(!codes.length){msg.textContent="SANMEI1- から始まるコードが見つかりません。";return;}
+  let add=0,upd=0,bad=0;
+  for(const code of codes){try{const p=decodeAnswer(code);const dup=people.find(x=>x.source==="survey"&&x.name===p.name&&x.date===p.date);if(dup){p.id=dup.id;upd++;}else add++;await savePerson(p);}catch(e){bad++;}}
+  $("#imp-code").value="";msg.textContent=`${add}人を追加、${upd}人を更新しました${bad?`(読み取れないコード ${bad}件)`:""}`;}
+
+// ===== プロフィール(入力と、わかること) =====
+const EXTRA={
+ order:["兄弟の順番",["一人っ子","長子","中間子","末子"]],
+ job:["職業・分野",["会社員(事務・企画)","営業・販売","専門職(医療・法律など)","技術・エンジニア","クリエイティブ","教育・保育","接客・サービス","経営・自営","学生","その他"]],
+ status:["交際状況",["独身(交際なし)","交際中","既婚","その他"]]};
+let pfSubject=null;
+function pfDefault(){const l=people.filter(p=>parseDate(p.date));if(!pfSubject||!l.some(p=>p.id===pfSubject))pfSubject=(l.find(p=>p.tag==="自分")||l[0]||{}).id||null;}
+function lockCard(title,need,what){return `<div class="unlock locked"><div class="uh"><b>${title}</b><span class="chip">未開放</span></div><p>あと<b>${need}</b>を入れると、${what}がわかります。</p></div>`;}
+function openCard(title,body,btn){return `<div class="unlock"><div class="uh"><b>${title}</b><span class="chip ok">開放</span></div>${body}${btn||""}</div>`;}
+function renderProfile(){
+  pfDefault();const sel=$("#pf-pick");const list=people.filter(p=>parseDate(p.date));
+  sel.innerHTML=list.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}(${esc(p.tag)})</option>`).join("");if(pfSubject)sel.value=pfSubject;
+  const out=$("#pf-out");const p=people.find(x=>x.id===pfSubject);
+  if(!p){out.innerHTML=`<div class="sheet"><p class="lead">まだ誰も登録されていません。「命式」タブで名前と生年月日を入れて保存すると、ここにその人のプロフィールができます。まずは自分を「自分」として登録してください。</p><div class="row" style="margin-top:10px"><button class="btn" data-go="chart">命式タブで登録する</button></div></div>`;return;}
+  const c=chart(...parseDate(p.date));const ps=p.psych||{};const meas=scoreTIPI(ps.tipi);const att=scoreATT(ps.att);const mbti=ps.mbti||"";
+  const evs=p.events||[];const ex=p.extra||{};const me=people.find(x=>x.tag==="自分"&&parseDate(x.date));const isMe=me&&me.id===p.id;
+  const hide=!!(p.blind&&!meas);
+  // 入力の状況
+  const inputs=[["基本情報","名前・生年月日・性別",true,""],["性格の質問","ビッグファイブ10問",!!meas,"psy"],["恋愛の質問","愛着スタイル6問",!!att,"psy"],["MBTI","診断済みのタイプ",!!mbti,"psy"],
+    ["出来事",evs.length?`${evs.length}件`:"人生の出来事と日付",evs.length>0,"ev"],["追加情報","兄弟の順番・職業・交際状況",Object.values(EXTRA).every((_,i)=>ex[Object.keys(EXTRA)[i]]),"extra"],["メモ","実際の印象",!!(p.note&&p.note.trim()),"note"]];
+  const done=inputs.filter(x=>x[2]).length;
+  // わかること
+  const cards=[];
+  if(hide)cards.push(lockCard("命式","性格の質問","先入観なしの記録のため、答えたあとに命式"));
+  else{const D=daiun(c,p.sex||"f");const now=D.list.find(x=>curYear>=x.from&&curYear<=x.to);const yr=yearGanshi(curYear);
+    cards.push(openCard("命式",`<p>日柱 <b>${stemHTML(c.ds)}${brHTML(c.db)}</b>・月支元命 <b>${MAIN[c.stars.chest]}</b>・${TCS_NAME[c.tcsG]}天中殺${c.flags.length?"("+c.flags.join("・")+")":""}・${WEEKDAY[weekdayOf(c.y,c.m,c.d)].d}生まれ</p><p>いまの大運は${now?`<b>${stemHTML(now.s)}${brHTML(now.b)}</b>(${MAIN[now.star]})`:"立運前"}、今年は${MAIN[mainStarIdx(c.ds,yr.s)]}の年${c.tcs.includes(yr.b)?"で、天中殺にあたります":""}。</p>`,`<button class="btn ghost small" data-go="chart">命式を詳しく見る</button>`));}
+  cards.push(meas&&!hide?openCard("性格のまとめ",personalityHTML(c,meas,att,mbti,p.name).replace('class="sheet persona"','class="persona inner"'),""):lockCard("性格のまとめ","性格の質問","命式と心理学をあわせた「こんな人」のまとめと、命式の予想との一致・ずれ"));
+  cards.push(att?openCard("恋愛での傾向",`<p><b>${ATT_TYPE[att.t][0]}</b>:${ATT_TYPE[att.t][1]}</p>${hide?"":`<p>月支元命と重ねると、${attStarNote(MAIN[c.stars.chest],att.t)}</p>`}`,""):lockCard("恋愛での傾向","恋愛の質問","親しい関係での距離の取り方(愛着スタイル)"));
+  cards.push(mbti&&!hide?openCard("MBTIとの照合",`<p>診断のタイプ <b>${esc(mbti)}</b>、命式から予想したタイプ <b>${mbtiFrom(predictB5(c))}</b>(${sameLetters(mbti,mbtiFrom(predictB5(c)))}/4文字一致)${meas?`、質問の結果から換算したタイプ <b>${mbtiFrom(meas)}</b>`:""}。</p>`,""):lockCard("MBTIとの照合",mbti?"性格の質問":"MBTIのタイプ","命式の予想とMBTIがどれくらい重なるか"));
+  if(evs.length&&!hide){const rs=evs.map(e=>eventRead(c,p.sex||"f",e.date)).filter(Boolean);const t=rs.filter(r=>r.yTcs||r.mTcs).length,en=rs.filter(r=>r.kango||r.br.includes("支合")||r.br.includes("半会")).length;
+    cards.push(openCard("出来事のタイミング",`<p>記録した${rs.length}件のうち、天中殺の年か月に起きたものが<b>${t}件</b>、干合・支合・半会の年に起きたものが<b>${en}件</b>。</p>`,`<button class="btn ghost small" data-go="events">出来事を見る</button>`));}
+  else cards.push(lockCard("出来事のタイミング",evs.length?"性格の質問":"出来事","人生の出来事が、運勢のどんな時期に起きていたか"));
+  if(me&&!isMe&&!hide){const M=chart(...parseDate(me.date));const st=MAIN[mainStarIdx(M.ds,c.ds)],st2=MAIN[mainStarIdx(c.ds,M.ds)];const md=modeForTag(p.tag);
+    cards.push(openCard("あなたとの相性",`<p>${esc(me.name)}から見て${esc(p.name)}は<b>${st}</b>、${esc(p.name)}から見て${esc(me.name)}は<b>${st2}</b>。${ROLES[md][st]}</p>`,`<button class="btn ghost small" data-go="compat">相性を詳しく見る</button>`));}
+  else if(!isMe)cards.push(lockCard("あなたとの相性",me?"性格の質問":"「自分」の登録","あなたにとってこの人がどんな存在か"));
+  const open=cards.filter(x=>!x.includes("locked")).length;
+  out.innerHTML=`
+  <div class="sheet">
+    <h2>${esc(p.name)}<span style="font-family:var(--font-body);font-size:13px;color:var(--muted);font-weight:400;margin-left:8px">${esc(p.tag)}・${parseDate(p.date).join(".")}</span></h2>
+    <div class="prog"><div class="pl"><span>わかること</span><b>${open} / ${cards.length}</b></div><div class="pt"><span style="width:${open/cards.length*100}%"></span></div></div>
+  </div>
+  <div class="sheet">
+    <h2>入れた情報</h2>
+    <p class="lead" style="margin-bottom:8px">入力 ${done} / ${inputs.length}。情報が増えるほど、わかることが開いていきます。</p>
+    <div class="inlist">${inputs.map(([t,d,ok,go])=>`<div class="inrow"><span class="dot ${ok?"on":""}" aria-hidden="true"></span><div class="it"><b>${t}</b><span>${d}</span></div>${go&&go!=="extra"&&go!=="note"?`<button class="btn ghost small" data-go="${go}">${ok?"見直す":"入れる"}</button>`:""}</div>`).join("")}</div>
+    <div class="form" style="margin-top:12px">${Object.entries(EXTRA).map(([k,[lbl,opts]])=>`<div class="field"><label for="pf-${k}">${lbl}</label><select id="pf-${k}" data-extra="${k}"><option value="">未入力</option>${opts.map(o=>`<option ${ex[k]===o?"selected":""}>${o}</option>`).join("")}</select></div>`).join("")}
+      <div class="field" style="flex-basis:100%"><label for="pf-note">メモ</label><textarea id="pf-note" placeholder="実際の印象、エピソードなど">${esc(p.note||"")}</textarea></div></div>
+    <div class="row" style="margin-top:8px"><button class="btn" id="pf-save">追加情報とメモを保存</button><span class="status" id="pf-msg"></span></div>
+  </div>
+  <div class="sheet"><h2>わかること</h2><div class="unlocks">${cards.join("")}</div></div>`;
+}
+document.addEventListener("click",async e=>{
+  const g=e.target.closest("#pf-out [data-go]");if(g){const t=g.dataset.go;const p=people.find(x=>x.id===pfSubject);
+    if(p&&t==="chart"){$("#c-name").value=p.name;$("#c-date").value=p.date;$("#c-sex").value=p.sex||"f";renderChart();}
+    if(p&&t==="psy"){psySubject=p.id;loadDraft();showTab("psych");return;}
+    if(p&&t==="events"||p&&t==="ev"){evSubject=p.id;evConfirm=null;showTab("events");return;}
+    if(p&&t==="compat"){const me=people.find(x=>x.tag==="自分");if(me){$("#a-pick").value=me.id;applyPick("a");}$("#b-pick").value=p.id;applyPick("b");}
+    showTab(t==="ev"?"events":t);return;}
+  if(e.target.closest("#pf-save")){const p=people.find(x=>x.id===pfSubject);if(!p)return;const extra={...(p.extra||{})};document.querySelectorAll("#pf-out [data-extra]").forEach(s=>{extra[s.dataset.extra]=s.value;});
+    await savePerson({...p,extra,note:$("#pf-note").value});const m=$("#pf-msg");if(m){m.textContent="保存しました";setTimeout(()=>{if(m)m.textContent="";},2000);}}
+});
+// 研究: 追加情報と月支元命
+function extraResearchHTML(){
+  const rows=people.filter(p=>parseDate(p.date)&&p.extra&&Object.values(p.extra).some(Boolean));
+  if(rows.length<3)return `<p class="lead">兄弟の順番・職業・交際状況が入っている人が3人以上になると集計が出ます(いま ${rows.length}人)。</p>`;
+  const by={};rows.forEach(p=>{const st=MAIN[chart(...parseDate(p.date)).stars.chest];(by[st]=by[st]||[]).push(p.extra);});
+  const top=(arr,k)=>{const m={};arr.forEach(x=>{if(x[k])m[x[k]]=(m[x[k]]||0)+1;});const e=Object.entries(m).sort((a,b)=>b[1]-a[1]);return e.length?e.slice(0,2).map(([a,n])=>`${a} ${n}`).join("、"):"—";};
+  return `<p class="lead" style="margin-bottom:10px">月支元命ごとに、多かった兄弟の順番・職業・交際状況(数字は人数)。</p><div class="table-wrap"><table><thead><tr><th>月支元命</th><th>人数</th><th>兄弟の順番</th><th>職業・分野</th><th>交際状況</th></tr></thead><tbody>${Object.entries(by).sort((a,b)=>b[1].length-a[1].length).map(([st,a])=>`<tr><td>${st}</td><td>${a.length}</td><td>${top(a,"order")}</td><td>${top(a,"job")}</td><td>${top(a,"status")}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+// ===== 分析ダッシュボード(研究ノートの先頭) =====
+function hbars(rows,{max=100,unit="%",chance=null,fmt}={}){
+  const f=fmt||(v=>v==null?"—":Math.round(v)+unit);
+  return `<div class="hb">${rows.map(r=>`<div class="hbr" title="${esc(r.label)}:${f(r.v)}${r.n!=null?`(${r.n}件)`:""}"><span class="hbl">${r.label}</span><span class="hbt">${r.v==null?"":`<span class="hbf" style="width:${Math.max(0,Math.min(100,r.v/max*100))}%"></span>`}${chance!=null?`<span class="hbc" style="left:${chance/max*100}%"></span>`:""}</span><span class="hbv">${f(r.v)}${r.n!=null?`<small> ${r.n}</small>`:""}</span></div>`).join("")}</div>`;
+}
+function renderDash(){
+  const el=$("#dash");const valid=people.filter(p=>parseDate(p.date));
+  const psy=valid.filter(p=>p.psych&&scoreTIPI(p.psych.tipi)&&(!$("#r-blind").checked||p.blind));
+  const evCount=valid.reduce((s,p)=>s+(p.events||[]).length,0);const helpers=valid.filter(p=>p.source==="survey").length;
+  if(!valid.length){el.innerHTML=`<p class="lead">人を登録すると、ここに分析が出ます。</p>`;return;}
+  // 的中率
+  const hit=[0,0,0,0,0],tot=[0,0,0,0,0];let mb=0,mbn=0;const att={secure:0,anxious:0,avoidant:0,fearful:0};
+  for(const p of psy){const c=chart(...parseDate(p.date));const pr=predictB5(c),ms=scoreTIPI(p.psych.tipi);pr.forEach((v,i)=>{if(lvl(v)){tot[i]++;if(lvl(v)===lvl(ms[i]))hit[i]++;}});
+    if(p.psych.mbti){mb+=sameLetters(p.psych.mbti,mbtiFrom(pr));mbn++;}const a=scoreATT(p.psych.att);if(a)att[a.t]++;}
+  const H=hit.reduce((a,b)=>a+b,0),Tt=tot.reduce((a,b)=>a+b,0);const all=Tt?H/Tt*100:null;
+  const dims=B5.map((n,i)=>({label:n,v:tot[i]?hit[i]/tot[i]*100:null,n:tot[i]}));
+  // 月支元命
+  const stars=MAIN.map(st=>({label:st,v:valid.filter(p=>MAIN[chart(...parseDate(p.date)).stars.chest]===st).length}));
+  // 出来事
+  const evRows=[];for(const p of valid){const P=chart(...parseDate(p.date));for(const e of p.events||[]){const r=eventRead(P,p.sex||"f",e.date);if(r)evRows.push({cat:(EV_TYPES.find(t=>t[0]===e.type)||["","change"])[1],tcs:r.yTcs});}}
+  const evBars=["start","end","up","down","change"].map(c=>{const a=evRows.filter(x=>x.cat===c);return {label:EV_CAT[c],v:a.length?a.filter(x=>x.tcs).length/a.length*100:null,n:a.length};}).filter(x=>x.n);
+  // 一言まとめ
+  const says=[];
+  if(all!=null){const d=all-33;says.push(`命式からの性格予想は、全体で<b>${Math.round(all)}%</b>当たっています(偶然なら約33%)。いまのところ${d>=15?"<b>偶然よりはっきり当たっている</b>傾向です。":d>=5?"偶然より少し当たっている傾向です。":d>-5?"偶然と同じくらいの当たり方です。":"偶然より外れている傾向です。"}`);
+    const ok=dims.filter(x=>x.n>=3).sort((a,b)=>b.v-a.v);if(ok.length>=2)says.push(`いちばん当たっているのは<b>${ok[0].label}</b>(${Math.round(ok[0].v)}%)、いちばん外れているのは<b>${ok[ok.length-1].label}</b>(${Math.round(ok[ok.length-1].v)}%)。`);}
+  else says.push("性格の質問に答えた人が増えると、命式の予想がどれくらい当たるかがここに出ます。");
+  if(mbn)says.push(`MBTIは文字単位で<b>${Math.round(mb/(mbn*4)*100)}%</b>が命式の予想と一致(偶然なら約50%)。`);
+  const st=evRows.filter(x=>x.cat==="start");if(st.length>=3){const r=st.filter(x=>x.tcs).length/st.length*100;says.push(`「始まり」の出来事が天中殺の年に起きた割合は<b>${Math.round(r)}%</b>(偶然なら約17%)。${r<12?"天中殺に始めごとを避けている、定石どおりの傾向です。":r>25?"定石とは逆に、天中殺に始まったことが多めです。":"偶然と大きな差はありません。"}`);}
+  if(psy.length&&psy.length<10)says.push(`まだ${psy.length}人分なので、数字は大きくぶれます。10人、20人と増えるほど信頼できる結果になります。`);
+  el.innerHTML=`
+    <div class="tiles">
+      <div class="tile"><span>登録した人</span><b>${valid.length}</b></div>
+      <div class="tile"><span>性格データ</span><b>${psy.length}</b></div>
+      <div class="tile"><span>協力者</span><b>${helpers}</b></div>
+      <div class="tile"><span>出来事</span><b>${evCount}</b></div>
+    </div>
+    <div class="says">${says.map(t=>`<p>${t}</p>`).join("")}</div>
+    <div class="charts">
+      <figure><figcaption>性格の予想の的中率<small>点線=偶然の目安 33%・右の小さい数字=件数</small></figcaption>${hbars(dims,{chance:33.3})}</figure>
+      <figure><figcaption>月支元命の分布<small>登録した人の人数</small></figcaption>${hbars(stars,{max:Math.max(1,...stars.map(s=>s.v)),fmt:v=>v+"人"})}</figure>
+      ${evBars.length?`<figure><figcaption>天中殺の年に起きた出来事の割合<small>点線=偶然の目安 17%</small></figcaption>${hbars(evBars,{chance:16.7})}</figure>`:""}
+      ${psy.length?`<figure><figcaption>愛着スタイルの分布<small>恋愛の質問に答えた人数</small></figcaption>${hbars(Object.entries(att).map(([k,v])=>({label:ATT_TYPE[k][0],v})),{max:Math.max(1,...Object.values(att)),fmt:v=>v+"人"})}</figure>`:""}
+    </div>`;
+}
+
+// ===== 60干支・通変星・十二運 =====
+const TSUHEN=["比肩","劫財","食神","傷官","偏財","正財","偏官","正官","偏印","印綬"]; // MAIN と同じ並び
+const TSUHEN_INFO=["自立・マイペース。自分の力で立とうとする","負けず嫌い・仲間意識。人と競いながら伸びる","おおらか・楽しむ力。衣食住や遊びを味わう","鋭い感性・批判精神。美意識が高く完璧を求める","社交・人脈・流れるお金。人を動かし世話を焼く","堅実・誠実。コツコツ守り、家庭を大切にする","行動力・闘争心。困難に向かっていく","規律・責任・品格。信頼される真面目さ","独創性・自由な知性。人と違う発想","学び・伝統・知恵。知識を吸収して人に伝える"];
+const UNSEI=["胎","養","長生","沐浴","冠帯","建禄","帝旺","衰","病","死","墓","絶"]; // JU と同じ並び
+const UNSEI_INFO=["やりたいことがたくさんあって、ひとつに決められない", "なぜか年上に可愛がられ、助けてもらえる", "素直で、教わったことをすぐ吸収する", "ひとつの場所にじっとしていられず、新しい刺激を求める", "人前に立つと張り切る、負けず嫌い", "地道にコツコツ。無理な賭けはしない現実派", "自分が仕切りたい。頼られると誰より力を出す", "一歩引いて全体を見る、落ち着いた大人", "人の気持ちを察しすぎて、心配性になりやすい", "好きなことには時間を忘れて没頭する", "集めること、続けることが得意なこだわり派", "思い立ったら即行動。気が変わるのも早い"];
+const BR_READ=["ね","うし","とら","う","たつ","み","うま","ひつじ","さる","とり","いぬ","い"];
+const BR_IMAGE=["真冬の夜","冬の終わりの凍土","早春の山林","春の草原","晩春の湿った大地","初夏の陽射し","真夏の太陽","晩夏の乾いた大地","初秋の鉱脈","実りの秋","晩秋の山","初冬の海"];
+const PILLAR_ROLE=["家系・親・目上、育った環境","社会・仕事・兄弟や友人","自分自身・配偶者・家庭"];
+const kanshiName=(s,b)=>STEMS[s]+BRANCHES[b];
+function kanshiIdx(s,b){for(let i=0;i<60;i++)if(i%10===s&&i%12===b)return i;return -1;}
+const honmoto=b=>ZOKAN[b][ZOKAN[b].length-1][0];
+function kanshiInfo(s,b){const ju=juStar(s,b);const ts=mainStarIdx(s,honmoto(b));const nat=STEM_NATURE[s];
+  return {idx:kanshiIdx(s,b),name:kanshiName(s,b),read:STEM_READ[s]+BR_READ[b],image:`${nat[0]}が${BR_IMAGE[b]}にある姿`,unsei:UNSEI[ju],unseiInfo:UNSEI_INFO[ju],ju:JU[ju],tsuhen:TSUHEN[ts],star:MAIN[ts],tsInfo:TSUHEN_INFO[ts],nature:nat[1]};}
+function kanshiText(s,b,role){const k=kanshiInfo(s,b);
+  if(role===2)return `${k.image}。${k.nature}足元の十二運(自坐)は${k.unsei}で、${k.unseiInfo}。日支には${k.tsuhen}の性質を抱えていて、${k.tsInfo}面が、私生活やパートナー選びに表れやすい。`;
+  return `${k.image}。この柱は${PILLAR_ROLE[role]}を表します。干支そのものの十二運(自坐)は${k.unsei}:${k.unseiInfo}。`;}
+// 命式の中の組み合わせ(柱どうし)
+const PAIR_NAME={"0-1":["年柱×月柱","ルーツと社会、子ども時代と青年期のつながり"],"1-2":["月柱×日柱","仕事・社会での顔と、私生活の自分のつながり"],"0-2":["年柱×日柱","家系や目上と、本人・家庭のつながり"]};
+function pillarCombos(c){const P=[[c.ys,c.yb],[c.ms,c.mb],[c.ds,c.db]];const out=[];
+  for(const [i,j] of [[0,1],[1,2],[0,2]]){const [si,bi]=P[i],[sj,bj]=P[j];const nm=PAIR_NAME[i+"-"+j];const ki=kanshiIdx(si,bi),kj=kanshiIdx(sj,bj);
+    if(ki===kj)out.push([nm,"律音","同じ干支が並ぶ形。その2つの場で同じ性質が強く出て、迷いが少ない反面、偏りやすい。",0]);
+    else if(Math.abs(ki-kj)===30)out.push([nm,"納音","干が同じで支が正反対の形。同じ場で両極端の性質を持ち、大きな変化や転機を経験しやすい。",1]);
+    else{const sk=(STEM_EL[si]===(STEM_EL[sj]+2)%5||STEM_EL[sj]===(STEM_EL[si]+2)%5)&&si%2===sj%2;if(sk&&Math.abs(bi-bj)===6)out.push([nm,"天剋地冲","干も支もぶつかり合う形。その2つの場の間で葛藤が起きやすいが、乗り越えると大きな力になる。",1]);}
+    if(Math.abs(si-sj)===5)out.push([nm,"干合",`${STEMS[Math.min(si,sj)]}${STEMS[Math.max(si,sj)]}の干合。その2つの場が自然に結びつき、性質が混ざり合う。`,0]);
+    const big=out.some(o=>o[0]===nm&&(o[1]==="納音"||o[1]==="天剋地冲"));
+    for(const [t,m,w] of branchRels(bi,bj))if(t!=="同支"&&!(big&&t==="対冲"))out.push([nm,t,m,w]);}
+  return out;}
+// 通変星の偏り(5つの通変星の位置で数える)
+const TS_GROUP=[["比劫","比肩・劫財","自分の力で立つ自立心が強い。人に頼るのが苦手な面も"],["食傷","食神・傷官","表現力と感性が豊か。言葉や作品で自分を出したい"],["財","偏財・正財","人やお金、暮らしを動かす力。現実的で面倒見がよい"],["官","偏官・正官","責任感や闘争心が強く、社会の中で役割を果たそうとする"],["印","偏印・印綬","知性と学びの力。考えること、知ることで満たされる"]];
+function tsuhenBalance(c){const n=[0,0,0,0,0];["head","chest","belly","left","right"].forEach(k=>n[Math.floor(c.stars[k]/2)]++);return n;}
+// 二人の日柱
+function dayPillarRel(A,B){const ka=kanshiIdx(A.ds,A.db),kb=kanshiIdx(B.ds,B.db);const r=[];
+  if(ka===kb)r.push(["律音","日柱がまったく同じ。価値観や感じ方がよく似ていて、言わなくても通じる。似すぎて刺激が少ないことも。",0]);
+  else if(Math.abs(ka-kb)===30)r.push(["納音","日干が同じで日支が正反対。根っこは同じなのに表れ方が真逆で、強く惹かれたり反発したりする縁。",1]);
+  const sk=(STEM_EL[A.ds]===(STEM_EL[B.ds]+2)%5||STEM_EL[B.ds]===(STEM_EL[A.ds]+2)%5)&&A.ds%2===B.ds%2;
+  if(sk&&Math.abs(A.db-B.db)===6)r.push(["天剋地冲","日干も日支もぶつかる組み合わせ。衝突が多いが、お互いを大きく変える力がある。",1]);
+  const kg=Math.abs(A.ds-B.ds)===5,sg=(A.db+B.db)%12===1;
+  if(kg&&sg)r.push(["干支合","日干は干合、日支は支合。算命学で最も結びつきの強い組み合わせのひとつ。",0]);
+  return r;}
+
+// ===== 柱ごとの性格(年・月・日) =====
+const TS_BY_PILLAR=[
+ ["子ども時代から自立心が強く、目上にも対等に向き合う","兄弟や仲間と競い合う中で育ち、負けず嫌いさが早くから出る","のびのびと愛されて育ちやすく、目上には素直で可愛がられる","感受性が鋭く、子どもの頃から大人の矛盾に敏感。目上に反発しやすい","にぎやかな環境で育ち、早くから人づきあいが上手","堅実な家庭で育ち、親から誠実さとお金の感覚を受け継ぐ","厳しさのある環境で鍛えられ、早くから行動的。目上と衝突しやすい","礼儀や規律を重んじる家で育ち、目上からの信頼を得やすい","一風変わった環境や自由な家風の中で、早くから独自の考えを持つ","学びを大切にする家庭で知的な影響を受け、目上に引き立てられやすい"],
+ ["仕事では自分のやり方を貫く職人肌。独立や専門職で力を出す","チームの中で競い合いながら成果を出す。仲間づくりと交渉がうまい","楽しみながら働くことで力を発揮し、場を和ませる存在として重宝される","鋭い感性と完成度へのこだわりで勝負する。表現・企画・専門技術向き","人を動かしネットワークを広げる。営業やプロデュースの役割で光る","着実で信用される働き方。管理や長く続ける仕事に強い","スピードと実行力で道を切り開き、困難な現場ほど燃える","組織の中で責任ある立場を任され、真面目さが評価につながる","型にはまらないアイデアで勝負する。自由度の高い仕事や研究・企画向き","知識や経験を活かし、教える・伝える立場で力を発揮する"],
+ ["家庭でもマイペースで、対等なパートナーシップを望む","身近な人ほど張り合いたくなる。パートナーとは同志のような関係に","家ではリラックスした自然体。食や遊びを一緒に楽しめる相手を好む","身近な人への理想が高く、細かい所が気になる。感性の合う相手を求める","家庭でも世話焼きで、人の出入りのあるにぎやかな暮らしを好む","家庭を大切にして堅実な暮らしを築き、パートナーには誠実さを求める","家庭でも行動的で、パートナーとはぶつかりながら絆を深める","家庭に規律と安定を求め、きちんとした関係を大事にする","私生活では自由でいたい。束縛しない相手と相性がよい","家では学びや考える時間を大切にし、心で支え合える相手を求める"]];
+const LIFE=["初年期(〜30歳ごろ)","中年期","晩年期"];
+const sents=(t,a,b)=>t.split("。").filter(Boolean).slice(a,b).join("。")+"。";
+function pillarReading(c){
+  const ys=mainStarIdx(c.ds,c.ys),yz=mainStarIdx(c.ds,c.zy),ms=mainStarIdx(c.ds,c.ms),mz=mainStarIdx(c.ds,c.zm),dz=mainStarIdx(c.ds,c.zd);
+  const uY=juStar(c.ds,c.yb),uM=juStar(c.ds,c.mb),uD=juStar(c.ds,c.db);const kY=kanshiInfo(c.ys,c.yb),kM=kanshiInfo(c.ms,c.mb),kD=kanshiInfo(c.ds,c.db);
+  const en=(n,ts)=>`<b>${eLabelU(n)}</b>。${eShow(n,ts)}`;
+  const shape=(s,b,k)=>`${k.image}。${sents(STEM_DETAIL[s],0,2)}${BRANCH_DETAIL[b]}`;
+  return [
+   {r:0,s:c.ys,b:c.yb,k:kY,title:"年柱",role:PILLAR_ROLE[0],secs:[
+     ["干支の姿",shape(c.ys,c.yb,kY)],
+     ["子ども時代・目上の前での見え方",`年干は<b>${TSUHEN[ys]}</b>。${TS_BY_PILLAR[0][ys]}。${sents(TSUHEN_DETAIL[ys],1,3)}`],
+     ["家系から受け継ぐ気質",`年支の蔵干は<b>${TSUHEN[yz]}</b>。${sents(TSUHEN_DETAIL[yz],1,2)}この気質が、あなたの土台として流れています。`],
+     [LIFE[0]+"のエネルギー",en(uY,ys)]]},
+   {r:1,s:c.ms,b:c.mb,k:kM,title:"月柱",role:PILLAR_ROLE[1],secs:[
+     ["干支の姿",shape(c.ms,c.mb,kM)],
+     ["社会・仕事での見え方",`月干は<b>${TSUHEN[ms]}</b>。${TS_BY_PILLAR[1][ms]}。${sents(TSUHEN_DETAIL[ms],1,3)}`],
+     ["性格の核(月支元命)",`月支の蔵干は<b>${TSUHEN[mz]}</b>で、四柱推命でいう「格」。${ms===mz?"表に出る月干と同じ通変星なので、社会での顔がそのまま本音です。":""}${sents(TSUHEN_DETAIL[mz],1,4)}`],
+     [LIFE[1]+"のエネルギー",en(uM,mz)]]},
+   {r:2,s:c.ds,b:c.db,k:kD,title:"日柱",role:PILLAR_ROLE[2],secs:[
+     ["干支の姿",`${kD.image}。${STEM_DETAIL[c.ds]}`],
+     ["足元(日支)",`${BRANCH_DETAIL[c.db]}`],
+     ["私生活・パートナーとの見え方",`日支の蔵干は<b>${TSUHEN[dz]}</b>。${TS_BY_PILLAR[2][dz]}。${sents(TSUHEN_DETAIL[dz],1,4)}`],
+     [LIFE[2]+"のエネルギー",en(uD,dz)]]}];
+}
+function pillarSynthesis(c){
+  const g=i=>Math.floor(i/2);const ms=mainStarIdx(c.ds,c.ms),mz=mainStarIdx(c.ds,c.zm),dz=mainStarIdx(c.ds,c.zd),ys=mainStarIdx(c.ds,c.ys);
+  const out=[];
+  // 外の顔と素顔
+  const outer=g(mz),inner=g(dz);
+  out.push(["外の顔と素顔",outer===inner?`社会(月柱)でも私生活(日柱)でも同じ${TS_GROUP[outer][0]}の通変星が働きます。裏表が少なく、どこでも同じ自分でいられるタイプです。`:`社会では${TS_GROUP[outer][0]}(${TS_GROUP[outer][2].split("。")[0]})、私生活では${TS_GROUP[inner][0]}(${TS_GROUP[inner][2].split("。")[0]})。外と内で見せる顔に違いがあり、親しい人ほど意外な一面を知ることになります。`]);
+  // 目上の前と社会
+  if(g(ys)!==g(ms))out.push(["目上の前と仕事の場",`目上や家族の前では${TSUHEN[ys]}、仕事の場では${TSUHEN[ms]}の面が出ます。立場によって振る舞いを切り替えられる人です。`]);
+  // 人生のエネルギーの流れ
+  const e=[juStar(c.ds,c.yb),juStar(c.ds,c.mb),juStar(c.ds,c.db)].map(n=>JU_ENERGY[n]);const mx=Math.max(...e),mn=Math.min(...e);
+  const flow=mx-mn<=3?"初年・中年・晩年のエネルギーが近く、人生を通して安定したペースで進むタイプ。":(e[1]===mn&&e[0]-e[1]>=4&&e[2]-e[1]>=4)?"中年期にエネルギーの谷がくる型。働き盛りに思うように力が出ない時期を、経験を積む時間として使うと、晩年にまた力が戻ります。":e[2]===mx?"晩年に向かってエネルギーが高まる、大器晩成型。若い頃の苦労が後で実を結びます。":e[0]===mx?"若い頃にエネルギーが最も強い早熟型。早くから頭角を現し、後半は経験を活かす側に回ります。":"中年期にエネルギーの山がくる型。社会で最も力を発揮するのは働き盛りの時期です。";
+  out.push(["人生のエネルギーの流れ",`${LIFE[0]} ${e[0]} → ${LIFE[1]} ${e[1]} → ${LIFE[2]} ${e[2]}。${flow}`]);
+  // 干の流れ(年干→月干→日干)
+  const rel=(a,b)=>{const ea=STEM_EL[a],eb=STEM_EL[b];return ea===eb?"同":(ea+1)%5===eb?"生":(ea+2)%5===eb?"剋":(eb+2)%5===ea?"被剋":"被生";};
+  const r1=rel(c.ys,c.ms),r2=rel(c.ms,c.ds);
+  const T={"同":"同じ五行で、流れが素直","生":"前の柱が次の柱を育てる相生の流れ","剋":"前の柱が次の柱を抑える剋の流れ","被剋":"次の柱が前の柱を抑える流れ","被生":"次の柱が前の柱を支える流れ"};
+  out.push(["年→月→日の干の流れ",`年干${STEMS[c.ys]}→月干${STEMS[c.ms]}は${T[r1]}、月干${STEMS[c.ms]}→日干${STEMS[c.ds]}は${T[r2]}。${r1==="生"&&r2==="生"?"家系から社会、社会から自分へと力が順に流れる、恵まれた形です。":r2==="剋"?"社会や仕事からのプレッシャーを受けやすい一方、それが自分を鍛える力にもなります。":r2==="生"?"社会や仕事の場が、あなた自身を育ててくれる形です。":r1==="剋"?"家系や環境と、社会に出てからの自分との間に葛藤が生まれやすい形です。":"柱ごとに性質が異なり、場面ごとに違う力を使い分けます。"}`]);
+  return out;
+}
+
+// エネルギーの強さ(十二運の数値を4段階で表示)
+const DAIUN_THEME=[["自分の足で立つ10年", "人に頼らず、自分のやり方を確立したくなる時期。独立や一人暮らしなど、「自分の城」を持つ動きが出やすい。"], ["仲間と競い合う10年", "人間関係が広がり、ライバルの存在が刺激になる時期。お金の貸し借りや共同での出費は慎重に。"], ["楽しみを広げる10年", "趣味や食、遊びが充実して、肩の力が抜ける時期。子どもや後輩との縁も深まりやすい。"], ["感性が研ぎ澄まされる10年", "表現や創作、専門的な技術が伸びる時期。思ったことを言いすぎて、人とぶつかることも。"], ["人とお金が大きく動く10年", "出会いや付き合いが増えて、忙しくなる時期。チャンスも出費も大きくなりやすい。"], ["暮らしを固める10年", "仕事や家庭が安定し、貯金や資産づくりに向く時期。結婚や家を持つなど、生活の土台を作る動きも。"], ["挑戦と行動の10年", "忙しく動き回り、困難を乗り越える力がつく時期。勢いで突っ走って、衝突やケガをしないように。"], ["責任と評価の10年", "役職や肩書きがつき、社会的な信用を得やすい時期。きちんとしようとしすぎて、窮屈に感じることも。"], ["新しい世界を探す10年", "転職、引っ越し、留学、新しい学びなど、環境を変えたくなる時期。ひとつの場所に落ち着きにくい。"], ["学びと吸収の10年", "勉強や資格、目上の人からの引き立てに恵まれる時期。考える時間が増えて、内面が深まる。"]];
+const ENERGY_LV=[["静か", "人前で目立つより、裏で自分のペースを守りたい。疲れやすく、ひとりで回復する時間が必要。その性格は外より内側で強く働きます。"], ["おだやか", "ガツガツしないけれど、やることはやる。周りとペースを合わせるのが上手で、性格はやわらかく表に出ます。"], ["やや強い", "やるときはやるし、休むときは休む。場面に合わせて前に出たり引いたりでき、性格は素直に表に出ます。"], ["強い", "じっとしていられず、自分から動きたい。体力も気力もあり、「パワフルだね」と言われやすい。性格がはっきり外に出ます。"]];
+const eLv=e=>e>=10?3:e>=7?2:e>=4?1:0;
+const eLabel=e=>`${ENERGY_LV[eLv(e)][0]}(${e})`;
+const eLabelU=n=>`${ENERGY_LV[eLv(JU_ENERGY[n])][0]}(${JU_ENERGY[n]})<small class="un">${UNSEI[n]}</small>`;
+const E_SHOW=["は内側にしまわれがちです。本人の中では強くても、外からは見えにくいので、親しい人ほど知っている一面になります。","はやわらかく表に出ます。強く主張するより、身近な人の前で自然に見える形です。","は自然に表に出ます。場面に合わせて出し入れでき、周りにも伝わりやすい形です。","は実際の行動としてはっきり表に出ます。周りからもそういう人だと見られやすく、良くも悪くも目立ちます。"];
+const eShow=(n,ts)=>`「${TSUHEN_INFO[ts].split("。")[0]}」という${TSUHEN[ts]}の性質${E_SHOW[eLv(JU_ENERGY[n])]}`;
+// ===== 詳しい解説 =====
+const TSUHEN_DETAIL=["自分と同じ五行・同じ陰陽。人に決められるより、自分で決めたい。頼んでいないのに手伝われると、ありがたいより先に「自分でやるのに」と思ってしまう。グループで行動していても、気づけば自分のペースで歩いている。ひとりの時間がないと疲れてしまう。", "自分と同じ五行で陰陽が違う。友達とは仲がいいのに、ゲームや勝負になると急に本気になる。みんなでワイワイするのが好きだけど、内心では誰が一番かを気にしている。人に合わせているように見えて、ちゃんと自分の得になる方を選んでいる。", "自分が生み出す五行で陰陽が同じ。おいしいものを食べているときが一番幸せ。予定を詰め込むより、ゆるく楽しく過ごしたい。怒っても長続きせず、寝たら忘れている。場の空気がピリピリしていると、つい冗談を言って和ませたくなる。", "自分が生み出す五行で陰陽が違う。人の話の小さな矛盾に気づいてしまう。センスの合わないものは、どうしても好きになれない。言わなくていい一言を言ってしまい、あとで少し後悔する。自分のこだわりには、時間もお金も惜しまない。", "自分が剋す五行で陰陽が同じ。誘われると断れず、気づけば予定がいっぱい。人と人をつなぐのが得意で、「あの人紹介しようか」がよく出る。おごったり、プレゼントを選んだりするのが好き。そのぶん、お金は貯まりにくい。", "自分が剋す五行で陰陽が違う。お金やポイントの管理がきちんとしている。約束の時間には少し早めに着く。冒険するより、いつものお店やいつものやり方が落ち着く。一度信頼した人や物は、長く大切にする。", "自分を剋す五行で陰陽が同じ。考えるより先に体が動く。待つのが苦手で、エレベーターのボタンを何度も押してしまう。頼られると燃えて、困っている人を放っておけない。カッとなりやすいけど、あとに引きずらない。", "自分を剋す五行で陰陽が違う。ルールや約束はきちんと守りたい。人前でだらしない姿は見せたくない。仕事を任されると、期待以上にやろうとする。「ちゃんとしてるね」と言われることが多いが、本人は気を張っていて疲れている。", "自分を生む五行で陰陽が同じ。みんなが行く店より、知る人ぞ知る店が気になる。新しい趣味にハマるのは早いけど、飽きるのも早い。人と同じことをするのが少し落ち着かない。急に旅に出たくなったり、思いつきで動いたりする。", "自分を生む五行で陰陽が違う。わからないことがあると、すぐ調べないと気がすまない。本や資料を読むのが苦にならない。人に教えたり説明したりするのが得意。年上の人に可愛がられやすく、実家や昔からのものを大切にする。"];
+const UNSEI_DETAIL=[ // 胎,養,長生,沐浴,冠帯,建禄,帝旺,衰,病,死,墓,絶
+ "母のお腹の中にいる段階。好奇心が強く、いろいろなことに興味が移る多才さがあります。可能性の芽をたくさん持つ反面、ひとつに絞りきれない迷いも。エネルギーは3と控えめで、準備や構想の段階で力を発揮します。",
+ "生まれたばかりの赤ちゃんの段階。人に可愛がられ、助けてもらえる愛嬌があります。甘え上手でおっとりしていて、争いを好みません。エネルギーは6。人の縁に恵まれやすく、周りの支えを受けて育つ運です。",
+ "幼い子どもの段階。素直で育ちのよさがあり、学ぶ意欲と品格を持ちます。プライドが高く、きちんと扱われたい気持ちも強い。エネルギーは9とやや強め。教育や学びの環境が整うほど伸びます。",
+ "思春期の段階。自由と変化を求め、夢やロマンを追いかけます。人目を引く魅力があり、恋愛や趣味に情熱を注ぎます。気分の波や移り気も出やすい。エネルギーは7。外の世界へ飛び出すことで成長します。",
+ "成人式を迎えた青年の段階。華やかで負けず嫌い、はっきりものを言う行動派です。人前で輝き、批判精神も強い。エネルギーは10と強く、勢いで物事を進められます。若々しさを生涯持ち続けるタイプ。",
+ "社会人として働き盛りの段階。地に足のついた実力派で、現実的に判断して着実に積み上げます。慎重で、無謀なことはしません。エネルギーは11と非常に強い。安定した実績で信頼を得ていきます。",
+ "人生の頂点に立つ家長の段階。自信と強い意志、リーダーとして背負う力があります。最大のエネルギー12を持ち、自分で道を切り開きます。強すぎて人と衝突したり、ワンマンになったりする点に注意。",
+ "頂点を過ぎて落ち着いた段階。経験に裏打ちされた冷静さと温厚さで、一歩引いて全体を見られます。エネルギーは8。派手さはなくても、人を支え導く役割で力を出します。",
+ "体が弱り、心が研ぎ澄まされる段階。繊細な感受性と豊かな想像力で、目に見えないものを感じ取ります。心配性になりやすい面も。エネルギーは4。芸術や癒やし、人の気持ちに寄り添う場面で力を発揮します。",
+ "命を終える段階。純粋で無欲、ひとつのことを深く探究する集中力があります。執着が少なく、損得で動かない清らかさ。エネルギーは2と最も静か。好きなことには驚くほどの没頭を見せます。",
+ "お墓に入る段階。こだわりが強く、ためこみ、深めていく力があります。先祖や伝統とのつながりが強く、収集や研究に向きます。エネルギーは5。頑固さもありますが、続けることで大きな成果になります。",
+ "あの世に旅立つ段階。肉体を離れた身軽さで、ひらめきと行動が一瞬で起きます。じっとしているのが苦手で、変わり身が早い。エネルギーは1と最小ですが、瞬発力は随一。環境の変化や移動の多い人生になりやすい。"];
+const STEM_DETAIL=["甲(きのえ)は陽の木、まっすぐ空へ伸びる大樹。森の中で一本だけ高く伸びる木のように、いつも上を目指して育っていく。曲がることを知らない幹は頼もしく、木陰には自然と人が集まって休む。ただ、まっすぐな木ほど強い風には折れやすい。", "乙(きのと)は陰の木、地をはう草花やつる草。大木のように一本で立つのではなく、ほかの木や石に寄りそい、からみつきながら光のほうへ伸びていく。踏まれても、刈られても、気づけばまた芽を出している。やわらかさの中に、しぶとい生命力がある。", "丙(ひのえ)は陽の火、空に輝く太陽。分けへだてなく、すべてのものを照らして温める。太陽が昇ると、あたりが一気に明るくなる。隠れる場所のないまっすぐな光で、雲がかかればすぐにわかってしまう。", "丁(ひのと)は陰の火、ろうそくや灯火。太陽のように広くは照らさないが、暗い夜にこそ存在が際立つ。小さな炎は、近くにいる人の手元を静かに温める。風に揺れながらも、消えずに長く燃え続ける。", "戊(つちのえ)は陽の土、どっしりとした山。何があっても、そこから動かない。山には木が茂り、水がわき、動物たちが住みつく。遠くからでも目印になり、登った人には広い景色を見せてくれる。動き出すことはめったにないが、動けば地形ごと変わる。", "己(つちのと)は陰の土、作物を育てる田畑。耕されるほどよく実り、そこに植えられたものを育て上げる。人の手が入ることで、豊かな恵みに変わっていく土。水も肥料も受け入れるが、手入れをしないと荒れてしまう。", "庚(かのえ)は陽の金、鉄や刀。掘り出されたばかりの鉱石が、炎で鍛えられて刃になる。切れ味は鋭く、迷いなく物事を断ち切る。叩かれるほど強くなり、困難の中でこそ本来の力が出る。", "辛(かのと)は陰の金、磨かれた宝石。土の中で長い時間をかけて形になり、磨かれて初めて光を放つ。小さくても、その輝きは人の目を引く。傷がつくことを何より嫌い、大切に扱われてこそ価値が生きる。", "壬(みずのえ)は陽の水、大海や大河。ひとところに留まらず、大地を流れて海へとつながっていく。あらゆるものを受け入れ、飲み込むスケールの大きさがある。静かな日もあれば、嵐の日には大きく荒れる。", "癸(みずのと)は陰の水、雨や露。音もなく降り、大地にしみこんで草木を潤す。目立たないけれど、その一滴がなければ何も育たない。霧や雲にも姿を変え、つかみどころのない不思議さがある。"];
+const BRANCH_DETAIL=["子(ね)は真冬の夜、水の気が最も強い時。表では静かでも、頭の中はいつも動いていて、次の手を考えている。人をよく観察していて、細かい変化に気づく。お金や情報を少しずつ蓄えるのが得意。", "丑(うし)は冬の終わり、凍った大地。急がず、黙々と自分の役割をこなす。始めるまでは慎重だが、一度始めたことは最後までやり通す。我慢強いぶん、ため込みすぎて急に爆発することも。", "寅(とら)は早春の山林、新しいことが動き出す時。思い立ったらすぐ行動し、まだ誰もやっていないことに飛び込む。正義感が強く、弱い立場の人を放っておけない。勢いがあるぶん、細かい準備は後回しになりがち。", "卯(う)は春の草原、草木が一斉に茂る時。人当たりがやわらかく、その場の空気を和ませる。争いごとを嫌い、上手に人の間に立てる。見た目以上に計算が早く、要領がいい。", "辰(たつ)は晩春、雨を含んだ大地。理想が大きく、人とは違うスケールで物事を考える。プライドが高く、人に頭を下げるのは苦手。ここぞという場面で、驚くような力を発揮する。", "巳(み)は初夏の陽射し、熱が内側にこもる時。考え深く、すぐには本心を見せない。一度狙いを定めると、粘り強く追いかける。好き嫌いがはっきりしていて、執念深い面も。", "午(うま)は真夏の太陽、火の気が頂点に達する時。明るく情熱的で、感情がそのまま行動に出る。人前に立つと輝き、目立つことが嫌いではない。熱しやすく冷めやすく、飽きると次へ移る。", "未(ひつじ)は晩夏の乾いた大地。穏やかで、周りに合わせるのがうまい。表には出さないが、内側には強い意地と我慢強さを持つ。家族や身内を大切にし、面倒見がいい。", "申(さる)は初秋の鉱脈、物事を形にする時。頭の回転が速く、器用で何でもそつなくこなす。新しいものへの好奇心が強く、変化に強い。飽きっぽく、ひとつのことを続けるのは苦手。", "酉(とり)は実りの秋、収穫の時。美意識が高く、身だしなみや持ち物にこだわる。物事をきっちり仕上げたい完璧主義。言葉が鋭く、思ったことをはっきり言う。", "戌(いぬ)は晩秋の山、実りを蓄えて冬に備える時。義理堅く、一度信じた人には最後まで尽くす。責任感が強く、仲間や家族を守ろうとする。融通がきかず、頑固になることも。", "亥(い)は初冬の海、次の命を宿す時。まっすぐで裏表がなく、決めたことに向かって一直線に進む。純粋で人を疑わない。周りが見えなくなるほど突き進んでしまうことも。"];
+
+// ===== 人体図: 位置 × 通変星 の読み =====
+const POS_TS={
+ head:["目上にも対等に向き合い、自分の考えを曲げない。精神的に自立していて、人の指図を受けるのが苦手","目上とも駆け引きができ、うまく立ち回る。内心では負けたくない気持ちを持ち続ける","目上に可愛がられやすく、のびのびと甘えられる。心はいつも楽しさや余裕を求める","目上の矛盾や欠点が見えてしまい、反発しやすい。理想が高く、精神的には完璧を求める","目上の面倒もよく見る世話好き。親や上司との間にも人脈やお金の流れを生む","親や目上を大切にし、堅実な関係を築く。精神的には安定と積み重ねを求める","目上ともぶつかりながら関わる。精神的には攻めの姿勢で、挑戦を求め続ける","目上に礼儀正しく、信頼される。名誉や正しさを大切にする精神性","目上に縛られるのを嫌い、自分の道を探す。精神は自由と新しさを求める","目上や師から学び、引き立てられる。精神的には知識や伝統を拠りどころにする"],
+ chest:["本質は独立独歩。自分の力で立ち、自分のペースを守ることが何より大切","本質は仲間と競いながら伸びる人。協調の顔の奥に、強い負けず嫌いを持つ","本質はおおらかな楽天家。楽しむこと、味わうことが生きる力になる","本質は鋭い感性の人。美意識と完璧主義が強く、傷つきやすさも抱える","本質は人と世の中を動かす世話好き。人に尽くすことで自分も満たされる","本質は堅実な守り手。コツコツ積み上げ、大切なものを守り抜く","本質は行動の人。考えるより先に動き、困難ほど燃える","本質は誠実な責任感の人。筋を通し、役割を果たすことに誇りを持つ","本質は自由な発想家。人と違う道に惹かれ、新しいものを生み出す","本質は学ぶ人。知識と経験を深め、人に伝えることで生きる"],
+ belly:["行動はマイペースで、自分のやり方を崩さない。目下にも自立を求める","行動は駆け引き上手で、チームを動かして結果を出す。目下とは仲間のように接する","行動はのんびり楽しく、周りを和ませる。子どもや目下にやさしく甘い","行動に鋭さと美意識が出る。目下には厳しく、細部までこだわる","行動はダイナミックで人を巻き込む。目下の面倒見がよく、気前がいい","行動は堅実で計画的。目下を大切に育て、家庭的に接する","行動は素早く攻撃的。目下には厳しいが、守るべきものは全力で守る","行動はきちんとして筋が通っている。目下に規律を教える","行動は型破りで、思いつきで動く。目下には自由を与える","行動は慎重で、まず学んでから動く。目下を教え導く"],
+ left:["友人とは対等な関係を好み、群れずに付き合う。社会ではマイペースな人に見える","友人が多く、仲間と組んで動く。社会では社交的で、したたかな一面も","友人といると楽しく、場を明るくする。社会ではおおらかで親しみやすい人","友人は選ぶタイプで、少数と深く付き合う。社会では鋭く、個性的な人に見える","交友関係が広く、人と人をつなぐ。社会では気前のいい世話役","友人とは長く誠実に付き合う。社会ではまじめで信頼できる人","友人のために体を張る親分肌。社会では行動的で、はっきりものを言う人","友人とも礼儀を保ち、信頼を積み重ねる。社会ではきちんとした人に見える","個性的な友人が多く、変わった人と気が合う。社会では自由人に見える","知的な友人と学び合う。社会では落ち着いた知性派に見える"],
+ right:["家庭でもマイペースで、対等なパートナーシップを望む","パートナーとは同志のよう。身近な人ほど張り合いたくなる","家ではリラックスした自然体。食や遊びを一緒に楽しめる相手が合う","パートナーへの理想が高く、細かい所が気になる。感性の合う相手を求める","家庭でも世話焼きで、にぎやかな暮らしを好む","家庭を大切にし、堅実な暮らしを築く。誠実な相手を求める","家庭でも行動的で、パートナーとはぶつかりながら絆を深める","家庭に規律と安定を求め、きちんとした関係を大事にする","私生活では自由でいたい。束縛しない相手と相性がよい","家では学びや考える時間を大切にし、心で支え合える相手を求める"]};
+const POS_EN={ // [静か, おだやか, やや強い, 強い]
+ shoulder:["若い頃は控えめで、内面を育てる時期。目立たなくても焦らなくてよい","若い頃は周りに守られながら、穏やかに力を蓄える","若い頃から自分らしさが出て、好きなことに打ち込める","若いうちから頭角を現し、早くから自分の力で道を切り開く"],
+ leftFoot:["働き盛りでも前に出るより、裏方や専門性で力を発揮する","中年期は周りと協調しながら、堅実に積み上げる","中年期は経験と行動力がかみ合い、仕事で手応えを得やすい","中年期に最も力が出る。社会の中心で責任ある役割を担う"],
+ rightFoot:["晩年は静かに、自分の内面や好きなことを深める時間になる","晩年は穏やかに、家族や身近な人との時間を大切にする","晩年も活動的で、経験を活かして人を支える","晩年になっても衰えず、むしろ力が増す。生涯現役タイプ"]};
+function posReading(c,k){const v=c.stars[k];if(POS_TS[k])return POS_TS[k][v]+"。";return POS_EN[k][eLv(JU_ENERGY[v])]+"。";}
+function bodyReadHTML(c){const order=["chest","head","belly","left","right","shoulder","leftFoot","rightFoot"];
+  return `<div class="bread">${order.map(k=>{const v=c.stars[k];const isJu=!POS_TS[k];return `<div class="brow"><div class="bp"><b>${POS_INFO[k][0]}</b><small>${POS_INFO[k][1]}</small></div><div class="bt"><span class="bs">${isJu?eLabelU(v):TSUHEN[v]}</span>${posReading(c,k)}</div></div>`;}).join("")}</div>`;}
+
+// ===== 生まれた曜日(タルムード「シャバット」156a) =====
+const WEEKDAY=[
+ {d:"日曜日",day:"第1日",made:"光と闇",src:"すべて善か、すべて悪か、どちらかに振り切れる人",read:"光と闇が分けられた日。中間がなく、やるなら徹底的にやる。好きか嫌いか、やるかやらないかがはっきりしていて、ほどほどが苦手。良い方へ振り切れたときの力は大きい。"},
+ {d:"月曜日",day:"第2日",made:"水(天の水と地の水が分けられた)",src:"怒りっぽい人(注釈では、人と離れやすい人)",read:"水が上と下に分けられた日。物事に線を引き、区別する力が強い。合わないと感じた人とは距離を置き、気の短さが出ることも。そのぶん、けじめや境界がはっきりしている。"},
+ {d:"火曜日",day:"第3日",made:"草木",src:"豊かになり、欲に正直な人",read:"草木が造られた日。植物がどんどん増え広がるように、実りを生み、増やしていく力がある。欲しいものや好きなことに素直で、恋愛にも情熱的。"},
+ {d:"水曜日",day:"第4日",made:"太陽・月・星",src:"賢く、物覚えがよい人",read:"空に光が置かれた日。学んだことをよく覚え、知恵で周りを照らす。物事の筋道を見通す明るさがある。"},
+ {d:"木曜日",day:"第5日",made:"魚と鳥",src:"人に親切を施す人",read:"魚と鳥が造られた日。魚や鳥が恵みによって養われるように、人に分け与え、助けることが自然にできる。"},
+ {d:"金曜日",day:"第6日",made:"人間(安息日の前日)",src:"求める人(注釈では、善い行いを求める人)",read:"人間が造られた日で、安息日の準備をする日。自分から求めて動き、物事を整えていく。人との関わりの中で、役に立つことを探し続ける。"},
+ {d:"土曜日",day:"第7日",made:"安息(造る業を終えて休んだ日)",src:"偉大で聖なる人と呼ばれる(ラバ・バル・ラヴ・シラの解釈)",read:"すべてを造り終えて休んだ日。特別な存在として扱われやすく、周りから一目置かれる。休むこと、立ち止まることにも意味を見いだせる。"}];
+const weekdayOf=(y,m,d)=>(jdn(y,m,d)+1)%7;
+function weekdayHTML(c){const w=WEEKDAY[weekdayOf(c.y,c.m,c.d)];
+  return `<div class="sheet"><h2>生まれた曜日 ─ ${w.d}</h2>
+    <div class="facts"><div class="fact"><div class="lbl">天地創造の${w.day}に造られたもの</div><div class="val" style="font-size:18px">${w.made}</div></div><div class="fact"><div class="lbl">文献の言葉</div><div class="val" style="font-size:16px;font-weight:600">${w.src}</div></div></div>
+    <p style="margin:12px 0 0;font-size:15px;line-height:1.85">${w.read}</p>
+    <p class="foot">出典:バビロニア・タルムード「シャバット」156a。ラビ・ヨシュア・ベン・レビの記録として、生まれた曜日とその日に造られたものから人柄を読む話が残っています。文献の言葉は日本語に要約したものです。ユダヤ教では一日が日没から始まるため、夕方以降に生まれた人は翌日の曜日で読む考え方もあります。</p></div>`;}
+
+// ===== 相性の判定(はっきり言い切る) =====
+const FIT={love:{"比肩":0,"劫財":-1,"食神":1,"傷官":-1,"偏財":1,"正財":2,"偏官":0,"正官":2,"偏印":-1,"印綬":1},
+ work:{"比肩":1,"劫財":1,"食神":0,"傷官":0,"偏財":2,"正財":1,"偏官":1,"正官":2,"偏印":0,"印綬":1},
+ general:{"比肩":1,"劫財":1,"食神":2,"傷官":0,"偏財":1,"正財":1,"偏官":-1,"正官":0,"偏印":1,"印綬":1}};
+const VERDICT={love:[["×","かなり難しい。好きでも、一緒にいるほど消耗しやすい組み合わせ。"],["△","悪くはないが、自然にうまくいく組み合わせではない。続けるなら努力が要る。"],["○","相性は良い。すれ違いを放っておかなければ、うまくいく。"],["◎","強く惹かれ合い、長く続く組み合わせ。迷っているなら進んでいい。"]],
+ work:[["×","一緒に仕事をするとぶつかりやすい。距離を置いた方がお互いのため。"],["△","仕事は回るが、相乗効果は少ない。必要な範囲の付き合いで十分。"],["○","仕事相手として信頼できる。役割を分ければうまく回る。"],["◎","組めば成果が出る最強のコンビ。"]],
+ general:[["×","合わない。無理に付き合うと疲れる。"],["△","可もなく不可もなく。会う頻度は少なめがちょうどいい。"],["○","気楽に付き合える良い関係。"],["◎","一生ものの縁。会えば自然と元気になれる。"]]};
+function compatScore(A,B,sa,sb,mode){let sc=0;const pro=[],con=[];
+  const ab=MAIN[mainStarIdx(A.ds,B.ds)],ba=MAIN[mainStarIdx(B.ds,A.ds)];
+  const f=FIT[mode][ab]+FIT[mode][ba];sc+=f;if(f>=2)pro.push(`星の関係(${ab}・${ba})`);if(f<=-1)con.push(`星の関係(${ab}・${ba})`);
+  if(Math.abs(A.ds-B.ds)===5){const v=mode==="love"?3:2;sc+=v;pro.push("日干の干合");}
+  const dr=branchRels(A.db,B.db).map(r=>r[0]);
+  if(dr.includes("支合")){sc+=2;pro.push("日支の支合");}if(dr.includes("半会")){sc+=1;pro.push("日支の半会");}
+  if(dr.includes("対冲")){sc-=mode==="love"?2:1;con.push("日支の対冲");}if(dr.includes("害")){sc-=1;con.push("日支の害");}if(dr.includes("刑")||dr.includes("自刑")){sc-=1;con.push("日支の刑");}
+  for(const [t] of dayPillarRel(A,B)){if(t==="干支合"){sc+=2;pro.push("干支合");}if(t==="天剋地冲"){sc-=2;con.push("天剋地冲");}if(t==="納音"&&mode==="love"){sc-=1;con.push("納音");}if(t==="律音"&&mode!=="love"){sc+=1;pro.push("律音");}}
+  if(mode==="love"){const sp=(s,st)=>(s==="m"&&["偏財","正財"].includes(st))||(s==="f"&&["偏官","正官"].includes(st));if(sp(sa,ab)||sp(sb,ba)){sc+=2;pro.push("配偶者を表す星");}}
+  const tc=A.tcs.includes(B.yb)||A.tcs.includes(B.db)||B.tcs.includes(A.yb)||B.tcs.includes(A.db);if(tc&&mode!=="general"){sc-=1;con.push("天中殺の関係");}
+  if(A.tcsG===B.tcsG){sc+=1;pro.push("同じ天中殺グループ");}
+  const lv=sc>=5?3:sc>=3?2:sc>=1?1:0;return {sc,lv,pro,con};}
+function verdictHTML(A,B,sa,sb,na,nb){
+  return `<div class="sheet"><h2>判定</h2><div class="verd">${["love","work","general"].map(md=>{const r=compatScore(A,B,sa,sb,md);const [mk,tx]=VERDICT[md][r.lv];
+    return `<div class="vrow v${r.lv}"><span class="vmk">${mk}</span><div><b>${MODE_LABEL[md]}</b><p>${tx}</p><small>${r.pro.length?"＋ "+r.pro.join("・"):""}${r.pro.length&&r.con.length?"　":""}${r.con.length?"− "+r.con.join("・"):""}</small></div></div>`;}).join("")}</div></div>`;}
+
+// ===== 命式の関係図(干の流れ・支の合冲) =====
+function stemRel(a,b){const ea=STEM_EL[a],eb=STEM_EL[b];if(ea===eb)return["比","same"];if((ea+1)%5===eb)return["生","ab"];if((eb+1)%5===ea)return["生","ba"];if((ea+2)%5===eb)return["剋","ab"];return["剋","ba"];}
+function relDiagram(c){
+  const X=[60,170,280];const st=[c.ds,c.ms,c.ys],br=[c.db,c.mb,c.yb];const Ys=48,Yb=158;
+  const node=(x,y,ch,el)=>`<circle cx="${x}" cy="${y}" r="22" style="fill:var(--surface);stroke:var(--line)" stroke-width="1.5"/><text x="${x}" y="${y+8}" text-anchor="middle" style="fill:var(--el${el});font-family:var(--font-display);font-weight:800" font-size="24">${ch}</text>`;
+  const lbl=(x,y,t,warn)=>`<rect x="${x-t.length*7-6}" y="${y-11}" width="${t.length*14+12}" height="20" rx="4" style="fill:var(--surface);stroke:${warn?"var(--seal)":"var(--accent)"}"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="12" font-weight="700" style="fill:${warn?"var(--seal)":"var(--accent)"}">${t}</text>`;
+  let g="";
+  // 干の流れ(隣どうし)
+  for(const [i,j] of [[2,1],[1,0]]){const [t,d]=stemRel(st[i],st[j]);const from=d==="ba"?j:i,to=d==="ba"?i:j;const x1=X[from],x2=X[to];const dir=x2>x1?1:-1;
+    g+=`<line x1="${x1+dir*25}" y1="${Ys}" x2="${x2-dir*27}" y2="${Ys}" style="stroke:var(--muted)" stroke-width="1.5" ${t==="比"?"":'marker-end="url(#ar)"'}/>`+lbl((X[i]+X[j])/2,Ys-16,t==="生"?"生":t==="剋"?"剋":"比和",t==="剋");}
+  // 干合
+  for(const [i,j] of [[0,1],[1,2],[0,2]])if(Math.abs(st[i]-st[j])===5){if(j-i===2)g+=`<path d="M${X[i]} ${Ys-24} Q ${(X[i]+X[j])/2} ${Ys-62} ${X[j]} ${Ys-24}" fill="none" style="stroke:var(--accent)" stroke-width="1.5" stroke-dasharray="4 3"/>`+lbl((X[i]+X[j])/2,Ys-44,"干合",0);else g+=lbl((X[i]+X[j])/2,Ys+18,"干合",0);}
+  // 支の関係
+  for(const [i,j] of [[0,1],[1,2],[0,2]]){const r=branchRels(br[i],br[j]).filter(x=>x[0]!=="同支");if(!r.length)continue;const t=r.map(x=>x[0]).join("・");const warn=r.some(x=>x[2]);
+    if(j-i===2){g+=`<path d="M${X[i]} ${Yb+24} Q ${(X[i]+X[j])/2} ${Yb+66} ${X[j]} ${Yb+24}" fill="none" style="stroke:${warn?"var(--seal)":"var(--accent)"}" stroke-width="1.5"/>`+lbl((X[i]+X[j])/2,Yb+46,t,warn);}
+    else{g+=`<line x1="${X[i]+25}" y1="${Yb}" x2="${X[j]-25}" y2="${Yb}" style="stroke:${warn?"var(--seal)":"var(--accent)"}" stroke-width="1.5"/>`+lbl((X[i]+X[j])/2,Yb-16,t,warn);}}
+  const nodes=[0,1,2].map(i=>node(X[i],Ys,STEMS[st[i]],STEM_EL[st[i]])+node(X[i],Yb,BRANCHES[br[i]],BRANCH_EL[br[i]])).join("");
+  return `<div class="reld"><svg viewBox="0 -32 340 268" role="img" aria-label="命式の干と支の関係図"><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--muted)"/></marker></defs>
+    ${["日柱","月柱","年柱"].map((h,i)=>`<text x="${X[i]}" y="-18" text-anchor="middle" font-size="11" style="fill:var(--muted)">${h}</text>`).join("")}
+    <text x="4" y="${Ys+4}" font-size="10" style="fill:var(--muted)">干</text><text x="4" y="${Yb+4}" font-size="10" style="fill:var(--muted)">支</text>
+    ${g}${nodes}</svg></div>`;
+}
+function relLegendHTML(c){const combos=pillarCombos(c);const st=[c.ds,c.ms,c.ys];const nm=["日干","月干","年干"];
+  const flow=[[2,1],[1,0]].map(([i,j])=>{const [t,d]=stemRel(st[i],st[j]);const a=d==="ba"?j:i,b=d==="ba"?i:j;return t==="比"?`${nm[i]}と${nm[j]}は同じ五行(比和)`:`${nm[a]}が${nm[b]}を${t==="生"?"生む(育てる)":"剋す(抑える)"}`;});
+  return `<ul class="rlist"><li><b>干の流れ</b>:${flow.join("、")}。矢印は力が流れる向きです。</li>${combos.map(([n,t,m,w])=>{const k=Object.keys(PAIR_NAME).find(x=>PAIR_NAME[x]===n);return `<li><b class="${w?"w":""}">${n[0]} ${t}</b>:${(REL_CTX[t]&&REL_CTX[t][k])||m}</li>`;}).join("")}</ul>`;}
+
+// ===== 年運(テーマだけ) =====
+function yearThemesHTML(c,sex){
+  return `<div class="sheet"><h2>年運 ─ 1年ごとのテーマ</h2><div class="dl yl">${[0,1,2,3,4,5].map(k=>{const Y=curYear+k;const r=yearRead(c,Y,sex);const ti=mainStarIdx(c.ds,r.g.s);
+    const tags=[];if(r.tcs)tags.push(["天中殺の年",1]);if(r.kango)tags.push(["干合",0]);if(r.br.includes("支合"))tags.push(["支合",0]);if(r.br.includes("半会"))tags.push(["半会",0]);if(r.br.includes("対冲"))tags.push(["対冲",1]);
+    return `<div class="r ${k===0?"now":""}"><span class="a">${Y}</span><span class="g">${stemHTML(r.g.s)}${brHTML(r.g.b)}</span><span><b class="rt">${DAIUN_THEME[ti][0].replace("10年","1年")}</b> ${tags.map(([t,w])=>`<span class="tag-s ${w?"warn":""}">${t}</span>`).join(" ")}<br><span class="rs">${TSUHEN[ti]}</span></span></div>`;}).join("")}</div>
+    <p class="foot">天中殺の年は新しく始めることを控えめに。干合・支合の年は縁が結ばれやすく、対冲の年は引っ越しや転職など環境が動きやすい年です。</p></div>`;}
+
+// ===== 60干支(柱ごとの姿だけ) =====
+function pillarKanshiHTML(c){
+  const lead=["根っこ(家系・育ち)には、","仕事や社会の場では、",""];
+  return `<div class="sheet"><h2>60干支 ─ 日柱・月柱・年柱</h2>${[[c.ds,c.db,2,"日柱"],[c.ms,c.mb,1,"月柱"],[c.ys,c.yb,0,"年柱"]].map(([st,b,r,t])=>{const k=kanshiInfo(st,b);const tg=r===2?kanshiTags(k.idx):[];const kt=KANSHI_TEXT[k.idx].split("。");
+    return `<div class="kan ${r===2?"main":""}"><div class="kh"><b class="ks">${stemHTML(st)}${brHTML(b)}</b><b>${t}</b><span>${PILLAR_ROLE[r]}・${k.read}</span>${tg.map(x=>`<span class="tag-s">${x[1]}</span>`).join("")}</div><p>${r===2?KANSHI_TEXT[k.idx]:`${lead[r]}「${kt[0]}」。${kt.slice(1).filter(Boolean).join("。")}。`}${r===2&&tg.length?`<br><small style="color:var(--muted)">${tg.map(x=>`${x[1]}:${x[2]}`).join("。")}。</small>`:""}</p></div>`;}).join("")}</div>`;}
+
+// ===== 天中殺と五行 =====
+function tcsGogyoHTML(c){const yrs=tcsYears(c).map(([a,b])=>a===b?`${a}`:`${a}–${b}`).join("、");
+  return `<div class="sheet"><div class="facts">
+    <div class="fact"><div class="lbl">天中殺</div><div class="val">${TCS_NAME[c.tcsG]}天中殺</div><div class="sub">${c.flags.map(f=>`<span class="seal">${f}</span>`).join("")||"宿命中殺なし"}</div></div>
+    <div class="fact"><div class="lbl">次の天中殺の年</div><div class="val" style="font-size:17px;font-variant-numeric:tabular-nums">${yrs}</div><div class="sub">大きな決断は慎重に</div></div></div>
+    <h3 style="margin-top:14px">五行のバランス</h3>${barsHTML(elementCounts(c))}</div>`;}
+
+// ===== 総まとめ =====
+function summaryHTML(c,name,sex){
+  const iD=kanshiIdx(c.ds,c.db),iM=kanshiIdx(c.ms,c.mb),iY=kanshiIdx(c.ys,c.yb);
+  const mz=mainStarIdx(c.ds,c.zm),dz=mainStarIdx(c.ds,c.zd);const g=i=>Math.floor(i/2);
+  const sn=(t,n)=>t.split("。").filter(Boolean).slice(n).join("。")+"。";
+  const combos=pillarCombos(c);const bal=tsuhenBalance(c);const mx=Math.max(...bal);
+  const D=daiun(c,sex);const cur=D.list.find(x=>curYear>=x.from&&curYear<=x.to);const w=WEEKDAY[weekdayOf(c.y,c.m,c.d)];
+  const e=[c.yb,c.mb,c.db].map(b=>JU_ENERGY[juStar(c.ds,b)]);const emx=Math.max(...e),emn=Math.min(...e);
+  const flow=emx-emn<=3?"一生を通して力が安定している":(e[1]===emn&&e[0]-e[1]>=4&&e[2]-e[1]>=4)?"働き盛りに一度力が落ち、晩年にまた盛り返す":e[2]===emx?"年を重ねるほど強くなる大器晩成":e[0]===emx?"若いうちに頭角を現す早熟":"働き盛りに最も力が出る";
+  const tags=kanshiTags(iD);const P=[];
+  P.push(`<b>${esc(name)}は、${STEMS[c.ds]}${BRANCHES[c.db]}の人。</b>${KANSHI_TEXT[iD]}${tags.length?`日柱は${tags.map(t=>t[1]).join("・")}にあたり、${tags.map(t=>t[2]).join("。")}。`:""}`);
+  P.push(`仕事や社会の場では${STEMS[c.ms]}${BRANCHES[c.mb]}の顔が出る。${sn(KANSHI_TEXT[iM],1)}家系や育ちから受け継いだ根っこは${STEMS[c.ys]}${BRANCHES[c.yb]}。${sn(KANSHI_TEXT[iY],1)}`);
+  P.push(`性格の核は${TSUHEN[mz]}。${POS_TS.chest[mz].replace(/^本質は/,"")}。${g(mz)===g(dz)?"家でも外でも同じ顔で、裏表がない。":`ただし家では${TSUHEN[dz]}の顔になり、${TS_BY_PILLAR[2][dz]}。親しい人ほど、外とは違う一面を知っている。`}`);
+  if(combos.length)P.push(combos.map(([nm,t,m])=>{const k=Object.keys(PAIR_NAME).find(x=>PAIR_NAME[x]===nm);return (REL_CTX[t]&&REL_CTX[t][k])||m;}).join(""));
+  P.push(`${mx>=2?`命式には${TS_GROUP.filter((_,i)=>bal[i]===mx).map(x=>x[0]).join("・")}が多く、${TS_GROUP.find((_,i)=>bal[i]===mx)[2]}。`:"命式の通変星に偏りがなく、何でも器用にこなせる。"}${bal.some(v=>v===0)?`${bal.map((v,i)=>v===0?TS_GROUP[i][0]:null).filter(Boolean).join("・")}を持たないので、その力は人に頼ることで補う。`:""}`);
+  P.push(`人生は${flow}型。${cur?`いまは「${DAIUN_THEME[cur.star][0]}」(${cur.from}〜${cur.to}年)の最中で、${DAIUN_THEME[cur.star][1]}`:""}`);
+  P.push(`${TCS_NAME[c.tcsG]}天中殺${c.flags.length?`(${c.flags.join("・")})`:""}で、${w.d}生まれ。`);
+  return `<div class="sheet summary"><h2>総まとめ</h2>${P.map(t=>`<p>${t}</p>`).join("")}</div>`;
+}
+
+// ===== 出来事の読み(その時期に起きたことの意味) =====
+const EV_KIND={"出会い":"meet","交際開始":"start","結婚":"start","別れ・離婚":"end","就職・転職":"start","独立・起業":"start","昇進・成功":"up","挫折・失敗":"down","引っ越し":"move","病気・けが":"down","身内との別れ":"down","その他":"other"};
+function eventMeaning(r,type){const k=EV_KIND[type]||"other";const th=DAIUN_THEME[MAIN.indexOf(r.star)][0].replace("10年","1年");const out=[];
+  const tcs=r.yTcs||r.mTcs;const en=r.kango||r.br.includes("支合")||r.br.includes("半会");const clash=r.br.includes("対冲");
+  if(k==="start"||k==="meet"){
+    if(tcs)out.push(`天中殺${r.yTcs?"の年":"の月"}に始まったこと。算命学では、この時期に始めたことは思った通りの形にはなりにくく、途中で大きく形が変わるか、天中殺が明けたあとに見直しが入るとされる。続いているなら、形を変えながら続いてきたはず。`);
+    else if(en)out.push(`${r.kango?"日干と干合する":"日支と結びつく"}年に始まったこと。縁が結ばれやすいタイミングで、自分の流れに合った始まり。長く続きやすい。`);
+    else if(clash)out.push(`日支と対冲する年に始まったこと。環境が大きく動く年の始まりで、勢いはあるが土台が揺れやすい。`);
+    else out.push(`特別な合も冲もない、自分の力で選んだ始まり。続くかどうかは本人しだい。`);}
+  else if(k==="end"){
+    if(tcs)out.push(`天中殺の中で起きた終わり。自分ではどうにもならない流れによる区切りで、結果的には必要な整理だったとされる。`);
+    else if(clash)out.push(`日支と対冲する年の終わり。環境が動く年の流れに沿った変化。`);
+    else if(en)out.push(`縁が動く年の終わり。終わりと同時に、新しい縁が入れ替わりで入ってきやすい。`);
+    else out.push(`自分の意思で選んだ区切り。`);}
+  else if(k==="move"){out.push(clash?`対冲の年の移動で、流れどおりの動き。`:tcs?`天中殺中の引っ越し。住まいや環境が落ち着くまで時間がかかりやすい。`:`自分の意思で選んだ移動。`);}
+  else if(k==="up"){out.push(tcs?`天中殺中の成功。実力以上の追い風が吹いたぶん、明けたあとに足元を固め直す必要がある。`:en?`縁が動く年の成功。人の後押しを受けた結果。`:`自分の積み上げが実った結果。`);}
+  else if(k==="down"){out.push(tcs?`天中殺中の出来事。運気の空白期に起きやすい試練で、ここで得たものが後の土台になる。`:clash?`対冲の年の試練。環境の揺れに巻き込まれた形。`:`流れとは関係なく起きた出来事で、本人の選択や状況が大きい。`);}
+  out.push(`その年は「${th}」(${r.star})${r.du?`、大運は「${DAIUN_THEME[r.du.star][0]}」`:""}の時期だった。`);
+  return out.join("");}
+
+// ===== 相性タイミングの理由を短く =====
+function shortWhy(why,na,nb){return why.map(w=>w.replace(/^A/,na+":").replace(/^B/,nb+":").replace("の日干と","").replace("の日支と","").replace("が天中殺の年","天中殺").replace(/に(.+?)\(.+?\)(が巡る)?$/,"$1")).filter((v,i,a)=>a.indexOf(v)===i);}
+
+// ===== 自分の読み(辞典に書き足す) =====
+let myDict={};
+function myDictBox(key){return `<details class="mydict"><summary>${myDict[key]?"自分の読み:"+esc(myDict[key]).slice(0,40)+(myDict[key].length>40?"…":""):"＋ 自分の読みを書き足す"}</summary><textarea data-dk="${key}" aria-label="自分の読み">${esc(myDict[key]||"")}</textarea><button class="btn small" data-dksave="${key}">保存</button></details>`;}
+async function saveMyDict(key,val){myDict[key]=val;if(store){try{await store.doc("_mydict").set({kind:"mydict",map:myDict});}catch(e){}}else{try{localStorage.setItem("sanmei-mydict",JSON.stringify(myDict));}catch(e){}}renderDict();}
+function renderDict(){
+  $("#d-stem").innerHTML=STEMS.map((n,i)=>`<div><b>${n}<small style="font-family:var(--font-body)"> ${STEM_READ[i]}・${STEM_NATURE[i][0]}</small></b>${STEM_DETAIL[i].replace(/^[^、]+、/,"")}${myDictBox("stem"+i)}</div>`).join("");
+  $("#d-br").innerHTML=BRANCHES.map((n,i)=>`<div><b>${n}<small style="font-family:var(--font-body)"> ${BR_READ[i]}</small></b>${BRANCH_DETAIL[i]}${myDictBox("br"+i)}</div>`).join("");
+  $("#d-main").innerHTML=TSUHEN.map((n,i)=>`<div><b>${n}<small style="font-family:var(--font-body)"> ${MAIN_INFO[n][0]}</small></b>${TSUHEN_DETAIL[i]}${myDictBox("ts"+i)}</div>`).join("");
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-dksave]");if(!b)return;const k=b.dataset.dksave;const t=document.querySelector(`textarea[data-dk="${k}"]`);saveMyDict(k,t.value.trim());});
+
+// ===== 60干支それぞれの性格 =====
+const KANSHI_TEXT=["冬の水を吸って育つ若木。頭がよく、学ぶことが好きな知性派。理想が高く、まっすぐな正義感で物事を考えるが、現実の泥くささは苦手。", "凍った土に根を張る草。おとなしく見えて、驚くほど粘り強い。苦労を苦労と思わず、時間をかけて確実に自分の居場所を作る努力家。", "夜明けの太陽。明るく行動的で、新しいことを始める時にいちばん輝く。裏表がなく人に好かれるが、飽きっぽく、始めたことを人に任せがち。", "春の野を照らす灯。穏やかでやさしく、人の気持ちに寄り添える。感受性が強く、美しいものに惹かれる。争いを避けるあまり、本音を飲み込みやすい。", "雨を含んだ大きな山。スケールが大きく、ここぞという場面で驚くほどの力を出す。頑固で自分の考えを曲げず、人の下につくのが苦手。", "陽射しに温められた畑。器用で頭の回転が速く、人の役に立つことに喜びを感じる。表向きは柔らかいが、内側には強い向上心と執着心がある。", "炎で鍛えられる刀。正義感が強く、困っている人のために体を張る。プライドが高く、指図されると反発する。苦労するほど強くなる。", "乾いた土に埋もれた宝石。繊細で我慢強く、なかなか本心を見せない。地道な努力の末に評価されるタイプで、身内への思いが深い。", "山から流れ出す大河。頭がよく、行動範囲が広い自由人。情報や人脈を次々につないでいく。ひとところに縛られるのを何より嫌う。", "秋の朝の澄んだ露。物静かで品があり、観察眼が鋭い。完璧主義で、細部の美しさにこだわる。人づきあいは狭く深く。", "山の上に立つ一本の大木。独立心が強く、自分の力で道を切り開く。人に頼るのが下手で、ひとりで背負い込みやすい。", "水に浮かぶ草。素直で純粋、人を疑わない。流れに身を任せながらも、自分の世界を大切にする。現実離れした理想を持ちやすい。", "冬の夜空に昇る太陽。明るさの裏に、冷静な判断力を持つ。人前では陽気でも、ひとりになると深く考え込む二面性がある。", "凍った大地の中で燃える火。表は控えめでも、内に強い情熱と根気を秘める。一つの目標に向けて黙々と努力し、最後に結果を出す。", "木々が芽吹く春の山。おおらかで面倒見がよく、人を育てるのがうまい。頼られると断れず、気づけば大勢の世話を抱えている。", "草の茂る春の畑。人当たりがよく、場の空気を読んで動ける調整役。神経が細やかで、人間関係のストレスをためやすい。", "大地に眠る鋼。頭脳明晰で決断力があり、極端なほどの強さを持つ。良くも悪くも振り幅が大きく、人生に波がある。", "陽射しを受けて光る宝石。華やかで人目を引き、美意識が高い。プライドが高く、正当に評価されないと静かに傷つく。", "真夏の湖。情熱と冷静さが同居し、感情の起伏が大きい。人を惹きつける魅力があり、恋愛に縁が深い。", "乾いた大地に降る雨。忍耐強く、人の役に立つことで自分を保つ。表には出さないが、心の奥に強いこだわりと情を秘める。", "岩山に根を張る木。厳しい環境でこそ力を出す行動派。プレッシャーに強く、逆境を跳ね返す。そのぶん気が休まる暇が少ない。", "刃物に囲まれた花。繊細で神経質な一方、芯は強い。周りの厳しさに耐えながら、自分らしく咲こうとする。", "夕暮れの太陽。人情に厚く、仲間や家族を温かく包む。表は明るいが、内側には寂しさと深い思索を抱えている。", "水面に映る灯。品があり、直感が鋭く、人の心の動きを読む。困った時に目上や周りから助けられる運を持つ。", "水をたたえた山。落ち着いていて、お金や資源を蓄える才覚がある。外では堅実、家では意外に甘い面を見せる。", "冬の田畑。真面目でコツコツ型、時間をかけて確実に実らせる。慎重すぎて動き出しが遅い。", "森に入る斧。行動力と開拓精神があり、新しい道を切り開く。せっかちで、周りを置き去りにしがち。", "春の草原に落ちた宝石。感性が鋭く、人の心の機微がわかる。繊細すぎて傷つきやすく、気分にむらがある。", "雨を呼ぶ龍の海。スケールが大きく、ここ一番の勝負に強い。頭がよく大胆で、普通の人生では満足しない。", "陽射しの中の霧。柔らかな印象の奥に、鋭い知性と行動力を持つ。人の引き立てを受けやすい。", "真夏に伸びる木。才能豊かで表現力が高く、自分を出すことで輝く。勢いがある反面、燃え尽きやすい。", "乾いた土に咲く花。忍耐強く、環境が悪くても自分の花を咲かせる。家族思いで、身内のためなら頑張れる。", "秋の太陽。社交的で多才、人とお金を動かす力がある。楽しいことに目がなく、移り気。", "宝石を照らす灯。上品で頭の回転が速く、華やかな場が似合う。人に恵まれ、周りから引き立てられる。", "秋のどっしりした山。意志が強く、信念を曲げない。強運だが、頑固さと孤独を抱えやすい。", "水を含んだ田畑。穏やかで包容力があり、人を受け入れる。優柔不断で、流されやすい面も。", "冷たい水に浸かった鋼。頭が切れ、鋭い批評眼を持つ。言葉がきつくなりやすいが、本当は純粋。", "土に守られた宝石。慎重で努力家、時間をかけて磨かれる。一度決めたことは最後まで貫く。", "森を流れる川。好奇心旺盛で、知識を人に伝えることで輝く。おおらかだが、計画性に欠ける。", "春の草に降る雨。やさしく純粋で、人を育て癒やす。夢見がちで、現実から逃げたくなる時がある。", "雨に潤う大地の大木。安定感があり、大きなものを育てる力を持つ。現実的で、財を築く才覚がある。", "陽を浴びて咲く花。華やかで表現力があり、人を楽しませる。才能はあるが、気が散りやすい。", "真夏の太陽。情熱と行動力は60干支でも最強クラス。白黒はっきりして激しく、周りを巻き込む。", "夏の夕暮れの灯。温かく情に厚い、面倒見のいい人。思い込みが強く、こうと決めたら譲らない。", "鉱脈を抱く山。器用で行動的、多くのことを同時にこなす。変化に強いが、落ち着きがない。", "実りの秋の畑。センスがよく、物事をきれいに仕上げる職人肌。理屈っぽく、口が達者。", "山にある鉄。義理堅く、守るものには全力をかける。強い個性と信念で、周りを引っぱる。", "海で洗われる宝石。純粋で美意識が高く、自分の世界を持つ。鋭い感性ゆえに、人の言葉に傷つきやすい。", "真冬の大海。意志が強く、底知れない深さを持つ。普段は穏やかでも、本気になると止まらない。", "凍った大地の雨水。忍耐強く、逆境で真価を発揮する。表に出さないが、内に強い意志と自尊心を秘める。", "早春の森の大木。独立独歩のリーダー気質で、人の下につかない。まっすぐで頼もしいが、融通が利かない。", "春の野に咲き誇る草花。柔らかく見えて、自分のペースを絶対に崩さない。人に合わせるのが上手で、しなやかに生き抜く。", "雲の上の太陽。おおらかで包容力があり、人を育てる。楽天的で、細かいことは気にしない。", "太陽の下の炎。情熱的で負けず嫌い、思い込んだら一直線。直感が鋭く、勢いで道を開く。", "火山。表は静かな山でも、内側に激しいエネルギーを秘める。頑固で、怒らせると手がつけられない。", "真夏の乾いた畑。粘り強く、自分のやり方を貫く。身内には尽くすが、外には警戒心が強い。", "鉄の鉱脈。60干支でもっとも剛直。意志が強く行動的で、決めたら誰にも止められない。", "磨き上げられた宝石。美意識とプライドの高さは60干支随一。完璧を求め、自分にも人にも厳しい。", "せき止められた水。頭脳明晰で、抑えた力を一気に放つ爆発力がある。極端で、波乱の多い人生になりやすい。", "冬の大海に注ぐ雨。純粋で直感が鋭く、精神性が高い。常識にとらわれず、独自の世界観を持つ。"];
+const KANSHI_TAG=[[[16,46,28,58,34],"魁罡","頭脳明晰で、極端なほどの強さと波を持つ日柱"],[[42,54,48],"羊刃","陽の干が最も強くなる日柱。激しさと強い意志"],[[33,23,39,29],"日貴","品があり、困った時に人から助けられる日柱"],[[50,52,4,16,58],"日徳","人柄に徳があり、穏やかな運を持つ日柱"],[[50,51,42,53,56,57,48,59],"専旺","干と支が同じ五行で、その性質が純粋に強く出る日柱"],[[10,11],"日座天中殺","日柱そのものが天中殺。常識の外で生きる力を持つ"]];
+const kanshiTags=i=>KANSHI_TAG.filter(t=>t[0].includes(i));
+const REL_CTX={"支合": {"0-1": "家で育った価値観が、そのまま社会で通用する。親や目上の引き立てで仕事が開けやすい。", "1-2": "仕事と私生活がなじむ。職場の人と親しくなりやすく、仕事が生活の一部になる。", "0-2": "家族や目上との縁が深い。親との関係が、そのまま自分の家庭の形になりやすい。"}, "半会": {"0-1": "生まれ育った環境が、社会での武器になる。地元や家業、親の人脈を活かせる。", "1-2": "仕事とプライベートが自然につながって広がる。仕事仲間が友人に、趣味が仕事になりやすい。", "0-2": "家系の力を受け継ぎ、自分の代で大きく広げる。"}, "対冲": {"0-1": "育った環境と社会での自分が正反対。家を出てから本領を発揮する。若いうちに環境が大きく変わる。", "1-2": "仕事の顔と家の顔がまったく違う。仕事か家庭か、どちらかに偏りやすい。", "0-2": "親や家系とは違う道を行く人。故郷を離れて生きる縁が強い。"}, "害": {"0-1": "親や目上の期待と、自分の仕事のやり方が少しずつかみ合わない。", "1-2": "仕事の疲れを家に持ち込みやすい。外と内の切り替えが下手。", "0-2": "親との間に、小さなわだかまりが残りやすい。"}, "刑": {"0-1": "家の価値観と社会のルールの間で揉まれ、鍛えられる。", "1-2": "仕事でも私生活でも自分に厳しい。ストイックさが長所にも短所にもなる。", "0-2": "親と似た部分ほど反発し合う。"}, "自刑": {"0-1": "同じこだわりが、家でも社会でも顔を出す。", "1-2": "仕事でも家でも同じこだわりを通そうとして、自分を追い込みやすい。", "0-2": "親と同じこだわりを持ち、そこでぶつかる。親に似ている部分ほど反発しやすい。"}, "干合": {"0-1": "目上の引き立てが、社会での成功につながる。", "1-2": "仕事に惚れ込むタイプ。仕事と自分が一体になりやすい。", "0-2": "親や目上と強く結びつく。家の影響を一生受ける。"}, "律音": {"0-1": "家でも社会でも同じ性質が強く出る。迷いがない。", "1-2": "仕事と自分が完全に重なる。生き方がそのまま仕事になる。", "0-2": "親とよく似た人生をたどりやすい。"}, "納音": {"0-1": "人生の前半に、家と社会の間で大きな転機がある。", "1-2": "仕事と家庭で両極端な面を持ち、どこかで大きく人生の舵を切る。", "0-2": "家系との関係に、大きな転換点がある。"}, "天剋地冲": {"0-1": "育ちと社会がぶつかり合う。若いうちの苦労は大きいが、乗り越えれば強い。", "1-2": "仕事と私生活が激しくぶつかる。どちらかを選ぶ決断を迫られやすい。", "0-2": "親や家系と真っ向からぶつかり、自分の力で生き直す人。"}};
+// ===== 保存(db → なければブラウザ内) =====
+let people=[];let store=null;let uid=null;
+const LS="sanmei-notes-v1";
+try{myDict=JSON.parse(localStorage.getItem("sanmei-mydict")||"{}")}catch(e){}
+function lsLoad(){try{return JSON.parse(localStorage.getItem(LS)||"[]");}catch(e){return [];}}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify(people));}catch(e){}}
+async function initStore(){
+  people=lsLoad();renderAll();
+  try{
+    const db=await claude.use("db");const user=await claude.use("user");
+    if(db&&user){uid=await user.id();store=db.collection("data/users/"+uid);
+      const snap=await store.get();const all=snap.docs.map(d=>({id:d.id,...d.data()}));const md=all.find(x=>x.id==="_mydict");if(md&&md.map){myDict=md.map;renderDict();}const remote=all.filter(x=>!x.id.startsWith("_"));
+      people=remote;renderAll();setStatus("あなたのアカウントに保存しています(他の人には見えません)");return;}
+  }catch(e){}
+  setStatus("この端末のブラウザ内に保存しています");
+}
+function setStatus(t){$("#store-status").textContent=t;}
+async function savePerson(p){
+  if(!p.id)p.id="p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  const i=people.findIndex(x=>x.id===p.id);if(i>=0)people[i]=p;else people.push(p);
+  if(store){try{const {id,...body}=p;await store.doc(id).set(body);}catch(e){setStatus("保存できませんでした。通信状況を確認して、もう一度お試しください。");}}else lsSave();
+  renderAll();
+}
+async function removePerson(id){people=people.filter(p=>p.id!==id);if(store){try{await store.doc(id).delete();}catch(e){}}else lsSave();renderAll();}
+
+$("#c-save").addEventListener("click",async()=>{const dt=parseDate($("#c-date").value);if(!dt){$("#c-saved").textContent="生年月日を入れてください";return;}
+  const blind=$("#c-blind").checked;const np={blind,name:$("#c-name").value.trim()||"名前なし",date:$("#c-date").value,sex:$("#c-sex").value,tag:$("#c-tag").value,note:$("#c-note").value.trim(),created:Date.now()};await savePerson(np);if(blind){psySubject=np.id;loadDraft();showTab("psych");}
+  $("#c-saved").textContent="保存しました";$("#c-note").value="";setTimeout(()=>$("#c-saved").textContent="",2500);});
+
+// ===== 研究ノート =====
+function info(p){const c=chart(...parseDate(p.date));return c;}
+let confirmId=null,editId=null;
+function renderNotes(){
+  const ft=$("#f-tag").value,fs=$("#f-star").value;const list=$("#plist");
+  const items=people.filter(p=>parseDate(p.date)).filter(p=>!ft||p.tag===ft).filter(p=>!fs||MAIN[info(p).stars.chest]===fs)
+    .sort((a,b)=>TAG_ORDER.indexOf(a.tag)-TAG_ORDER.indexOf(b.tag)||(a.created||0)-(b.created||0));
+  if(!people.length){list.innerHTML=`<div class="pitem"><p class="lead">まだ誰も保存されていません。「命式」タブで生年月日を入れて保存すると、ここに並びます。まずは自分を「自分」として保存するのがおすすめです。</p><div class="row"><button class="btn ghost small" id="add-ex">例を2人追加してみる</button></div></div>`;
+    $("#add-ex").onclick=async()=>{await savePerson({name:"例：みなと",date:"1992-11-02",tag:"友人",note:"(例)聞き上手。一緒にいると話しすぎてしまう。",sample:true,sex:"m",created:Date.now()});await savePerson({name:"例：あおい",date:"1998-06-25",tag:"気になる人",note:"(例)価値観は違うのに、なぜか目が離せない。",sample:true,sex:"f",created:Date.now()+1});};return;}
+  if(!items.length){list.innerHTML=`<div class="pitem"><p class="lead">条件に合う人はいません。</p></div>`;return;}
+  list.innerHTML=items.map(p=>{const c=info(p);const [y,m,d]=parseDate(p.date);
+    return `<div class="pitem" data-id="${esc(p.id)}">
+      <div class="head"><span class="nm">${esc(p.name)}</span><span class="dt">${y}.${m}.${d}</span><span class="chip ${p.sample?"ex":""}">${p.sample?"例・":""}${esc(p.tag)}</span></div>
+      <div class="row" style="gap:6px"><span class="chip">日干 ${STEMS[c.ds]}</span><span class="chip">月支元命 ${MAIN[c.stars.chest]}</span><span class="chip">${TCS_NAME[c.tcsG]}天中殺</span>${p.psych&&scoreTIPI(p.psych.tipi)?`<span class="chip">性格データ${p.psych.mbti?"・"+esc(p.psych.mbti):""}</span>`:""}${p.blind?`<span class="chip">先入観なし</span>`:""}${p.events&&p.events.length?`<span class="chip">出来事 ${p.events.length}件</span>`:""}</div>
+      ${editId===p.id?`<textarea id="edit-note" aria-label="メモを編集">${esc(p.note)}</textarea><div class="row"><button class="btn small" data-act="save-note">メモを保存</button><button class="btn ghost small" data-act="cancel">やめる</button></div>`
+        :(p.note?`<p class="note">${esc(p.note)}</p>`:"")}
+      ${editId===p.id?"":(confirmId===p.id?`<div class="row"><span style="font-size:13px">削除しますか?</span><button class="btn danger small" data-act="del-yes">削除する</button><button class="btn ghost small" data-act="cancel">やめる</button></div>`
+        :`<div class="row"><button class="btn ghost small" data-act="pf">プロフィール</button><button class="btn ghost small" data-act="open">命式を見る</button><button class="btn ghost small" data-act="psy">性格を測る</button><button class="btn ghost small" data-act="ev">出来事</button><button class="btn ghost small" data-act="as-a">相性のAに</button><button class="btn ghost small" data-act="as-b">相性のBに</button><button class="btn ghost small" data-act="edit">メモ</button><button class="btn ghost small" data-act="del" style="color:var(--seal);border-color:var(--seal)">削除</button></div>`)}
+    </div>`;}).join("");
+}
+$("#plist").addEventListener("click",async e=>{const b=e.target.closest("button[data-act]");if(!b)return;const id=b.closest(".pitem").dataset.id;const p=people.find(x=>x.id===id);const a=b.dataset.act;
+  if(a==="open"){$("#c-name").value=p.name;$("#c-date").value=p.date;$("#c-sex").value=p.sex||"f";selCell="chest";renderChart();showTab("chart");}
+  else if(a==="pf"){pfSubject=id;showTab("profile");}
+  else if(a==="ev"){evSubject=id;evConfirm=null;showTab("events");}
+  else if(a==="psy"){psySubject=id;loadDraft();showTab("psych");}
+  else if(a==="as-a"||a==="as-b"){const s=a==="as-a"?"a":"b";$("#"+s+"-pick").value=id;applyPick(s);showTab("compat");}
+  else if(a==="edit"){editId=id;confirmId=null;renderNotes();$("#edit-note")?.focus();}
+  else if(a==="save-note"){const v=$("#edit-note").value;editId=null;await savePerson({...p,note:v});}
+  else if(a==="del"){confirmId=id;editId=null;renderNotes();}
+  else if(a==="del-yes"){confirmId=null;await removePerson(id);}
+  else if(a==="cancel"){confirmId=null;editId=null;renderNotes();}
+});
+function renderPattern(){
+  const me=people.find(p=>p.tag==="自分"&&parseDate(p.date));const el=$("#pattern");
+  if(!me){el.innerHTML=`<p class="lead">関係を「自分」にした人を保存すると、ここに比較表が出ます。</p>`;return;}
+  const M=chart(...parseDate(me.date));const others=people.filter(p=>p.id!==me.id&&parseDate(p.date));
+  if(!others.length){el.innerHTML=`<p class="lead">他の人を保存すると、${esc(me.name)}から見た関係が並びます。</p>`;return;}
+  el.innerHTML=`<table><thead><tr><th>名前</th><th>関係</th><th>相手は自分にとって</th><th>自分は相手にとって</th><th>日支</th><th>天中殺</th></tr></thead><tbody>${others.map(p=>{const C=chart(...parseDate(p.date));
+    const rel=branchRels(M.db,C.db).map(r=>r[0]).join("・")||"—";const t=(M.tcs.includes(C.yb)||M.tcs.includes(C.db))?"相手が自分の天中殺":"—";
+    return `<tr><td>${esc(p.name)}</td><td>${esc(p.tag)}</td><td>${MAIN[mainStarIdx(M.ds,C.ds)]}</td><td>${MAIN[mainStarIdx(C.ds,M.ds)]}</td><td>${rel}</td><td>${t}</td></tr>`;}).join("")}</tbody></table>`;
+}
+function fillPickers(){for(const s of ["a","b"]){const sel=$("#"+s+"-pick");const v=sel.value;sel.innerHTML=`<option value="">直接入力する</option>`+people.filter(p=>parseDate(p.date)).map(p=>`<option value="${esc(p.id)}">${esc(p.name)}(${esc(p.tag)})</option>`).join("");if([...sel.options].some(o=>o.value===v))sel.value=v;}
+  const ft=$("#f-tag");const fv=ft.value;ft.innerHTML=`<option value="">すべて</option>`+TAG_ORDER.map(t=>`<option>${t}</option>`).join("");ft.value=fv;
+  const fs=$("#f-star");const sv=fs.value;fs.innerHTML=`<option value="">すべて</option>`+MAIN.map(t=>`<option>${t}</option>`).join("");fs.value=sv;}
+function applyPick(s){const id=$("#"+s+"-pick").value;const p=people.find(x=>x.id===id);if(p){$("#"+s+"-name").value=p.name;$("#"+s+"-date").value=p.date;$("#"+s+"-sex").value=p.sex||"f";}renderCompat();}
+function renderAll(){fillPickers();renderNotes();renderPattern();renderResearch();renderDash();$("#ev-research").innerHTML=eventResearchHTML();if(!$("#p-events").hidden)renderEvents();if(!$("#p-profile").hidden)renderProfile();$("#ex-research").innerHTML=extraResearchHTML();if(!$("#p-psych").hidden)renderPsych();}
+
+// ===== 辞典 =====
+renderDict();
+$("#d-ts").innerHTML=`<div class="table-wrap"><table><thead><tr><th>日干から見た関係</th><th>陰陽が同じ</th><th>陰陽が違う</th></tr></thead><tbody>${["同じ五行","自分が生む五行","自分が剋す五行","自分を剋す五行","自分を生む五行"].map((r,i)=>`<tr><td>${r}</td><td>${TSUHEN[i*2]}</td><td>${TSUHEN[i*2+1]}</td></tr>`).join("")}</tbody></table></div>`;
+$("#d-ju").innerHTML=ENERGY_LV.slice().reverse().map(([n,d],k)=>`<div><b>${n}<small style="font-family:var(--font-body)"> ${["10〜12","7〜9","4〜6","1〜3"][k]}</small></b>${d}</div>`).join("");
+$("#d-un").innerHTML=`<div class="table-wrap"><table><thead><tr><th>十二運</th><th>エネルギー</th><th>強さ</th><th>性質</th></tr></thead><tbody>${[2,3,4,5,6,7,8,9,10,11,0,1].map(i=>`<tr><td>${UNSEI[i]}</td><td>${JU_ENERGY[i]}</td><td>${ENERGY_LV[eLv(JU_ENERGY[i])][0]}</td><td style="white-space:normal">${UNSEI_INFO[i]}</td></tr>`).join("")}</tbody></table></div>`;
+$("#d-pos").innerHTML=Object.values(POS_INFO).map(([a,b])=>`<div><b>${a}</b>${b}</div>`).join("");
+
+// ===== タブ =====
+function showTab(t){document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));
+  document.querySelectorAll("section.panel").forEach(s=>s.hidden=s.id!=="p-"+t);if(t==="psych")renderPsych();if(t==="events")renderEvents();if(t==="profile")renderProfile();try{localStorage.setItem("sanmei-tab",t);}catch(e){}window.scrollTo(0,0);}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+
+["#c-name","#c-date","#c-sex"].forEach(s=>$(s).addEventListener("input",()=>{daiunSel=null;renderChart();}));
+["#a-name","#a-date","#a-sex","#b-name","#b-date","#b-sex"].forEach(s=>$(s).addEventListener("input",renderCompat));
+$("#a-pick").addEventListener("change",()=>applyPick("a"));$("#b-pick").addEventListener("change",()=>applyPick("b"));
+$("#f-tag").addEventListener("change",renderNotes);
+$("#ev-type").innerHTML=EV_TYPES.map(t=>`<option>${t[0]}</option>`).join("");
+$("#ev-pick").addEventListener("change",e=>{evSubject=e.target.value;evConfirm=null;renderEvents();});
+$("#ev-add").addEventListener("click",addEvent);
+$("#ev-out").addEventListener("click",async e=>{const b=e.target.closest("button[data-ev]");if(!b)return;const k=b.dataset.ev;
+  if(k==="del"){evConfirm=+b.dataset.i;renderEvents();}else if(k==="no"){evConfirm=null;renderEvents();}
+  else if(k==="yes"){const p=people.find(x=>x.id===evSubject);evConfirm=null;const evs=[...(p.events||[])];evs.splice(+b.dataset.i,1);await savePerson({...p,events:evs});}});
+$("#imp-btn").addEventListener("click",importCode);
+$("#pf-pick").addEventListener("change",e=>{pfSubject=e.target.value;renderProfile();});
+$("#r-blind").addEventListener("change",()=>{renderResearch();renderDash();});
+$("#c-blind").addEventListener("change",renderChart);
+$("#copy-url").addEventListener("click",async()=>{const i=$("#survey-url");try{await navigator.clipboard.writeText(i.value);$("#copy-url").textContent="コピーしました";}catch(e){i.select();}setTimeout(()=>$("#copy-url").textContent="コピー",2000);});
+$("#psy-pick").addEventListener("change",e=>{psySubject=e.target.value||null;loadDraft();renderPsych();});$("#f-star").addEventListener("change",renderNotes);
+
+renderChart();renderCompat();renderAll();
+try{const t=localStorage.getItem("sanmei-tab");if(t&&["profile","chart","psych","compat","events","notes","dict"].includes(t))showTab(t);}catch(e){}
+// ===== アンケート(協力者用・#answer で開く) =====
+
+const ans={tipi:Array(10).fill(0),att:Array(6).fill(0)};
+function scale(name,i,txt){return `<div class="q"><div class="qt">${txt}</div><div class="scale" role="radiogroup" aria-label="${esc(txt)}">${[1,2,3,4,5,6,7].map(v=>`<button type="button" role="radio" aria-checked="${ans[name][i]===v}" data-q="${name}" data-i="${i}" data-v="${v}">${v}</button>`).join("")}</div></div>`;}
+function drawQs(){$("#q-tipi").innerHTML=TIPI.map(([t],i)=>scale("tipi",i,t)).join("");$("#q-att").innerHTML=ATT.map(([t],i)=>scale("att",i,t)).join("");}
+document.addEventListener("click",e=>{const b=e.target.closest("#survey-root .scale button");if(!b)return;ans[b.dataset.q][+b.dataset.i]=+b.dataset.v;b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-checked",x===b));});
+$("#s-mbti").innerHTML=`<option value="">受けたことがない・わからない</option>`+MBTI_TYPES.map(t=>`<option>${t}</option>`).join("");
+let evN=0;function addEvRow(){const i=evN++;const d=document.createElement("div");d.className="form";d.innerHTML=`<div class="field"><label for="ev-t${i}">出来事</label><select id="ev-t${i}" class="ev-t"><option value="">選んでください</option>${EV_TYPES.map((t,k)=>`<option value="${k}">${t[0]}</option>`).join("")}</select></div><div class="field"><label for="ev-d${i}">日付</label><input id="ev-d${i}" class="ev-d" type="date" min="1900-01-01" max="2100-12-31"></div>`;$("#ev-rows").appendChild(d);}
+addEvRow();addEvRow();$("#ev-more").addEventListener("click",()=>{if(evN<12)addEvRow();});
+function encode(o){const bytes=new TextEncoder().encode(JSON.stringify(o));let bin="";bytes.forEach(b=>bin+=String.fromCharCode(b));return "SANMEI1-"+btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+$("#sv-finish").addEventListener("click",()=>{const err=$("#sv-err");const dt=parseDate($("#s-date").value);
+  if(!dt){err.textContent="生年月日を入れてください。";$("#s-date").focus();return;}
+  const miss=ans.tipi.filter(v=>!v).length+ans.att.filter(v=>!v).length;if(miss){err.textContent=`性格の質問に未回答が ${miss} 問あります。`;return;}
+  err.textContent="";
+  const evs=[...document.querySelectorAll("#ev-rows .form")].map(f=>[f.querySelector(".ev-d").value,f.querySelector(".ev-t").value]).filter(([d,t])=>parseDate(d)&&t!=="").map(([d,t])=>[d,+t]);
+  const o={v:1,n:$("#s-name").value.trim()||"協力者",d:$("#s-date").value,s:$("#s-sex").value,r:$("#s-rel").value,x:{order:$("#s-order").value,job:$("#s-job").value,status:$("#s-status").value},t:ans.tipi,a:ans.att,m:$("#s-mbti").value,e:evs,at:Date.now()};
+  $("#sv-code").value=encode(o);$("#sv-line").href="https://line.me/R/share?text="+encodeURIComponent("命と心の性格診断の結果です\n"+$("#sv-code").value);showResult(dt,o);$("#sv-form-panel").hidden=true;$("#sv-done-panel").hidden=false;window.scrollTo(0,0);});
+$("#sv-back").addEventListener("click",()=>{$("#sv-form-panel").hidden=false;$("#sv-done-panel").hidden=true;});
+$("#sv-copy").addEventListener("click",async()=>{const t=$("#sv-code");try{await navigator.clipboard.writeText(t.value);$("#sv-copy").textContent="コピーしました";}catch(e){t.focus();t.select();$("#sv-copy").textContent="選択しました。長押しでコピー";}setTimeout(()=>$("#sv-copy").textContent="コードをコピー",2500);});
+function showResult(dt,o){const c=chart(...dt);const pred=predictB5(c);const meas=scoreTIPI(o.t);const att=scoreATT(o.a);const S=c.stars;
+  const cell=(k,ju)=>`<div class="cell ${ju?"ju":""} ${k==="chest"?"center":""}" style="cursor:default"><span class="pos">${POS_INFO[k][0]}</span><span class="st">${ju?ENERGY_LV[eLv(JU_ENERGY[S[k]])][0]:MAIN[S[k]]}</span></div>`;
+  $("#sv-result").innerHTML=`<div class="sheet"><h2>${esc(o.n)}さんの命式</h2>
+    <p class="lead" style="margin-bottom:12px">日干 <b>${stemHTML(c.ds)}</b>(あなた自身を表す文字)、${TCS_NAME[c.tcsG]}天中殺。真ん中の月支元命 <b>${MAIN[S.chest]}</b> は「${MAIN_INFO[MAIN[S.chest]][0]}」を表し、${MAIN_INFO[MAIN[S.chest]][1]}</p>
+    <div class="body-chart"><div class="cell empty"></div>${cell("head")}${cell("shoulder",1)}${cell("right")}${cell("chest")}${cell("left")}${cell("rightFoot",1)}${cell("belly")}${cell("leftFoot",1)}</div></div>
+    ${summaryHTML(c,o.n,o.s)}
+    ${psyResultHTML(c,pred,meas,att,o.m,10,o.n)}
+    <p class="foot">心理学の質問は自己理解の目安で、診断ではありません。生年月日と性格の関係は科学的には確かめられていないので、この結果も「当たった・外れた」を楽しむ研究の一部として見てください。</p>`;}
+drawQs();
+
+$("#app-root").hidden=true;$("#survey-root").hidden=false;
+</script>
+
+</body></html>
